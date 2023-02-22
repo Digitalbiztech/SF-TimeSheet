@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Restrict_TimeSheetEntry_before_28_days</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND(OR(ISNEW(),ISCHANGED(Date__c)),Date__c &lt;=(TODAY() - MOD(TODAY()- DATE(2022,11,20),7)- $CustomMetadata.TimeSheet_Value__mdt.Default_Value.Locking_record_days__c))</errorConditionFormula>
+    <errorMessage>Records cannot be created or updated beyond the past four weeks</errorMessage>
+</ValidationRule>
