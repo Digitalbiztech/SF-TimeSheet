@@ -1,0 +1,35 @@
+<template>
+
+    <lightning-card title="Timesheet Line Items">
+
+        <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+            <thead>
+
+                <tr class="slds-grid slds-wrap">
+                    <th class="slds-col slds-size_2-of-12">Name</th>
+                    <th class="slds-col slds-size_2-of-12">Type</th>
+                    <th class="slds-col slds-size_2-of-12">Date</th>
+                    <th class="slds-col slds-size_1-of-12">Duration</th>
+                    <th class="slds-col slds-size_2-of-12">Project</th>
+                    <th class="slds-col slds-size_3-of-12">Activity</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <template for:each={timesheetLineItems} for:item="item">
+                    <tr class="slds-grid slds-wrap" key={item.Id}>
+                        <td class="slds-col slds-size_2-of-12" data-label="Name"><a href={item.nameUrl}>{item.Name}</a></td>
+                        <td class="slds-col slds-size_2-of-12" data-label="Type">{item.dbt__Type__c}</td>
+                        <td class="slds-col slds-size_2-of-12" data-label="Date">{item.dbt__Date__c}</td>
+                        <td class="slds-col slds-size_1-of-12" data-label="Duration">{item.dbt__Duration__c}</td>
+                        <td class="slds-col slds-size_2-of-12" data-label="Project"><a href={item.projectUrl}>{item.projectName}</a></td>
+                        <td class="slds-col slds-size_3-of-12" data-label="Activity">{item.dbt__Activity__c}</td>
+                    </tr>
+                </template>
+            </tbody>
+
+        </table>
+
+    </lightning-card>
+    
+</template>

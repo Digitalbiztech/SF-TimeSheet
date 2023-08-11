@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Absence_Category_for_Absence_Type</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND( ISPICKVAL( Type__c , &quot;Absence&quot;) ,
+          ISPICKVAL( Absence_Category__c , &apos;&apos;))</errorConditionFormula>
+    <errorDisplayField>Absence_Category__c</errorDisplayField>
+    <errorMessage>Absence category cannot be blank when Type is Absence</errorMessage>
+</ValidationRule>
