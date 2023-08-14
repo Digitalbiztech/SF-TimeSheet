@@ -2,7 +2,7 @@ public with sharing class TimesheetLineItemController {
     
     @AuraEnabled(cacheable=true)
     public static List<Timesheet_Line_Item__c> getTimesheetLineItems(Id processInstanceWorkItemId){
-        List<Timesheet_Line_Item__c> timesheetLineItems = new List<Timesheet_Line_Item__c>();
+        List<Timesheet_Line_Item__c> timesheetLineItems;
         if(Timesheet_Line_Item__c.SObjectType.getDescribe().isAccessible() &&
           Schema.SObjectType.Timesheet_Line_Item__c.fields.Id.isAccessible() &&
           Schema.SObjectType.Timesheet_Line_Item__c.fields.Name.isAccessible() &&

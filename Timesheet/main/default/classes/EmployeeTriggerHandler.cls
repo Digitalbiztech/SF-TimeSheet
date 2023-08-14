@@ -5,7 +5,7 @@ public with sharing class EmployeeTriggerHandler {
        for(Employee__c	 employee : employees){
            userIds.add(employee.User__c);
        }
-       Map<Id, Employee__c	> employeeMap = new Map<Id, Employee__c>();
+       Map<Id, Employee__c	> employeeMap;
        if(Employee__c.SObjectType.getDescribe().isAccessible() &&
           Schema.SObjectType.Employee__c.fields.Id.isAccessible() &&
           Schema.SObjectType.Employee__c.fields.User__c.isAccessible()) {
@@ -35,7 +35,7 @@ public with sharing class EmployeeTriggerHandler {
         for(Employee__c	 employee : employees){
             userIds.add(employee.User__c);
         }
-        Map<Id, Employee__c	> employeeMap = new Map<Id, Employee__c	>();
+        Map<Id, Employee__c	> employeeMap;
         if(Employee__c.SObjectType.getDescribe().isAccessible() &&
           Schema.SObjectType.Employee__c.fields.Id.isAccessible() &&
           Schema.SObjectType.Employee__c.fields.User__c.isAccessible()) {

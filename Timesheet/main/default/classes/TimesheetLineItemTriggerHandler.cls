@@ -15,7 +15,7 @@ public with sharing class TimesheetLineItemTriggerHandler {
         for(Timesheet_Line_Item__c timesheetLineItem : timesheetLineItems){
             masterIds.add(timesheetLineItem.Timesheet__c);
         }
-        Map<Id, Timesheet__c> timesheetMap = new Map<Id, Timesheet__c>();
+        Map<Id, Timesheet__c> timesheetMap;
         if(Timesheet__c.SObjectType.getDescribe().isAccessible() &&
           Schema.SObjectType.Timesheet__c.fields.Id.isAccessible() &&
           Schema.SObjectType.Timesheet__c.fields.Employee__c.isAccessible()) {
@@ -37,7 +37,7 @@ public with sharing class TimesheetLineItemTriggerHandler {
         for(Timesheet_Line_Item__c timesheetLineItem : timesheetLineItems){
 			projectIds.add(timesheetLineItem.Project__c);            
         }
-        Map<Id, Project__c> projectMap = new Map<Id, Project__c>();
+        Map<Id, Project__c> projectMap;
         if(Project__c.SObjectType.getDescribe().isAccessible() &&
           Schema.SObjectType.Project__c.fields.Id.isAccessible() &&
           Schema.SObjectType.Project__c.fields.Billable__c.isAccessible()) {
