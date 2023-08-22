@@ -72,7 +72,7 @@ public class EmployeeTriggerHandlerTest {
         employee.Last_Name__c = 'lName';
         employee.User__c = userId;
         employee.Email__c = 'testEmail@'+ Datetime.now().format('hh.mm.ss.SSS') + '.com';
-        employee.Manager__c = UserInfo.getUserId();
+        employee.Manager__c = userInfo.getUserId();
         return employee;
     }
 }

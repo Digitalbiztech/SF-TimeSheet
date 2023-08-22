@@ -6,30 +6,44 @@ public class TimesheetLineItemTriggerHandlerTest {
         User u = createAdminUser();
         insert u;
         
+        Id userId = UserInfo.getUserId();
+        User user = [Select Id, Name from User Where Id =: userId];
+        
+        PermissionSet ps = [Select 
+                            Id, 
+                            Name 
+                            FROM PermissionSet 
+                            WHERE Name = 'Timesheet_HR_Admin'];
+        System.runAs(user){
+            PermissionSetAssignment psa = new PermissionSetAssignment();
+        	psa.PermissionSetId = ps.Id;
+        	psa.AssigneeId = u.Id;
+            insert psa;
+        }
         Employee__c employee = createEmployeeForUser(u.Id);
         insert employee;
-        
         Timesheet__c timesheet = createTimesheet(employee.Id, u.Id);
         insert timesheet;
-        
         Project__c project = createProjectAsBillable('Test Project','Yes');
         insert project;
-        
         Timesheet_Line_Item__c timesheetLineItem = createTimesheetLineItem(timesheet.Id, project.Id);
-        Timesheet_Line_Item__c timesheetLineItem2 = createTimesheetLineItem(timesheet.Id, project.Id);
+        Timesheet_Line_Item__c timesheetLineItem2 = createTimesheetLineItem(timesheet.Id, project.Id); 
         
-        Test.startTest();
-	    insert timesheetLineItem;
-        try{
-            insert timesheetLineItem2;
-        } catch(DmlException e){
-            Assert.areEqual('LineItem with the same project and activity already exists for this date, please update the existing record', e.getDmlMessage(0), 'Assertion failed when a timesheet line item is created with same project');
+        System.runAs(u){
+            insert timesheetLineItem;
+        
+            Test.startTest();
+            try{
+                insert timesheetLineItem2;
+            } catch(DmlException e){
+                Assert.areEqual('LineItem with the same project and activity already exists for this date, please update the existing record', e.getDmlMessage(0), 'Assertion failed when a timesheet line item is created with same project');
+            }
+            Test.stopTest();
+            
+            Timesheet_Line_Item__c timesheetLineItemFromDB = [Select Id, Employee__c, Billable__c from Timesheet_Line_Item__c where Id = : timesheetLineItem.Id];
+            Assert.areEqual(timesheet.Employee__c, timesheetLineItemFromDB.Employee__c, 'Assertion failed for Employee');
+            Assert.areEqual(project.Billable__c, timesheetLineItemFromDB.Billable__c, 'Assertion failed for Billable field');
         }
-        Test.stopTest();
-        
-        Timesheet_Line_Item__c timesheetLineItemFromDB = [Select Id, Employee__c, Billable__c from Timesheet_Line_Item__c where Id = : timesheetLineItem.Id];
-        Assert.areEqual(timesheet.Employee__c, timesheetLineItemFromDB.Employee__c, 'Assertion failed for Employee');
-        Assert.areEqual(project.Billable__c, timesheetLineItemFromDB.Billable__c, 'Assertion failed for Billable field');
     }
     
     @isTest
@@ -37,6 +51,21 @@ public class TimesheetLineItemTriggerHandlerTest {
         
         User u = createAdminUser();
         insert u;
+        
+        Id userId = UserInfo.getUserId();
+        User user = [Select Id, Name from User Where Id =: userId];
+        
+        PermissionSet ps = [Select 
+                            Id, 
+                            Name 
+                            FROM PermissionSet 
+                            WHERE Name = 'Timesheet_HR_Admin'];
+        System.runAs(user){
+            PermissionSetAssignment psa = new PermissionSetAssignment();
+        	psa.PermissionSetId = ps.Id;
+        	psa.AssigneeId = u.Id;
+            insert psa;
+        }
         
         Employee__c employee = createEmployeeForUser(u.Id);
         insert employee;
@@ -51,18 +80,21 @@ public class TimesheetLineItemTriggerHandlerTest {
         
         Timesheet_Line_Item__c timesheetLineItem = createTimesheetLineItem(timesheet.Id, project.Id);
         Timesheet_Line_Item__c timesheetLineItem2 = createTimesheetLineItem(timesheet.Id, project2.Id);
-        insert timesheetLineItem;
-        insert timesheetLineItem2;
-        timesheetLineItem2.Project__c = project.Id;
         
-        Test.startTest();
+        System.runAs(u){
+            insert timesheetLineItem;
+        	insert timesheetLineItem2;
+        	timesheetLineItem2.Project__c = project.Id;
+        
+        	Test.startTest();
 	    
-        try{
-            update timesheetLineItem2;
-        } catch(DmlException e){
-            Assert.areEqual('LineItem with the same project and activity already exists for this date, please update the existing record', e.getDmlMessage(0), 'Assertion failed when a timesheet line item is created with same project');
+        	try{
+            	update timesheetLineItem2;
+        	} catch(DmlException e){
+            	Assert.areEqual('LineItem with the same project and activity already exists for this date, please update the existing record', e.getDmlMessage(0), 'Assertion failed when a timesheet line item is created with same project');
+        	}
+        	Test.stopTest();
         }
-        Test.stopTest();
     }
     
     private static User createAdminUser(){
@@ -92,7 +124,7 @@ public class TimesheetLineItemTriggerHandlerTest {
         employee.Last_Name__c = 'lName';
         employee.User__c = userId;
         employee.Email__c = 'testEmail@'+ Datetime.now().format('hh.mm.ss.SSS') + '.com';
-        employee.Manager__c = UserInfo.getUserId();
+        employee.Manager__c = userInfo.getUserId();
         return employee;
     }
     
