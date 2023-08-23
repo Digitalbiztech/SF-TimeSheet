@@ -3,24 +3,15 @@ public class TimesheetLineItemTriggerHandlerTest {
     
     @isTest
     public static void beforeInsertTest(){
+        User su = createUser();
+        insert su;
+        
         User u = createAdminUser();
         insert u;
         
-        Id userId = UserInfo.getUserId();
-        User user = [Select Id, Name from User Where Id =: userId];
+        assignPermissionSetForUser(u);
         
-        PermissionSet ps = [Select 
-                            Id, 
-                            Name 
-                            FROM PermissionSet 
-                            WHERE Name = 'Timesheet_HR_Admin'];
-        System.runAs(user){
-            PermissionSetAssignment psa = new PermissionSetAssignment();
-        	psa.PermissionSetId = ps.Id;
-        	psa.AssigneeId = u.Id;
-            insert psa;
-        }
-        Employee__c employee = createEmployeeForUser(u.Id);
+        Employee__c employee = createEmployeeForUser(su.Id);
         insert employee;
         Timesheet__c timesheet = createTimesheet(employee.Id, u.Id);
         insert timesheet;
@@ -49,25 +40,15 @@ public class TimesheetLineItemTriggerHandlerTest {
     @isTest
     public static void beforeUpdateTest(){
         
+        User su = createUser();
+        insert su;
+        
         User u = createAdminUser();
         insert u;
         
-        Id userId = UserInfo.getUserId();
-        User user = [Select Id, Name from User Where Id =: userId];
+        assignPermissionSetForUser(u);
         
-        PermissionSet ps = [Select 
-                            Id, 
-                            Name 
-                            FROM PermissionSet 
-                            WHERE Name = 'Timesheet_HR_Admin'];
-        System.runAs(user){
-            PermissionSetAssignment psa = new PermissionSetAssignment();
-        	psa.PermissionSetId = ps.Id;
-        	psa.AssigneeId = u.Id;
-            insert psa;
-        }
-        
-        Employee__c employee = createEmployeeForUser(u.Id);
+        Employee__c employee = createEmployeeForUser(su.Id);
         insert employee;
         
         Timesheet__c timesheet = createTimesheet(employee.Id, u.Id);
@@ -158,5 +139,42 @@ public class TimesheetLineItemTriggerHandlerTest {
         timesheetLineItem.Duration__c = 5;
         timesheetLineItem.Description__c = 'Test Description';
         return timesheetLineItem;
+    }
+    
+    private static void assignpermissionSetForUser(User u){
+        Id userId = UserInfo.getUserId();
+        User user = [Select Id, Name from User Where Id =: userId];
+        
+        PermissionSet ps = [Select 
+                            Id, 
+                            Name 
+                            FROM PermissionSet 
+                            WHERE Name = 'Timesheet_HR_Admin'];
+        System.runAs(user){
+            PermissionSetAssignment psa = new PermissionSetAssignment();
+        	psa.PermissionSetId = ps.Id;
+        	psa.AssigneeId = u.Id;
+            insert psa;
+        }
+    }
+    
+    private static User createUser(){
+        Profile p = [Select Id, Name from Profile where Name = 'Standard Platform User' LIMIT 1];
+        
+        User u = new User();
+        u.Email = 'testEmail@'+ Datetime.now().format('hh.mm.ss.SSS') + '.com';
+        u.ProfileId = p.Id;
+        u.Username = 'testUserName'+ Datetime.now().format('hh.mm.ss.SSS')+'@testmail.com';
+        u.Alias = 'abcd';
+        u.CommunityNickname = 'nickName' + Datetime.now().format('hh.mm.ss.SSS');
+        u.TimeZoneSidKey = 'America/Los_Angeles';
+        u.LocaleSidKey = 'en_US';
+        u.EmailEncodingKey='ISO-8859-1';
+        u.ManagerId = UserInfo.getUserId();
+        u.LanguageLocaleKey='en_US';
+        u.FirstName = 'fName'+ Datetime.now().format('hh.mm.ss.SSS');
+        u.LastName = 'lName' + Datetime.now().format('hh.mm.ss.SSS');
+        u.Phone = '9876543210';
+        return u;
     }
 }
