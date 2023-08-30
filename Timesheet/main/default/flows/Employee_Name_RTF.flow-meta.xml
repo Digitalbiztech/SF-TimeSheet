@@ -5,7 +5,7 @@
     <formulas>
         <name>FName_MName_LName</name>
         <dataType>String</dataType>
-        <expression>{!$Record.dbt__First_Name__c}+ &apos; &apos; + {!$Record.dbt__Middle_Name__c} + &apos; &apos; + {!$Record.dbt__Last_Name__c}</expression>
+        <expression>{!$Record.First_Name__c}+ &apos; &apos; + {!$Record.Middle_Name__c} + &apos; &apos; + {!$Record.Last_Name__c}</expression>
     </formulas>
     <interviewLabel>Employee Name RTF {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Employee Name RTF</label>
@@ -32,7 +32,7 @@
         <name>Update_Employee</name>
         <label>Update Employee</label>
         <locationX>176</locationX>
-        <locationY>311</locationY>
+        <locationY>335</locationY>
         <connector>
             <targetReference>Update_Manager_for_Employee</targetReference>
         </connector>
@@ -48,7 +48,7 @@
         <name>Update_Manager_for_Employee</name>
         <label>Update Manager for Employee</label>
         <locationX>176</locationX>
-        <locationY>431</locationY>
+        <locationY>455</locationY>
         <inputAssignments>
             <field>Manager__c</field>
             <value>
@@ -65,7 +65,7 @@
         </connector>
         <object>Employee__c</object>
         <recordTriggerType>CreateAndUpdate</recordTriggerType>
-        <triggerType>RecordBeforeSave</triggerType>
+        <triggerType>RecordAfterSave</triggerType>
     </start>
     <status>Active</status>
 </Flow>

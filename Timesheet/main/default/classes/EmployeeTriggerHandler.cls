@@ -19,6 +19,7 @@ public with sharing class EmployeeTriggerHandler {
        	   }
        }catch(Exception e){
            System.debug('The exception is : ' + e.getMessage());
+           throw new AuraHandledException('Unexpected Error, contact System Admin');
        }
        Map<Id, Employee__c> userEmployeeMap = new Map<Id, Employee__c>();
        for(Id id : employeeMap.keySet()){
@@ -53,6 +54,7 @@ public with sharing class EmployeeTriggerHandler {
             }
         }catch(Exception e){
             System.debug('The exception is : ' + e.getMessage());
+            throw new AuraHandledException('Unexpected Error, contact System Admin');
         }
         Map<Id, Employee__c	> userEmployeeMap = new Map<Id, Employee__c	>();
         for(Id id : employeeMap.keySet()){

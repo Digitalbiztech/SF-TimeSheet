@@ -163,16 +163,7 @@
         <type>Text</type>
     </nameField>
     <pluralLabel>Timesheets</pluralLabel>
-    <searchLayouts>
-        <searchResultsAdditionalFields>Employee__c</searchResultsAdditionalFields>
-        <searchResultsAdditionalFields>Manager__c</searchResultsAdditionalFields>
-        <searchResultsAdditionalFields>Start_Date__c</searchResultsAdditionalFields>
-        <searchResultsAdditionalFields>End_Date__c</searchResultsAdditionalFields>
-        <searchResultsAdditionalFields>Status__c</searchResultsAdditionalFields>
-        <searchResultsAdditionalFields>Billable_Hours__c</searchResultsAdditionalFields>
-        <searchResultsAdditionalFields>Absence_Hours__c</searchResultsAdditionalFields>
-        <searchResultsAdditionalFields>Total_Hours__c</searchResultsAdditionalFields>
-    </searchLayouts>
+    <searchLayouts></searchLayouts>
     <sharingModel>Private</sharingModel>
     <visibility>Public</visibility>
 </CustomObject>

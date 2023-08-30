@@ -14,7 +14,7 @@ public with sharing class TimesheetLineItemController {
               Schema.SObjectType.Timesheet_Line_Item__c.fields.Activity__c.isAccessible()){
                   ProcessInstanceWorkItem piwi = [SELECT
                                                   Id,
-                                                  ProcessInstanceId 
+                                                  ProcessInstanceId
                                                   FROM ProcessInstanceWorkItem 
                                                   WHERE Id = : ProcessInstanceWorkItemId 
                                                   WITH SECURITY_ENFORCED];
@@ -40,6 +40,7 @@ public with sharing class TimesheetLineItemController {
 			}
         }catch(Exception e){
             System.debug('The exception is : ' + e.getMessage());
+            throw new AuraHandledException('Unexpected Error, contact System Admin');
         }
         return timesheetLineItems;
     }

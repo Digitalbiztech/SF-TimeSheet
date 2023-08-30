@@ -3,10 +3,9 @@
     <fullName>All</fullName>
     <columns>NAME</columns>
     <columns>Employee__c</columns>
-    <columns>Manager__c</columns>
-    <columns>Start_Date__c</columns>
-    <columns>End_Date__c</columns>
     <columns>OWNER.ALIAS</columns>
+    <columns>LAST_UPDATE</columns>
+    <columns>UPDATEDBY_USER.ALIAS</columns>
     <columns>Status__c</columns>
     <filterScope>Everything</filterScope>
     <label>All</label>

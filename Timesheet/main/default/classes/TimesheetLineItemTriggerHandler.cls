@@ -11,12 +11,10 @@ public with sharing class TimesheetLineItemTriggerHandler {
     }
     
     private static void updateEmployeeId(List<Timesheet_Line_Item__c> timesheetLineItems){
-        System.debug('The timesheet line items are : '+ timesheetLineItems);
         List<Id> masterIds = new List<Id>();
         for(Timesheet_Line_Item__c timesheetLineItem : timesheetLineItems){
             masterIds.add(timesheetLineItem.Timesheet__c);
         }
-        System.debug('The master Ids are : '+ masterIds);
         Map<Id, Timesheet__c> timesheetMap = new Map<Id, Timesheet__c>();
         try{
             if(Timesheet__c.SObjectType.getDescribe().isAccessible() &&
@@ -25,16 +23,16 @@ public with sharing class TimesheetLineItemTriggerHandler {
                   timesheetMap = new Map<Id, Timesheet__c>([SELECT
                                                             Id,
                                                             Employee__c 
-                                                            FROM Timesheet__c 
+                                                            FROM Timesheet__c
                                                             WHERE Id = :masterIds 
                                                             WITH SECURITY_ENFORCED]);
-            }
+               } else{
+                   throw new AuraHandledException('You do not have access, please contact System Admin');
+               }
         }catch(Exception e){
             System.debug('The exception is : ' + e.getMessage());
         }
-        System.debug('The timesheetMap is : '+ timesheetMap);
         for(Timesheet_Line_Item__c timesheetLineItem : timesheetLineItems){
-            System.debug('The employeeId is : '+ timesheetMap.get(timesheetLineItem.Timesheet__c).Employee__c);
             Id employeeId = timesheetMap.get(timesheetLineItem.Timesheet__c).Employee__c;
             timesheetLineItem.Employee__c = employeeId;
         }
@@ -56,9 +54,12 @@ public with sharing class TimesheetLineItemTriggerHandler {
                                                          FROM Project__c
                                                          WHERE Id = : projectIds
                                                          WITH SECURITY_ENFORCED]);
-            }
+               } else{
+                   throw new AuraHandledException('You do not have access, please contact System Admin');
+               }
         }catch(Exception e){
             System.debug('The exception is : ' + e.getMessage());
+            throw new AuraHandledException('Unexpected Error, contact System Admin');
         }
         for(Timesheet_Line_Item__c timesheetLineItem : timesheetLineItems){
             if(timesheetLineItem.Type__c == 'Attendance'){
@@ -95,7 +96,9 @@ public with sharing class TimesheetLineItemTriggerHandler {
                                                                                AND Date__c = : dates
                                                                                AND Timesheet__c = : timesheetIds
                                                                                WITH SECURITY_ENFORCED]);
-        	}
+               } else{
+                   throw new AuraHandledException('Unexpected Error, contact System Admin');
+               }
         }catch(Exception e){
             System.debug('The exception is : ' + e.getMessage());
         }

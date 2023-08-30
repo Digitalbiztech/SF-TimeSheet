@@ -75,7 +75,7 @@
             <name>Triggered_record_has_prior_value</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>$Record__Prior.dbt__Duration__c</leftValueReference>
+                <leftValueReference>$Record__Prior.Duration__c</leftValueReference>
                 <operator>NotEqualTo</operator>
                 <rightValue>
                     <elementReference>$Record.Duration__c</elementReference>

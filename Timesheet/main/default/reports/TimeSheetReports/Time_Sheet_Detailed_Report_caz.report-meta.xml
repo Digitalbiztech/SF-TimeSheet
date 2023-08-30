@@ -25,6 +25,15 @@
         <aggregateTypes>Sum</aggregateTypes>
         <field>Timesheet_Line_Item__c.Duration__c</field>
     </columns>
+    <filter>
+        <criteriaItems>
+            <column>Timesheet_Line_Item__c.Employee__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
+            <operator>contains</operator>
+            <value>Saichand</value>
+        </criteriaItems>
+    </filter>
     <format>Summary</format>
     <groupingsDown>
         <dateGranularity>Day</dateGranularity>

@@ -4,8 +4,7 @@
     <externalId>false</externalId>
     <label>Type</label>
     <required>true</required>
-    <trackFeedHistory>false</trackFeedHistory>
-    <trackHistory>false</trackHistory>
+    <trackHistory>true</trackHistory>
     <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>

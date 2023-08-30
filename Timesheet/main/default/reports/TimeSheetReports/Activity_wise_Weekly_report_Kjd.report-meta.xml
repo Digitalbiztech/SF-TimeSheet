@@ -6,6 +6,13 @@
     </columns>
     <filter>
         <criteriaItems>
+            <column>Timesheet_Line_Item__c.Activity__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
+            <operator>notEqual</operator>
+            <value></value>
+        </criteriaItems>
+        <criteriaItems>
             <column>Timesheet_Line_Item__c.Type__c</column>
             <columnToColumn>false</columnToColumn>
             <isUnlocked>true</isUnlocked>

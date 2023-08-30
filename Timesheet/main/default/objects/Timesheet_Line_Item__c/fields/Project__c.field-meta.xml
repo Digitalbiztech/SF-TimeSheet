@@ -14,11 +14,9 @@
         <isOptional>false</isOptional>
     </lookupFilter>
     <referenceTo>Project__c</referenceTo>
-    <relationshipLabel>Timesheet Line Items</relationshipLabel>
-    <relationshipName>Timesheet_Line_Items</relationshipName>
+    <relationshipName>Time_Sheets</relationshipName>
     <required>false</required>
-    <trackFeedHistory>true</trackFeedHistory>
-    <trackHistory>false</trackHistory>
+    <trackHistory>true</trackHistory>
     <trackTrending>false</trackTrending>
     <type>Lookup</type>
 </CustomField>

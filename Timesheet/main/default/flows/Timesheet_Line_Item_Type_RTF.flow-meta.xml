@@ -5,46 +5,37 @@
         <name>Remove_Values_from_Absence_Category</name>
         <label>Remove Values from Absence Category</label>
         <locationX>50</locationX>
-        <locationY>395</locationY>
+        <locationY>431</locationY>
         <assignmentItems>
-            <assignToReference>$Record.dbt__Absence_Category__c</assignToReference>
+            <assignToReference>$Record.Absence_Category__c</assignToReference>
             <operator>Assign</operator>
-            <value>
-                <stringValue></stringValue>
-            </value>
         </assignmentItems>
     </assignments>
     <assignments>
         <name>Remove_Values_from_Project_and_Activity</name>
         <label>Remove Values from Project and Activity</label>
         <locationX>314</locationX>
-        <locationY>395</locationY>
+        <locationY>431</locationY>
         <assignmentItems>
-            <assignToReference>$Record.dbt__Activity__c</assignToReference>
+            <assignToReference>$Record.Activity__c</assignToReference>
             <operator>Assign</operator>
-            <value>
-                <stringValue></stringValue>
-            </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>$Record.dbt__Project__c</assignToReference>
+            <assignToReference>$Record.Project__c</assignToReference>
             <operator>Assign</operator>
-            <value>
-                <stringValue></stringValue>
-            </value>
         </assignmentItems>
     </assignments>
     <decisions>
         <name>Check_the_Type_Value</name>
         <label>Check the Type Value</label>
         <locationX>314</locationX>
-        <locationY>287</locationY>
+        <locationY>311</locationY>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
             <name>Attendance_type</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>$Record.dbt__Type__c</leftValueReference>
+                <leftValueReference>$Record.Type__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>Attendance</stringValue>
@@ -59,7 +50,7 @@
             <name>Absence_Type</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>$Record.dbt__Type__c</leftValueReference>
+                <leftValueReference>$Record.Type__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>Absence</stringValue>

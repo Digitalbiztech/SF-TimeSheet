@@ -78,8 +78,8 @@
         </itemInstances>
         <itemInstances>
             <componentInstance>
-                <componentName>relatedTimesheetLineItemsLWC</componentName>
-                <identifier>dbt_relatedTimesheetLineItemsLWC</identifier>
+                <componentName>relatedTimesheets</componentName>
+                <identifier>c_relatedTimesheets</identifier>
             </componentInstance>
         </itemInstances>
         <mode>Replace</mode>

@@ -33,7 +33,7 @@
             <assignToReference>TimesheetMasterRecord.Start_Date__c</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>StartDate</elementReference>
+                <elementReference>stateDate</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -78,10 +78,10 @@
     <formulas>
         <name>Record_Name</name>
         <dataType>String</dataType>
-        <expression>&quot;Timesheet for &quot; + TEXT({!StartDate}) + &quot; to &quot;+ TEXT({!endDate})</expression>
+        <expression>&quot;Timesheet for &quot; + TEXT({!stateDate}) + &quot; to &quot;+ TEXT({!endDate})</expression>
     </formulas>
     <formulas>
-        <name>StartDate</name>
+        <name>stateDate</name>
         <dataType>Date</dataType>
         <expression>TODAY()</expression>
     </formulas>
@@ -166,7 +166,7 @@
         </schedule>
         <triggerType>Scheduled</triggerType>
     </start>
-    <status>Active</status>
+    <status>Obsolete</status>
     <variables>
         <name>TimesheetMasterRecord</name>
         <dataType>SObject</dataType>

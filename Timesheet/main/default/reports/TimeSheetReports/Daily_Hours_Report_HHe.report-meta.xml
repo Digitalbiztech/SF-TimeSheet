@@ -12,11 +12,18 @@
     </columns>
     <filter>
         <criteriaItems>
-            <column>Timesheet_Line_Item__c.Date__c</column>
+            <column>Timesheet_Line_Item__c.Employee__c</column>
             <columnToColumn>false</columnToColumn>
             <isUnlocked>true</isUnlocked>
             <operator>equals</operator>
-            <value>TODAY</value>
+            <value></value>
+        </criteriaItems>
+        <criteriaItems>
+            <column>Timesheet_Line_Item__c.Project__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
+            <operator>equals</operator>
+            <value></value>
         </criteriaItems>
     </filter>
     <format>Summary</format>
