@@ -20,7 +20,7 @@ public class TimesheetLineItemLwcController {
                    throw new AuraHandledException('You do not have access, please contact System Admin');
                }
         }catch(Exception e){
-            System.debug('The exception is : ' + e.getMessage());
+            System.debug('The exception is : ' + e);
         }
         return projectEmployeeList;
     }
@@ -112,13 +112,20 @@ public class TimesheetLineItemLwcController {
             if(Timesheet_Line_Item__c.SObjectType.getDescribe().isCreateable() &&
                Timesheet_Line_Item__c.SObjectType.getDescribe().isUpdateable() &&
                Schema.SObjectType.Timesheet_Line_Item__c.fields.Type__c.isUpdateable() &&
-              Schema.SObjectType.Timesheet_Line_Item__c.fields.Timesheet__c.isUpdateable() &&
               Schema.SObjectType.Timesheet_Line_Item__c.fields.Date__c.isUpdateable() &&
               Schema.SObjectType.Timesheet_Line_Item__c.fields.Project__c.isUpdateable() &&
               Schema.SObjectType.Timesheet_Line_Item__c.fields.Activity__c.isUpdateable() &&
               Schema.SObjectType.Timesheet_Line_Item__c.fields.Absence_Category__c.isUpdateable() &&
               Schema.SObjectType.Timesheet_Line_Item__c.fields.Duration__c.isUpdateable() &&
-              Schema.SObjectType.Timesheet_Line_Item__c.fields.Description__c.isUpdateable()){
+              Schema.SObjectType.Timesheet_Line_Item__c.fields.Description__c.isUpdateable() &&
+              Schema.SObjectType.Timesheet_Line_Item__c.fields.Type__c.isCreateable() &&
+              Schema.SObjectType.Timesheet_Line_Item__c.fields.Timesheet__c.isCreateable() &&
+              Schema.SObjectType.Timesheet_Line_Item__c.fields.Date__c.isCreateable() &&
+              Schema.SObjectType.Timesheet_Line_Item__c.fields.Project__c.isCreateable() &&
+              Schema.SObjectType.Timesheet_Line_Item__c.fields.Activity__c.isCreateable() &&
+              Schema.SObjectType.Timesheet_Line_Item__c.fields.Absence_Category__c.isCreateable() &&
+              Schema.SObjectType.Timesheet_Line_Item__c.fields.Duration__c.isCreateable() &&
+              Schema.SObjectType.Timesheet_Line_Item__c.fields.Description__c.isCreateable()){
                   upsert timesheetLineItems;
               } else{
                    throw new AuraHandledException('You do not have access, please contact System Admin');

@@ -37,10 +37,11 @@ public with sharing class TimesheetLineItemController {
                                         WHERE Timesheet__c = : pi.TargetObjectId 
                                         WITH SECURITY_ENFORCED 
                                         ORDER BY Date__c ASC ];
-			}
+              } else{
+                  throw new AuraHandledException('You do not have access, please contact System Admin');
+              }
         }catch(Exception e){
             System.debug('The exception is : ' + e.getMessage());
-            throw new AuraHandledException('Unexpected Error, contact System Admin');
         }
         return timesheetLineItems;
     }

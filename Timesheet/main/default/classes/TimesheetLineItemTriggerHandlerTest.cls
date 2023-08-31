@@ -1,26 +1,31 @@
 @isTest
 public class TimesheetLineItemTriggerHandlerTest {
     
+    @testSetup
+    public static void setupData(){
+        User noAccessUser = createUser('NoAccess', 'User');
+        insert noAccessUser;
+        
+        User standardUser = createUser('Standard', 'User');
+        insert standardUser;
+        
+        assignpermissionSetForUser(standardUser);
+    }
+    
     @isTest
     public static void beforeInsertTest(){
-        User su = createUser();
-        insert su;
+        User standardUser = [Select Id, Name from User where FirstName = 'Standard' AND LastName = 'User' LIMIT 1];
         
-        User u = createAdminUser();
-        insert u;
-        
-        assignPermissionSetForUser(u);
-        
-        Employee__c employee = createEmployeeForUser(su.Id);
+        Employee__c employee = createEmployeeForUser(standardUser.Id);
         insert employee;
-        Timesheet__c timesheet = createTimesheet(employee.Id, u.Id);
+        Timesheet__c timesheet = createTimesheet(employee.Id, standardUser.Id);
         insert timesheet;
         Project__c project = createProjectAsBillable('Test Project','Yes');
         insert project;
         Timesheet_Line_Item__c timesheetLineItem = createTimesheetLineItem(timesheet.Id, project.Id);
         Timesheet_Line_Item__c timesheetLineItem2 = createTimesheetLineItem(timesheet.Id, project.Id); 
         
-        System.runAs(u){
+        System.runAs(standardUser){
             insert timesheetLineItem;
         
             Test.startTest();
@@ -39,19 +44,11 @@ public class TimesheetLineItemTriggerHandlerTest {
     
     @isTest
     public static void beforeUpdateTest(){
-        
-        User su = createUser();
-        insert su;
-        
-        User u = createAdminUser();
-        insert u;
-        
-        assignPermissionSetForUser(u);
-        
-        Employee__c employee = createEmployeeForUser(su.Id);
+		User standardUser = [Select Id, Name from User where FirstName = 'Standard' AND LastName = 'User' LIMIT 1];
+        Employee__c employee = createEmployeeForUser(standardUser.Id);
         insert employee;
         
-        Timesheet__c timesheet = createTimesheet(employee.Id, u.Id);
+        Timesheet__c timesheet = createTimesheet(employee.Id, standardUser.Id);
         insert timesheet;
         
         Project__c project = createProjectAsBillable('Test Project','Yes');
@@ -62,13 +59,12 @@ public class TimesheetLineItemTriggerHandlerTest {
         Timesheet_Line_Item__c timesheetLineItem = createTimesheetLineItem(timesheet.Id, project.Id);
         Timesheet_Line_Item__c timesheetLineItem2 = createTimesheetLineItem(timesheet.Id, project2.Id);
         
-        System.runAs(u){
+        System.runAs(standardUser){
             insert timesheetLineItem;
         	insert timesheetLineItem2;
         	timesheetLineItem2.Project__c = project.Id;
-        
+            
         	Test.startTest();
-	    
         	try{
             	update timesheetLineItem2;
         	} catch(DmlException e){
@@ -76,26 +72,6 @@ public class TimesheetLineItemTriggerHandlerTest {
         	}
         	Test.stopTest();
         }
-    }
-    
-    private static User createAdminUser(){
-        Profile p = [Select Id, Name from Profile where Name = 'System Administrator' LIMIT 1];
-        
-        User u = new User();
-        u.Email = 'testEmail@'+ Datetime.now().format('hh.mm.ss.SSS') + '.com';
-        u.ProfileId = p.Id;
-        u.Username = 'testUserName'+ Datetime.now().format('hh.mm.ss.SSS')+'@testmail.com';
-        u.Alias = 'abcd';
-        u.CommunityNickname = 'nickName' + Datetime.now().format('hh.mm.ss.SSS');
-        u.TimeZoneSidKey = 'America/Los_Angeles';
-        u.LocaleSidKey = 'en_US';
-        u.EmailEncodingKey='ISO-8859-1';
-        u.ManagerId = UserInfo.getUserId();
-        u.LanguageLocaleKey='en_US';
-        u.FirstName = 'fName'+ Datetime.now().format('hh.mm.ss.SSS');
-        u.LastName = 'lName' + Datetime.now().format('hh.mm.ss.SSS');
-        u.Phone = '9876543210';
-        return u;
     }
     
     private static Employee__c createEmployeeForUser(Id userId){
@@ -158,9 +134,8 @@ public class TimesheetLineItemTriggerHandlerTest {
         }
     }
     
-    private static User createUser(){
-        Profile p = [Select Id, Name from Profile where Name = 'Standard Platform User' LIMIT 1];
-        
+    private static User createUser(String firstName, String lastName){
+        Profile p = [Select Id, Name from Profile where Name = 'Standard User' LIMIT 1];
         User u = new User();
         u.Email = 'testEmail@'+ Datetime.now().format('hh.mm.ss.SSS') + '.com';
         u.ProfileId = p.Id;
@@ -172,8 +147,8 @@ public class TimesheetLineItemTriggerHandlerTest {
         u.EmailEncodingKey='ISO-8859-1';
         u.ManagerId = UserInfo.getUserId();
         u.LanguageLocaleKey='en_US';
-        u.FirstName = 'fName'+ Datetime.now().format('hh.mm.ss.SSS');
-        u.LastName = 'lName' + Datetime.now().format('hh.mm.ss.SSS');
+        u.FirstName = firstName;
+        u.LastName = lastName;
         u.Phone = '9876543210';
         return u;
     }

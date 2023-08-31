@@ -1,57 +1,114 @@
 @isTest
 public class TimesheetLineItemLwcControllerTest {
-	
+
     @testSetup
     public static void setupData(){
-        User su = createUser();
-        insert su;
+        User noAccessUser = createUser('NoAccess', 'User');
+        insert noAccessUser;
         
-        User u = createAdminUser();
-        insert u;
+        User standardUser = createUser('Standard', 'User');
+        insert standardUser;
         
-        assignPermissionSetForUser(u);
-        Employee__c employee = createEmployeeForUser(su.Id);
+        assignpermissionSetForUser(standardUser);
+        User adminUser = createAdminUser('Admin', 'User');
+        insert adminUser;
+        
+        assignpermissionSetForAdmin(adminUser);
+        Employee__c employee = createEmployeeForUser(standardUser.Id);
         insert employee;
-        Timesheet__c timesheet = createTimesheet(employee.Id, u.Id);
+        
+        Timesheet__c timesheet = createTimesheet(employee.Id, standardUser.Id);
         insert timesheet;
+        
         Project__c project = createProjectAsBillable('Test Project','Yes');
         insert project;
+        
         Project_Employee__c projectEmployee = createProjectEmployee(project.id, employee.Id);
         insert projectEmployee;
+        
         Timesheet_Line_Item__c timesheetLineItem = createTimesheetLineItem(timesheet.Id, project.Id);
+        insert timesheetLineItem;
     }
     
     @isTest
     public static void getProjectsTest(){
         Employee__c employee = [SELECT Id, Name FROM Employee__c LIMIT 1];
-        
-        Test.startTest();
-        List<Project_Employee__c> projectEmployees = TimesheetLineItemLwcController.getProjects(employee.Id);
-        Test.stopTest();
-        
-        Assert.areEqual(1, projectEmployees.size(), 'The projectEmployees size assertin failed');
+        User u = [Select Id, Name from User where FirstName = 'Standard' AND LastName = 'User' LIMIT 1];
+        System.runAs(u){
+            Test.startTest();
+            List<Project_Employee__c> projectEmployees = TimesheetLineItemLwcController.getProjects(employee.Id);
+            Test.stopTest();
+            Assert.areEqual(1, projectEmployees.size(), 'The projectEmployees size assertion failed');
+        }
+    }
+    
+    @isTest
+    public static void getProjectsTestwithException(){
+        Employee__c employee = [SELECT Id, Name FROM Employee__c LIMIT 1];
+        User u = [Select Id, Name from User Where FirstName = 'NoAccess' AND LastName ='User'];
+        System.runAs(u){
+            try{
+                Test.startTest();
+                List<Project_Employee__c> projectEmployees = TimesheetLineItemLwcController.getProjects(employee.Id);
+                Test.stopTest();
+            }catch(Exception e){
+                Assert.areEqual('Script-thrown exception', e.getMessage());
+            }
+        }
     }
     
     @isTest
     public static void getEmployeeTest(){
 		Timesheet__c timesheet = [Select Id, Name from Timesheet__c LIMIT 1];
-        
-        Test.startTest();
-        Employee__c employee = TimesheetLineItemLwcController.getEmployee(timesheet.Id);
-        Test.stopTest();
-        
-        Assert.areEqual('fName lName', employee.Name, 'Assertion failed for the Employee Name');
+        User u = [Select Id, Name from User Where FirstName = 'Standard' AND LastName ='User'];
+        System.runAs(u){
+            Test.startTest();
+            Employee__c employee = TimesheetLineItemLwcController.getEmployee(timesheet.Id);
+            Test.stopTest();
+            Assert.areEqual('first  last', employee.Name, 'Assertion failed for the Employee Name');
+        }
+    }
+    
+        @isTest
+    public static void getEmployeeTestWithException(){
+		Timesheet__c timesheet = [Select Id, Name from Timesheet__c LIMIT 1];
+        User u = [Select Id, Name from User Where FirstName = 'NoAccess' AND LastName ='User'];
+        System.runAs(u){
+            try{
+                Test.startTest();
+                Employee__c employee = TimesheetLineItemLwcController.getEmployee(timesheet.Id);
+                Test.stopTest();
+            }catch(Exception e){
+                Assert.areEqual('Script-thrown exception', e.getMessage());
+            }
+        }
     }
     
     @isTest
     public static void getTimesheetLineItemsTest(){
         Timesheet__c timesheet = [Select Id, Name from Timesheet__c LIMIT 1];
-        
-        Test.startTest();
-        List<Timesheet_Line_Item__c> timesheetLineItems = TimesheetLineItemLwcController.getTimesheetLineItems(timesheet.Id);
-        Test.stopTest();
-        
-        Assert.areEqual(1, timesheetLineItems.size(), 'Assertion failed for timesheet line items size');
+        User u = [Select Id, Name from User Where FirstName = 'Standard' AND LastName ='User'];
+        System.runAs(u){
+            Test.startTest();
+            List<Timesheet_Line_Item__c> timesheetLineItems = TimesheetLineItemLwcController.getTimesheetLineItems(timesheet.Id);
+            Test.stopTest();
+            Assert.areEqual(1, timesheetLineItems.size(), 'Assertion failed for timesheet line items size');
+        }
+    }
+    
+    @isTest
+    public static void getTimesheetLineItemsTestWithException(){
+        Timesheet__c timesheet = [Select Id, Name from Timesheet__c LIMIT 1];
+        User u = [Select Id, Name from User Where FirstName = 'NoAccess' AND LastName ='User'];
+        System.runAs(u){
+            try{
+                Test.startTest();
+                List<Timesheet_Line_Item__c> timesheetLineItems = TimesheetLineItemLwcController.getTimesheetLineItems(timesheet.Id);
+                Test.stopTest();
+            }catch(Exception e){
+                Assert.areEqual('Script-thrown exception', e.getMessage());
+            }
+        }
     }
     
     @isTest
@@ -61,6 +118,7 @@ public class TimesheetLineItemLwcControllerTest {
         Project__c newProject = createProjectAsBillable('TestName', 'Yes');
         insert newProject;
         Timesheet_Line_Item__c timesheetLineItem2 = createTimesheetLineItem(timesheet.Id, newProject.Id);
+        timesheetLineItem2.Activity__c = 'Testing';
         List<Timesheet_Line_Item__c> timesheetLineItems = new List<Timesheet_Line_Item__c>();
         timesheetLineItems.add(timesheetLineItem2);
         List<Id> ids = new List<Id>();
@@ -74,8 +132,33 @@ public class TimesheetLineItemLwcControllerTest {
         Assert.areNotEqual(timesheetLineItem1.Id, timesheetLineItemFromDB.Id, 'Assertion failed when two timesheet line items should not match');
 
     }
+    
+    @isTest
+    public static void updateTimesheetLineItemsTestWithException(){
+        Timesheet__c timesheet = [Select Id, Name from Timesheet__c LIMIT 1];
+        Timesheet_Line_Item__c timesheetLineItem1 = [Select Id, Name, Employee__c from Timesheet_Line_Item__c LIMIT 1];
+        Project__c newProject = createProjectAsBillable('TestName', 'Yes');
+        insert newProject;
+        Timesheet_Line_Item__c timesheetLineItem2 = createTimesheetLineItem(timesheet.Id, newProject.Id);
+        timesheetLineItem2.Activity__c = 'Testing';
+        List<Timesheet_Line_Item__c> timesheetLineItems = new List<Timesheet_Line_Item__c>();
+        timesheetLineItems.add(timesheetLineItem2);
+        List<Id> ids = new List<Id>();
+        ids.add(timesheetLineItem1.Id);
         
-    private static User createAdminUser(){
+        User u = [Select Id, Name from User Where FirstName = 'NoAccess' AND LastName ='User'];
+        System.runAs(u){
+            try{
+                Test.startTest();
+                TimesheetLineItemLwcController.updateTimesheetLineItems(timesheetLineItems, ids);
+                Test.stopTest();
+            }catch(Exception e){
+                Assert.areEqual('Script-thrown exception', e.getMessage());
+            }
+        }
+    }
+        
+    private static User createAdminUser(String firstName, String lastName){
         Profile p = [Select Id, Name from Profile where Name = 'System Administrator' LIMIT 1];
         
         User u = new User();
@@ -89,17 +172,18 @@ public class TimesheetLineItemLwcControllerTest {
         u.EmailEncodingKey='ISO-8859-1';
         u.ManagerId = UserInfo.getUserId();
         u.LanguageLocaleKey='en_US';
-        u.FirstName = 'fName'+ Datetime.now().format('hh.mm.ss.SSS');
-        u.LastName = 'lName' + Datetime.now().format('hh.mm.ss.SSS');
+        u.FirstName = firstName;
+        u.LastName = lastName;
         u.Phone = '9876543210';
         return u;
     }
     
     private static Employee__c createEmployeeForUser(Id userId){
         Employee__c employee = new Employee__c();
-        employee.Name = '-';
-        employee.First_Name__c = 'fName';
-        employee.Last_Name__c = 'lName';
+        employee.Name = '';
+        employee.OwnerId = userId;
+        employee.First_Name__c = 'first';
+        employee.Last_Name__c = 'last';
         employee.User__c = userId;
         employee.Email__c = 'testEmail@'+ Datetime.now().format('hh.mm.ss.SSS') + '.com';
         employee.Manager__c = userInfo.getUserId();
@@ -138,10 +222,9 @@ public class TimesheetLineItemLwcControllerTest {
         return timesheetLineItem;
     }
     
-    private static void assignpermissionSetForUser(User u){
+    private static void assignpermissionSetForAdmin(User u){
         Id userId = UserInfo.getUserId();
         User user = [Select Id, Name from User Where Id =: userId];
-        
         PermissionSet ps = [Select 
                             Id, 
                             Name 
@@ -155,9 +238,24 @@ public class TimesheetLineItemLwcControllerTest {
         }
     }
     
-    private static User createUser(){
-        Profile p = [Select Id, Name from Profile where Name = 'Standard Platform User' LIMIT 1];
-        
+    private static void assignpermissionSetForUser(User u){
+        Id userId = UserInfo.getUserId();
+        User user = [Select Id, Name from User Where Id =: userId];
+        PermissionSet ps = [Select 
+                            Id, 
+                            Name 
+                            FROM PermissionSet 
+                            WHERE Name = 'Timesheet_User'];
+        System.runAs(user){
+            PermissionSetAssignment psa = new PermissionSetAssignment();
+        	psa.PermissionSetId = ps.Id;
+        	psa.AssigneeId = u.Id;
+            insert psa;
+        }
+    }
+    
+    private static User createUser(String firstName, String lastName){
+        Profile p = [Select Id, Name from Profile where Name = 'Standard User' LIMIT 1];
         User u = new User();
         u.Email = 'testEmail@'+ Datetime.now().format('hh.mm.ss.SSS') + '.com';
         u.ProfileId = p.Id;
@@ -169,8 +267,8 @@ public class TimesheetLineItemLwcControllerTest {
         u.EmailEncodingKey='ISO-8859-1';
         u.ManagerId = UserInfo.getUserId();
         u.LanguageLocaleKey='en_US';
-        u.FirstName = 'fName'+ Datetime.now().format('hh.mm.ss.SSS');
-        u.LastName = 'lName' + Datetime.now().format('hh.mm.ss.SSS');
+        u.FirstName = firstName;
+        u.LastName = lastName;
         u.Phone = '9876543210';
         return u;
     }

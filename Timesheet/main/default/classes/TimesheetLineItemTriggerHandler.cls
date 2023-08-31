@@ -59,7 +59,6 @@ public with sharing class TimesheetLineItemTriggerHandler {
                }
         }catch(Exception e){
             System.debug('The exception is : ' + e.getMessage());
-            throw new AuraHandledException('Unexpected Error, contact System Admin');
         }
         for(Timesheet_Line_Item__c timesheetLineItem : timesheetLineItems){
             if(timesheetLineItem.Type__c == 'Attendance'){

@@ -1,23 +1,29 @@
 @isTest
 public class EmployeeTriggerHandlerTest {
     
+    @testSetup
+    public static void setupData(){
+        User standardUser = createUser('Standard', 'User');
+        insert standardUser;
+        
+        User standardUser2 = createUser('Standard', 'User2');
+        insert standardUser2;
+        
+        User adminUser = createAdminUser('Admin', 'User');
+        insert adminUser;
+        
+        assignpermissionSetForAdmin(adminUser);
+    }
+    
     @isTest
     public static void beforeInsertTest(){
-        
-        User su = createUser();
-        insert su;
-        
-        User u = createAdminUser();
-        insert u;
-        
-        assignPermissionSetForUser(u);
-        
-        Employee__c employee1 = createEmployeeForUser(su.Id);
+        User standardUser = [Select Id, Name from User where FirstName = 'Standard' AND LastName = 'User' LIMIT 1];
+        User adminUser = [Select Id, Name from User where FirstName = 'Admin' AND LastName = 'User' LIMIT 1];
+        Employee__c employee1 = createEmployeeForUser(standardUser.Id);
         insert employee1;
         
-        Employee__c employee2 = createEmployeeForUser(su.Id);
-        
-        System.runAs(u){
+        Employee__c employee2 = createEmployeeForUser(standardUser.Id);
+        System.runAs(adminUser){
             Test.startTest();
             try{
                 insert employee2;
@@ -29,28 +35,37 @@ public class EmployeeTriggerHandlerTest {
     }
     
     @isTest
-    public static void beforeUpdateTest(){
-        
-       	User su1 = createUser();
-        insert su1;
-        
-        User su2 = createUser();
-        insert su2;
-        
-		User u = createAdminUser();
-        insert u;
-        
-        assignPermissionSetForUser(u);        
-        
-        Employee__c employee1 = createEmployeeForUser(su1.Id);
+    public static void beforeInsertTestWithException(){
+        User standardUser = [Select Id, Name from User where FirstName = 'Standard' AND LastName = 'User' LIMIT 1];
+        User adminUser = [Select Id, Name from User where FirstName = 'Admin' AND LastName = 'User' LIMIT 1];
+        Employee__c employee1 = createEmployeeForUser(standardUser.Id);
         insert employee1;
         
-        Employee__c employee2 = createEmployeeForUser(su2.Id);
+        Employee__c employee2 = createEmployeeForUser(standardUser.Id);
+        System.runAs(standardUser){
+            Test.startTest();
+            try{
+                insert employee2;
+            }catch(Exception e){
+                Assert.areEqual('Script-thrown exception', e.getMessage());
+            }  
+            Test.stopTest();
+        }
+    }
+    
+    @isTest
+    public static void beforeUpdateTest(){
+        User standardUser = [Select Id, Name from User where FirstName = 'Standard' AND LastName = 'User' LIMIT 1];
+        User standardUser2 = [Select Id, Name from User where FirstName = 'Standard' AND LastName = 'User2' LIMIT 1];
+        User adminUser = [Select Id, Name from User where FirstName = 'Admin' AND LastName = 'User' LIMIT 1];
+        Employee__c employee1 = createEmployeeForUser(standardUser.Id);
+        insert employee1;
+        
+        Employee__c employee2 = createEmployeeForUser(standardUser2.Id);
         insert employee2;
         
-        employee2.User__c = su1.Id;
-        
-        System.runAs(u){
+        employee2.User__c = standardUser.Id;
+        System.runAs(adminUser){
             Test.startTest();
             try{
                 update employee2;
@@ -61,7 +76,7 @@ public class EmployeeTriggerHandlerTest {
         }
     }
     
-    private static User createAdminUser(){
+    private static User createAdminUser(String firstName, String lastName){
         Profile p = [Select Id, Name from Profile where Name = 'System Administrator' LIMIT 1];
         
         User u = new User();
@@ -75,8 +90,8 @@ public class EmployeeTriggerHandlerTest {
         u.EmailEncodingKey='ISO-8859-1';
         u.ManagerId = UserInfo.getUserId();
         u.LanguageLocaleKey='en_US';
-        u.FirstName = 'fName'+ Datetime.now().format('hh.mm.ss.SSS');
-        u.LastName = 'lName' + Datetime.now().format('hh.mm.ss.SSS');
+        u.FirstName = firstName;
+        u.LastName = lastName;
         u.Phone = '9876543210';
         return u;
     }
@@ -92,8 +107,8 @@ public class EmployeeTriggerHandlerTest {
         return employee;
     }
     
-    private static User createUser(){
-        Profile p = [Select Id, Name from Profile where Name = 'Standard Platform User' LIMIT 1];
+    private static User createUser(String firstName, String lastName){
+        Profile p = [Select Id, Name from Profile where Name = 'Standard User' LIMIT 1];
         
         User u = new User();
         u.Email = 'testEmail@'+ Datetime.now().format('hh.mm.ss.SSS') + '.com';
@@ -106,13 +121,13 @@ public class EmployeeTriggerHandlerTest {
         u.EmailEncodingKey='ISO-8859-1';
         u.ManagerId = UserInfo.getUserId();
         u.LanguageLocaleKey='en_US';
-        u.FirstName = 'fName'+ Datetime.now().format('hh.mm.ss.SSS');
-        u.LastName = 'lName' + Datetime.now().format('hh.mm.ss.SSS');
+        u.FirstName = firstName;
+        u.LastName = lastName;
         u.Phone = '9876543210';
         return u;
     }
     
-    private static void assignpermissionSetForUser(User u){
+    private static void assignpermissionSetForAdmin(User u){
         Id userId = UserInfo.getUserId();
         User user = [Select Id, Name from User Where Id =: userId];
         
