@@ -6,6 +6,6 @@ trigger EmployeeTrigger on Employee__c (before insert, before update) {
         
     }else if (Trigger.isBefore && Trigger.isUpdate){
         
-        EmployeeTriggerHandler.checkUserDuplicationForEmployeeBeforeUpdate(Trigger.New); 
+        EmployeeTriggerHandler.checkUserDuplicationForEmployeeBeforeUpdate(Trigger.New);
     }
 }

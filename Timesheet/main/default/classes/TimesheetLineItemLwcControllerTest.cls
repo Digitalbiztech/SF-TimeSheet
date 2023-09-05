@@ -51,8 +51,9 @@ public class TimesheetLineItemLwcControllerTest {
                 Test.startTest();
                 List<Project_Employee__c> projectEmployees = TimesheetLineItemLwcController.getProjects(employee.Id);
                 Test.stopTest();
-            }catch(Exception e){
-                Assert.areEqual('Script-thrown exception', e.getMessage());
+            }catch(AuraHandledException e){
+                System.debug(e);
+                Assert.areEqual('You do not have access, please contact System Admin', e.getMessage());
             }
         }
     }
@@ -79,7 +80,7 @@ public class TimesheetLineItemLwcControllerTest {
                 Employee__c employee = TimesheetLineItemLwcController.getEmployee(timesheet.Id);
                 Test.stopTest();
             }catch(Exception e){
-                Assert.areEqual('Script-thrown exception', e.getMessage());
+                Assert.areEqual('You do not have access, please contact System Admin', e.getMessage());
             }
         }
     }
@@ -106,7 +107,7 @@ public class TimesheetLineItemLwcControllerTest {
                 List<Timesheet_Line_Item__c> timesheetLineItems = TimesheetLineItemLwcController.getTimesheetLineItems(timesheet.Id);
                 Test.stopTest();
             }catch(Exception e){
-                Assert.areEqual('Script-thrown exception', e.getMessage());
+                Assert.areEqual('You do not have access, please contact System Admin', e.getMessage());
             }
         }
     }
@@ -153,7 +154,7 @@ public class TimesheetLineItemLwcControllerTest {
                 TimesheetLineItemLwcController.updateTimesheetLineItems(timesheetLineItems, ids);
                 Test.stopTest();
             }catch(Exception e){
-                Assert.areEqual('Script-thrown exception', e.getMessage());
+                Assert.areEqual('You do not have access, please contact System Admin', e.getMessage());
             }
         }
     }

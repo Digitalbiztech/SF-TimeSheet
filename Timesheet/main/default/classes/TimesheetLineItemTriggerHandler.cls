@@ -10,64 +10,65 @@ public with sharing class TimesheetLineItemTriggerHandler {
         checkExistingProjectAndActivity(timesheetLineItems);
     }
     
-    private static void updateEmployeeId(List<Timesheet_Line_Item__c> timesheetLineItems){
+    public static void updateEmployeeId(List<Timesheet_Line_Item__c> timesheetLineItems){
         List<Id> masterIds = new List<Id>();
         for(Timesheet_Line_Item__c timesheetLineItem : timesheetLineItems){
             masterIds.add(timesheetLineItem.Timesheet__c);
         }
         Map<Id, Timesheet__c> timesheetMap = new Map<Id, Timesheet__c>();
-        try{
-            if(Timesheet__c.SObjectType.getDescribe().isAccessible() &&
-               Schema.SObjectType.Timesheet__c.fields.Id.isAccessible() &&
-               Schema.SObjectType.Timesheet__c.fields.Employee__c.isAccessible()) {
-                  timesheetMap = new Map<Id, Timesheet__c>([SELECT
-                                                            Id,
-                                                            Employee__c 
-                                                            FROM Timesheet__c
-                                                            WHERE Id = :masterIds 
-                                                            WITH SECURITY_ENFORCED]);
-               } else{
-                   throw new AuraHandledException('You do not have access, please contact System Admin');
-               }
-        }catch(Exception e){
-            System.debug('The exception is : ' + e.getMessage());
+        if(Timesheet__c.SObjectType.getDescribe().isAccessible() &&
+           Schema.SObjectType.Timesheet__c.fields.Employee__c.isAccessible()) {
+               timesheetMap = new Map<Id, Timesheet__c>([SELECT
+                                                         Id,
+                                                         Employee__c 
+                                                         FROM Timesheet__c
+                                                         WHERE Id = :masterIds 
+                                                         WITH SECURITY_ENFORCED]);
         }
-        for(Timesheet_Line_Item__c timesheetLineItem : timesheetLineItems){
-            Id employeeId = timesheetMap.get(timesheetLineItem.Timesheet__c).Employee__c;
-            timesheetLineItem.Employee__c = employeeId;
-        }
+        if(timesheetMap.size() > 0 && Timesheet_Line_Item__c.SObjectType.getDescribe().isCreateable() &&
+           Schema.SObjectType.Timesheet_Line_Item__c.fields.Employee__c.isCreateable()){
+               for(Timesheet_Line_Item__c timesheetLineItem : timesheetLineItems){
+                   Id employeeId = timesheetMap.get(timesheetLineItem.Timesheet__c).Employee__c;
+                   timesheetLineItem.Employee__c = employeeId;
+        	   }
+           } else {
+               for(Timesheet_Line_Item__c timesheetLineItem : timesheetLineItems){
+                   timesheetLineItem.addError('You do not have access, Please contact system admin');
+        		}
+           }
     }
     
-    private static void updateBillableField(List<Timesheet_Line_Item__c> timesheetLineItems){
+    public static void updateBillableField(List<Timesheet_Line_Item__c> timesheetLineItems){
         List<Id> projectIds = new List<Id>();
         for(Timesheet_Line_Item__c timesheetLineItem : timesheetLineItems){
 			projectIds.add(timesheetLineItem.Project__c);            
         }
         Map<Id, Project__c> projectMap = new Map<Id, Project__c>();
-        try{
-            if(Project__c.SObjectType.getDescribe().isAccessible() &&
-               Schema.SObjectType.Project__c.fields.Id.isAccessible() &&
-               Schema.SObjectType.Project__c.fields.Billable__c.isAccessible()) {
-                   projectMap = new Map<Id, Project__c>([SELECT 
-                                                         Id,
-                                                         Billable__c
-                                                         FROM Project__c
-                                                         WHERE Id = : projectIds
-                                                         WITH SECURITY_ENFORCED]);
-               } else{
-                   throw new AuraHandledException('You do not have access, please contact System Admin');
-               }
-        }catch(Exception e){
-            System.debug('The exception is : ' + e.getMessage());
+        if(Project__c.SObjectType.getDescribe().isAccessible() &&
+           Schema.SObjectType.Project__c.fields.Id.isAccessible() &&
+           Schema.SObjectType.Project__c.fields.Billable__c.isAccessible()) {
+               projectMap = new Map<Id, Project__c>([SELECT 
+                                                     Id,
+                                                     Billable__c
+                                                     FROM Project__c
+                                                     WHERE Id = : projectIds
+                                                     WITH SECURITY_ENFORCED]);
         }
-        for(Timesheet_Line_Item__c timesheetLineItem : timesheetLineItems){
-            if(timesheetLineItem.Type__c == 'Attendance'){
-                timesheetLineItem.Billable__c = projectMap.get(timesheetLineItem.Project__c).Billable__c;
-            }
-        }
+        if(projectMap.size() > 0 && Timesheet_Line_Item__c.SObjectType.getDescribe().isCreateable() &&
+           Schema.SObjectType.Timesheet_Line_Item__c.fields.Billable__c.isCreateable()){
+               for(Timesheet_Line_Item__c timesheetLineItem : timesheetLineItems){
+                    if(timesheetLineItem.Type__c == 'Attendance'){
+                        timesheetLineItem.Billable__c = projectMap.get(timesheetLineItem.Project__c).Billable__c;
+            		}
+        	   }
+           } else{
+               for(Timesheet_Line_Item__c timesheetLineItem : timesheetLineItems){
+                   timesheetLineItem.addError('You do not have access, Please contact system admin');
+        		}
+           }
     }
     
-    private static void checkExistingProjectAndActivity(List<Timesheet_Line_Item__c> timesheetLineItems){
+    public static void checkExistingProjectAndActivity(List<Timesheet_Line_Item__c> timesheetLineItems){
         Set<Id> projectIds = new Set<Id>();
         Set<Date> dates = new Set<Date>();
         Set<Id> timesheetIds = new Set<Id>();
@@ -77,29 +78,27 @@ public with sharing class TimesheetLineItemTriggerHandler {
             timesheetIds.add(timesheetLineItem.Timesheet__c);
         }
         Map<Id, Timesheet_Line_Item__c> timesheetLineItemMap = new Map<Id, Timesheet_Line_Item__c>();
-        try{
-            if(Timesheet_Line_Item__c.SObjectType.getDescribe().isAccessible() &&
-               Schema.SObjectType.Timesheet_Line_Item__c.fields.Id.isAccessible() &&
-               Schema.SObjectType.Timesheet_Line_Item__c.fields.Project__c.isAccessible() &&
-               Schema.SObjectType.Timesheet_Line_Item__c.fields.Date__c.isAccessible() &&
-               Schema.SObjectType.Timesheet_Line_Item__c.fields.Activity__c.isAccessible() &&
-               Schema.SObjectType.Timesheet_Line_Item__c.fields.Timesheet__c.isAccessible()) {
-                   timesheetLineItemMap = new Map<Id, Timesheet_Line_Item__c>([SELECT
-                                                                               Id,
-                                                                               Project__c,
-                                                                               Date__c,
-                                                                               Activity__c,
-                                                                               Timesheet__c
-                                                                               FROM Timesheet_Line_Item__c
-                                                                               WHERE Project__c = : projectIds
-                                                                               AND Date__c = : dates
-                                                                               AND Timesheet__c = : timesheetIds
-                                                                               WITH SECURITY_ENFORCED]);
-               } else{
-                   throw new AuraHandledException('Unexpected Error, contact System Admin');
-               }
-        }catch(Exception e){
-            System.debug('The exception is : ' + e.getMessage());
+        if(Timesheet_Line_Item__c.SObjectType.getDescribe().isAccessible() &&
+           Schema.SObjectType.Timesheet_Line_Item__c.fields.Id.isAccessible() &&
+           Schema.SObjectType.Timesheet_Line_Item__c.fields.Project__c.isAccessible() &&
+           Schema.SObjectType.Timesheet_Line_Item__c.fields.Date__c.isAccessible() &&
+           Schema.SObjectType.Timesheet_Line_Item__c.fields.Activity__c.isAccessible() &&
+           Schema.SObjectType.Timesheet_Line_Item__c.fields.Timesheet__c.isAccessible()) {
+               timesheetLineItemMap = new Map<Id, Timesheet_Line_Item__c>([SELECT
+                                                                           Id,
+                                                                           Project__c,
+                                                                           Date__c,
+                                                                           Activity__c,
+                                                                           Timesheet__c
+                                                                           FROM Timesheet_Line_Item__c
+                                                                           WHERE Project__c = : projectIds
+                                                                           AND Date__c = : dates
+                                                                           AND Timesheet__c = : timesheetIds
+                                                                           WITH SECURITY_ENFORCED]);
+        } else{
+            for(Timesheet_Line_Item__c timesheetLineItem : timesheetLineItems){
+                timesheetLineItem.addError('You do not have access, Please contact system admin');
+        	}
         }
         for(Timesheet_Line_Item__c timesheetLineItem : timesheetLineItems){
             for(Id id : timesheetLineItemMap.keySet()){

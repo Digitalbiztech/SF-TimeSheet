@@ -10,67 +10,136 @@ public class TimesheetLineItemTriggerHandlerTest {
         insert standardUser;
         
         assignpermissionSetForUser(standardUser);
-    }
-    
-    @isTest
-    public static void beforeInsertTest(){
-        User standardUser = [Select Id, Name from User where FirstName = 'Standard' AND LastName = 'User' LIMIT 1];
         
         Employee__c employee = createEmployeeForUser(standardUser.Id);
         insert employee;
+        
         Timesheet__c timesheet = createTimesheet(employee.Id, standardUser.Id);
         insert timesheet;
+        
         Project__c project = createProjectAsBillable('Test Project','Yes');
         insert project;
+    }
+    
+    @isTest
+    public static void updateEmployeeBeforeInsert(){
+        User standardUser = [Select Id, Name from User where FirstName = 'Standard' AND LastName = 'User' LIMIT 1];
+        Timesheet__c timesheet = [Select Id, Name, Employee__c from Timesheet__c LIMIT 1];
+        Project__c project = [Select Id, Name from Project__c LIMIT 1];
         Timesheet_Line_Item__c timesheetLineItem = createTimesheetLineItem(timesheet.Id, project.Id);
-        Timesheet_Line_Item__c timesheetLineItem2 = createTimesheetLineItem(timesheet.Id, project.Id); 
+        List<Timesheet_Line_Item__c> timesheetLineItems = new List<Timesheet_Line_Item__c>();
+        timesheetLineItems.add(timesheetLineItem);
         
         System.runAs(standardUser){
-            insert timesheetLineItem;
-        
             Test.startTest();
-            try{
-                insert timesheetLineItem2;
-            } catch(DmlException e){
-                Assert.areEqual('LineItem with the same project and activity already exists for this date, please update the existing record', e.getDmlMessage(0), 'Assertion failed when a timesheet line item is created with same project');
-            }
+            TimesheetLineItemTriggerHandler.updateEmployeeId(timesheetLineItems);
             Test.stopTest();
             
-            Timesheet_Line_Item__c timesheetLineItemFromDB = [Select Id, Employee__c, Billable__c from Timesheet_Line_Item__c where Id = : timesheetLineItem.Id];
-            Assert.areEqual(timesheet.Employee__c, timesheetLineItemFromDB.Employee__c, 'Assertion failed for Employee');
-            Assert.areEqual(project.Billable__c, timesheetLineItemFromDB.Billable__c, 'Assertion failed for Billable field');
+            Assert.areEqual(timesheet.Employee__c, timesheetLineItem.Employee__c , 'Assertion failed for Timesheet Line Item before insert for updating employee Id');
         }
     }
     
     @isTest
-    public static void beforeUpdateTest(){
-		User standardUser = [Select Id, Name from User where FirstName = 'Standard' AND LastName = 'User' LIMIT 1];
-        Employee__c employee = createEmployeeForUser(standardUser.Id);
-        insert employee;
-        
-        Timesheet__c timesheet = createTimesheet(employee.Id, standardUser.Id);
-        insert timesheet;
-        
-        Project__c project = createProjectAsBillable('Test Project','Yes');
-        insert project;
-        Project__c project2 = createProjectAsBillable('Test Project 2','Yes');
-        insert project2;
-        
+    public static void updateEmployeeBeforeInsertWithException(){
+        User noAccessUser = [Select Id, Name from User where FirstName = 'NoAccess' AND LastName = 'User' LIMIT 1];
+        Timesheet__c timesheet = [Select Id, Name, Employee__c from Timesheet__c LIMIT 1];
+        Project__c project = [Select Id, Name from Project__c LIMIT 1];
         Timesheet_Line_Item__c timesheetLineItem = createTimesheetLineItem(timesheet.Id, project.Id);
-        Timesheet_Line_Item__c timesheetLineItem2 = createTimesheetLineItem(timesheet.Id, project2.Id);
+        List<Timesheet_Line_Item__c> timesheetLineItems = new List<Timesheet_Line_Item__c>();
+        timesheetLineItems.add(timesheetLineItem);
+        
+        System.runAs(noAccessUser){
+            Test.startTest();
+            TimesheetLineItemTriggerHandler.updateEmployeeId(timesheetLineItems);
+            Test.stopTest();
+            
+            List<Database.Error> errors = timesheetLineItem.getErrors();
+            Assert.areEqual(1, errors.size());
+            Assert.areEqual('You do not have access, Please contact system admin', errors.get(0).getMessage());
+        }
+    }
+    
+    @isTest
+    public static void updateEmployeeBillableField(){
+        User standardUser = [Select Id, Name from User where FirstName = 'Standard' AND LastName = 'User' LIMIT 1];
+        Timesheet__c timesheet = [Select Id, Name, Employee__c from Timesheet__c LIMIT 1];
+        Project__c project = [Select Id, Name, Billable__c from Project__c LIMIT 1];
+        Timesheet_Line_Item__c timesheetLineItem = createTimesheetLineItem(timesheet.Id, project.Id);
+        List<Timesheet_Line_Item__c> timesheetLineItems = new List<Timesheet_Line_Item__c>();
+        timesheetLineItems.add(timesheetLineItem);
+        
+        System.runAs(standardUser){
+            Test.startTest();
+            TimesheetLineItemTriggerHandler.updateBillableField(timesheetLineItems);
+            Test.stopTest();
+            
+            Assert.areEqual(project.Billable__c , timesheetLineItem.Billable__c , 'Assertion failed for Timesheet Line Item before insert for updating employee Id');
+        }
+        
+        
+    }
+    
+    @isTest
+    public static void updateEmployeeBillableFieldWithException(){
+        User noAccessUser = [Select Id, Name from User where FirstName = 'NoAccess' AND LastName = 'User' LIMIT 1];
+        Timesheet__c timesheet = [Select Id, Name, Employee__c from Timesheet__c LIMIT 1];
+        Project__c project = [Select Id, Name, Billable__c from Project__c LIMIT 1];
+        Timesheet_Line_Item__c timesheetLineItem = createTimesheetLineItem(timesheet.Id, project.Id);
+        List<Timesheet_Line_Item__c> timesheetLineItems = new List<Timesheet_Line_Item__c>();
+        timesheetLineItems.add(timesheetLineItem);
+        
+        System.runAs(noAccessUser){
+            Test.startTest();
+            TimesheetLineItemTriggerHandler.updateBillableField(timesheetLineItems);
+            Test.stopTest();
+            
+            List<Database.Error> errors = timesheetLineItem.getErrors();
+            Assert.areEqual(1, errors.size());
+            Assert.areEqual('You do not have access, Please contact system admin', errors.get(0).getMessage());
+        }
+    }
+    
+    @isTest
+    public static void checkExistingProjectAndActivity(){
+        User standardUser = [Select Id, Name from User where FirstName = 'Standard' AND LastName = 'User' LIMIT 1];
+        Timesheet__c timesheet = [Select Id, Name, Employee__c from Timesheet__c LIMIT 1];
+        Project__c project = [Select Id, Name, Billable__c from Project__c LIMIT 1];
+        Timesheet_Line_Item__c timesheetLineItem = createTimesheetLineItem(timesheet.Id, project.Id);
+        Timesheet_Line_Item__c timesheetLineItem2 = createTimesheetLineItem(timesheet.Id, project.Id);
         
         System.runAs(standardUser){
             insert timesheetLineItem;
-        	insert timesheetLineItem2;
-        	timesheetLineItem2.Project__c = project.Id;
+        	List<Timesheet_Line_Item__c> timesheetLineItems = new List<Timesheet_Line_Item__c>();
+            timesheetLineItems.add(timesheetLineItem2);
             
-        	Test.startTest();
-        	try{
-            	update timesheetLineItem2;
-        	} catch(DmlException e){
-            	Assert.areEqual('LineItem with the same project and activity already exists for this date, please update the existing record', e.getDmlMessage(0), 'Assertion failed when a timesheet line item is created with same project');
-        	}
-        	Test.stopTest();
+            Test.startTest();
+            TimesheetLineItemTriggerHandler.checkExistingProjectAndActivity(timesheetLineItems);
+            Test.stopTest();
+            
+            List<Database.Error> errors = timesheetLineItem2.getErrors();
+            Assert.areEqual('LineItem with the same project and activity already exists for this date, please update the existing record', errors.get(0).getMessage());
+        }
+    }
+    
+    @isTest
+    public static void checkExistingProjectAndActivityWithException(){
+        User noAccessUser = [Select Id, Name from User where FirstName = 'NoAccess' AND LastName = 'User' LIMIT 1];
+        Timesheet__c timesheet = [Select Id, Name, Employee__c from Timesheet__c LIMIT 1];
+        Project__c project = [Select Id, Name, Billable__c from Project__c LIMIT 1];
+        Timesheet_Line_Item__c timesheetLineItem = createTimesheetLineItem(timesheet.Id, project.Id);
+        Timesheet_Line_Item__c timesheetLineItem2 = createTimesheetLineItem(timesheet.Id, project.Id);
+        insert timesheetLineItem;
+        
+        List<Timesheet_Line_Item__c> timesheetLineItems = new List<Timesheet_Line_Item__c>();
+        timesheetLineItems.add(timesheetLineItem2);
+        
+        System.runAs(noAccessUser){
+            Test.startTest();
+            TimesheetLineItemTriggerHandler.checkExistingProjectAndActivity(timesheetLineItems);
+            Test.stopTest();
+            
+            List<Database.Error> errors = timesheetLineItem2.getErrors();
+            Assert.areEqual('You do not have access, Please contact system admin', errors.get(0).getMessage());
         }
     }
     

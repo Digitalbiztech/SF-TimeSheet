@@ -23,33 +23,38 @@ public class EmployeeTriggerHandlerTest {
         insert employee1;
         
         Employee__c employee2 = createEmployeeForUser(standardUser.Id);
+        List<Employee__c> employees = new List<Employee__c>();
+        employees.add(employee2);
         System.runAs(adminUser){
+            
             Test.startTest();
-            try{
-                insert employee2;
-            }catch(DMLException e){
-                Assert.areEqual('An Employee with same user already exists', e.getDmlMessage(0), 'Assertion failed for error message when inserting second Employee with same user');
-            }  
+            EmployeeTriggerHandler.checkUserDuplicationForEmployeeBeforeInsert(employees);
             Test.stopTest();
+            
+            List<Database.Error> errors = employee2.getErrors();
+            Assert.areEqual(1, errors.size());
+            Assert.areEqual('An Employee with same user already exists', errors.get(0).getMessage());
         }
     }
     
     @isTest
-    public static void beforeInsertTestWithException(){
+    public static void beforeInsertTestWithError(){
         User standardUser = [Select Id, Name from User where FirstName = 'Standard' AND LastName = 'User' LIMIT 1];
-        User adminUser = [Select Id, Name from User where FirstName = 'Admin' AND LastName = 'User' LIMIT 1];
         Employee__c employee1 = createEmployeeForUser(standardUser.Id);
         insert employee1;
         
         Employee__c employee2 = createEmployeeForUser(standardUser.Id);
+        List<Employee__c> employees = new List<Employee__c>();
+        employees.add(employee2);
         System.runAs(standardUser){
+            
             Test.startTest();
-            try{
-                insert employee2;
-            }catch(Exception e){
-                Assert.areEqual('Script-thrown exception', e.getMessage());
-            }  
+            EmployeeTriggerHandler.checkUserDuplicationForEmployeeBeforeInsert(employees);
             Test.stopTest();
+            
+            List<Database.Error> errors = employee2.getErrors();
+            Assert.areEqual(1, errors.size());
+            Assert.areEqual('You do not have access, Please contact system admin', errors.get(0).getMessage());
         }
     }
     
@@ -65,14 +70,43 @@ public class EmployeeTriggerHandlerTest {
         insert employee2;
         
         employee2.User__c = standardUser.Id;
+        List<Employee__c> employees = new List<Employee__c>();
+        employees.add(employee2);
         System.runAs(adminUser){
+            
             Test.startTest();
-            try{
-                update employee2;
-            }catch(DMLException e){
-                Assert.areEqual('An Employee with same user already exists', e.getDmlMessage(0), 'Assertion failed for error message when inserting second Employee with same user');
-            }  
+  			EmployeeTriggerHandler.checkUserDuplicationForEmployeeBeforeUpdate(employees);
             Test.stopTest();
+            
+            List<Database.Error> errors = employee2.getErrors();
+            Assert.areEqual(1, errors.size());
+            Assert.areEqual('An Employee with same user already exists', errors.get(0).getMessage());
+        }
+    }
+    
+        @isTest
+    public static void beforeUpdateTestWithError(){
+        User standardUser = [Select Id, Name from User where FirstName = 'Standard' AND LastName = 'User' LIMIT 1];
+        User standardUser2 = [Select Id, Name from User where FirstName = 'Standard' AND LastName = 'User2' LIMIT 1];
+        User adminUser = [Select Id, Name from User where FirstName = 'Admin' AND LastName = 'User' LIMIT 1];
+        Employee__c employee1 = createEmployeeForUser(standardUser.Id);
+        insert employee1;
+        
+        Employee__c employee2 = createEmployeeForUser(standardUser2.Id);
+        insert employee2;
+        
+        employee2.User__c = standardUser.Id;
+        List<Employee__c> employees = new List<Employee__c>();
+        employees.add(employee2);
+        System.runAs(standardUser){
+            
+            Test.startTest();
+  			EmployeeTriggerHandler.checkUserDuplicationForEmployeeBeforeUpdate(employees);
+            Test.stopTest();
+            
+            List<Database.Error> errors = employee2.getErrors();
+            Assert.areEqual(1, errors.size());
+            Assert.areEqual('You do not have access, Please contact system admin', errors.get(0).getMessage());
         }
     }
     
