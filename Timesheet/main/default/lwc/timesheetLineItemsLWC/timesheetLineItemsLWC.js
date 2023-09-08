@@ -4,18 +4,18 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
 import updateTimesheetLineItems from '@salesforce/apex/TimesheetLineItemLwcController.updateTimesheetLineItems';
 import getProjects from '@salesforce/apex/TimesheetLineItemLwcController.getProjects';
-import getEmployee from '@salesforce/apex/TimesheetLineItemLwcController.getEmployee';
 import getTimesheetLineItems from '@salesforce/apex/TimesheetLineItemLwcController.getTimesheetLineItems';
 
 import START_DATE from '@salesforce/schema/Timesheet__c.Start_Date__c';
 import END_DATE from '@salesforce/schema/Timesheet__c.End_Date__c';
+import EMPLOYEE_NAME from '@salesforce/schema/Timesheet__c.Employee__r.Name';
+import EMPLOYEE_ID from '@salesforce/schema/Timesheet__c.Employee__r.Id';
 
-const fields = [START_DATE, END_DATE];
+const fields = [START_DATE, END_DATE, EMPLOYEE_NAME, EMPLOYEE_ID];
 
 export default class TimesheetLineItemsLWC extends LightningElement {
 
-    @track timeSheetLineItems = [];
-  copyOfTimesheetLineItems = [];
+  @track timeSheetLineItems = [];
   wiredLineItems;
   error;
   itemsToDelete = [];
@@ -25,52 +25,45 @@ export default class TimesheetLineItemsLWC extends LightningElement {
   projectId;
   @api recordId;
 
-  @wire(getTimesheetLineItems, { timesheetId: '$recordId'})
-  wiredTimesheetLineItems(result){
-    console.log('In wire method');
-      this.wiredLineItems = result;
-      if(result.data){
-        this.handleData(result.data)
-      }else if (result.error){
-          this.error = result.error;
-      }
+  @wire(getTimesheetLineItems, { timesheetId: '$recordId' })
+  wiredTimesheetLineItems(result) {
+    this.wiredLineItems = result;
+    if (result.data) {
+      this.handleData(result.data)
+    } else if (result.error) {
+      this.error = result.error;
+    }
   }
 
   @wire(getRecord, { recordId: '$recordId', fields })
   timesheet;
 
   get startDate() {
-    console.log('In startDate method');
-      return getFieldValue(this.timesheet.data, START_DATE);
+    return getFieldValue(this.timesheet.data, START_DATE);
   }
 
   get endDate() {
-    console.log('In endDate method');
-      return getFieldValue(this.timesheet.data, END_DATE);
+    return getFieldValue(this.timesheet.data, END_DATE);
   }
 
-  get options(){
-    console.log('In options method');
+  get employeeName() {
+    return getFieldValue(this.timesheet.data, EMPLOYEE_NAME);
+  }
+
+  get employeeId() {
+    return getFieldValue(this.timesheet.data, EMPLOYEE_ID);
+  }
+
+  get options() {
     return this.optionArray;
   }
 
-  getEmployeeId() {
-    console.log('In getEmployeeId method');
-    getEmployee({ timesheetrecordId: this.recordId })
-      .then(result => {
-        console.log('In then Result of getEmployeeId');
-        this.empId = result.Id;
-        this.empName = result.Name;
-        this.getProjectValues(result.Id);
-      })
-      .catch(error => {
-        console.error(error);
-      });
+  populateProjects() {
+    this.getProjectValues(this.employeeId);
   }
 
-  getProjectValues(empIDFromMethod){
-    console.log('In getProjectValues method');
-    getProjects({empId:empIDFromMethod}).then((result) => {
+  getProjectValues(empIDFromMethod) {
+    getProjects({ empId: empIDFromMethod }).then((result) => {
       let arr = [];
       for (let i = 0; i < result.length; i++) {
         arr.push({
@@ -81,22 +74,13 @@ export default class TimesheetLineItemsLWC extends LightningElement {
       this.optionArray = arr;
     })
   }
-  
-  connectedCallback() {
-    console.log('In connectedCallback method');
-    this.getEmployeeId();
-  }
 
   createEmptyRow(items) {
-    console.log('In createEmptyRow method');
     let timesheetLineItem = {};
-    console.log('The length of items is : '+items.length);
     if (items.length > 0) {
-      console.log('if items length is greater than 0');
       timesheetLineItem.index =
-      items[items.length-1].index + 1;
+        items[items.length - 1].index + 1;
     } else {
-      console.log('else of items length greater than zero');
       timesheetLineItem.index = 1;
     }
     timesheetLineItem.Type__c = 'Attendance';
@@ -113,13 +97,10 @@ export default class TimesheetLineItemsLWC extends LightningElement {
   }
 
   addNewRow() {
-    console.log('In addNewRow method');
     this.createEmptyRow(this.timeSheetLineItems);
   }
 
   update() {
-    console.log('In update method');
-
     updateTimesheetLineItems({
       timesheetLineItems: this.timeSheetLineItems, idsToDelete: this.itemsToDelete
     }).then(() => {
@@ -129,25 +110,28 @@ export default class TimesheetLineItemsLWC extends LightningElement {
         variant: 'success',
         mode: 'dismissible'
       });
-        this.dispatchEvent(event);
-      }).catch((error) => {
-        console.log(error);
-        let errorMessage = error.body.pageErrors[0].message;
-        this.dispatchEvent(
-          new ShowToastEvent({
-            title: 'Error',
-            message: errorMessage,
-            variant: 'error',
-            mode: 'dismissible'
-          })
-        );
-      });
-      this.itemsToDelete = [];
-      console.log('items to delete has been emptied');
+      this.dispatchEvent(event);
+    }).catch((error) => {
+      let errorMessages = [];
+      let fieldErrors = error.body.fieldErrors;
+      let pageErrors = error.body.pageErrors;
+      let errors = Object.values(fieldErrors);
+      errors.forEach((error) => errorMessages.push(((error[0].message))));
+      pageErrors.forEach((error) => errorMessages.push(error.message));
+      errorMessages.forEach((errorMessage) =>
+      this.dispatchEvent(
+        new ShowToastEvent({
+          title: 'Error',
+          message: errorMessage,
+          variant: 'error',
+          mode: 'dismissible'
+        })
+      ));
+    });
+    this.itemsToDelete = [];
   }
 
   handleChange(event) {
-    console.log('In handleChange method');
     let index = event.target.dataset.id;
     let field = event.target.name;
     let value = event.target.value;
@@ -162,31 +146,31 @@ export default class TimesheetLineItemsLWC extends LightningElement {
         this.timeSheetLineItems[i].isAttendance = false;
         this.timeSheetLineItems[i].Project__c = null;
         this.timeSheetLineItems[i].Activity__c = null;
-      }else if(this.timeSheetLineItems[i].Type__c === "Attendance"){
+      } else if (this.timeSheetLineItems[i].Type__c === "Attendance") {
         this.timeSheetLineItems[i].isAbsence = false;
         this.timeSheetLineItems[i].isAttendance = true;
         this.timeSheetLineItems[i].Absence_Category__c = null;
       }
+      if (this.timeSheetLineItems[i].Type__c === "Absence") {
+        if(this.timeSheetLineItems[i].Absence_Category__c ==='Holiday'){
+          this.timeSheetLineItems[i].Duration__c = 8;
+        }
+      } 
     }
   }
 
-  handleCancel(){
+  handleCancel() {
     location.reload();
   }
 
-  handleData(data){
-    console.log('In handleData method');
-    console.log(JSON.stringify(data));
-    console.log('The lenght of the data is : '+data.length);
-    if(data.length <=0){
-      console.log('The data length is zero');
+  handleData(data) {
+    if (data.length <= 0) {
       this.createEmptyRow(this.timeSheetLineItems);
-    }else if(data.length > 0){
-      console.log('The data length is greater than zero');
+    } else if (data.length > 0) {
       let items = [];
-      for(let i=0; i<data.length; i++){
+      for (let i = 0; i < data.length; i++) {
         let timesheetLineItem = {};
-        timesheetLineItem.index = i+1;
+        timesheetLineItem.index = i + 1;
         timesheetLineItem.Id = data[i].Id;
         timesheetLineItem.Type__c = data[i].Type__c;
         timesheetLineItem.Timesheet__c = data[i].Timesheet__c;
@@ -196,10 +180,10 @@ export default class TimesheetLineItemsLWC extends LightningElement {
         timesheetLineItem.Absence_Category__c = data[i].Absence_Category__c;
         timesheetLineItem.Duration__c = data[i].Duration__c;
         timesheetLineItem.Description__c = data[i].Description__c;
-        if(timesheetLineItem.Type__c === "Attendance"){
+        if (timesheetLineItem.Type__c === "Attendance") {
           timesheetLineItem.isAttendance = true;
           timesheetLineItem.isAbsence = false;
-        }else if(timesheetLineItem.Type__c === "Absence"){
+        } else if (timesheetLineItem.Type__c === "Absence") {
           timesheetLineItem.isAttendance = false;
           timesheetLineItem.isAbsence = true;
         }
@@ -209,23 +193,21 @@ export default class TimesheetLineItemsLWC extends LightningElement {
       this.copyOfTimesheetLineItems = items;
       this.error = undefined;
     }
+    this.populateProjects();
   }
 
-  deleteItem(event){
-    console.log('In deleteItem method');
+  deleteItem(event) {
     let toBeDeletedRowIndex = event.target.dataset.id;
     let timeSheetLineItems = [];
-    for(let i = 0; i < this.timeSheetLineItems.length; i++) {
-        let tempRecord = Object.assign({}, this.timeSheetLineItems[i]); //cloning object
-        delete tempRecord.isAbsence;
-        delete tempRecord.isAttendance;
-        if(tempRecord.index != toBeDeletedRowIndex) {
-          timeSheetLineItems.push(tempRecord);
-        }else{
-          this.itemsToDelete.push(tempRecord.Id);
-        }
+    for (let i = 0; i < this.timeSheetLineItems.length; i++) {
+      let tempRecord = Object.assign({}, this.timeSheetLineItems[i]); //cloning object
+      if (tempRecord.index != toBeDeletedRowIndex) {
+        timeSheetLineItems.push(tempRecord);
+      } else {
+        this.itemsToDelete.push(tempRecord.Id);
+      }
     }
-    for(let i = 0; i < timeSheetLineItems.length; i++) {
+    for (let i = 0; i < timeSheetLineItems.length; i++) {
       timeSheetLineItems[i].index = i + 1;
     }
     this.timeSheetLineItems = timeSheetLineItems;

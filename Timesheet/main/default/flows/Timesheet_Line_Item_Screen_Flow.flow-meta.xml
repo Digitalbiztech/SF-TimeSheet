@@ -259,7 +259,7 @@
             <targetReference>Get_Employee_Project_Obj_Records</targetReference>
         </connector>
     </start>
-    <status>Active</status>
+    <status>Obsolete</status>
     <variables>
         <name>recordId</name>
         <dataType>SObject</dataType>

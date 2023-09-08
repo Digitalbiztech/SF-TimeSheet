@@ -7,9 +7,6 @@
                     <name>actionNames</name>
                     <valueList>
                         <valueListItems>
-                            <value>Timesheet__c.Custom_New</value>
-                        </valueListItems>
-                        <valueListItems>
                             <value>Submit</value>
                             <visibilityRule>
                                 <booleanFilter>1 AND 2</booleanFilter>

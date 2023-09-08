@@ -23,39 +23,6 @@ public class TimesheetLineItemLwcController {
            }
         return projectEmployeeList;
     }
-
-    @AuraEnabled
-    public static Employee__c getEmployee(String timesheetrecordId){
-        Id employeeId;
-        Employee__c employee;
-        if(Timesheet__c.SObjectType.getDescribe().isAccessible() &&
-           Schema.SObjectType.Timesheet__c.fields.Employee__c.isAccessible()){
-               Timesheet__c timesheet = [SELECT 
-                                         Employee__c 
-                                         FROM Timesheet__c 
-                                         WHERE Id =: timesheetrecordId 
-                                         with SECURITY_ENFORCED];
-               employeeId = timesheet.Employee__c;
-           } else{
-               AuraHandledException ae = new AuraHandledException('You do not have access, please contact System Admin');
-               ae.setMessage(errorMessage);
-               throw ae;
-           }
-           if(Employee__c.SObjectType.getDescribe().isAccessible() &&
-              Schema.SObjectType.Employee__c.fields.Name.isAccessible() &&
-              Schema.SObjectType.Employee__c.fields.Id.isAccessible()){
-                  employee = [SELECT Id,
-                              Name FROM 
-                              Employee__c 
-                              WHERE Id =:employeeId 
-                              with SECURITY_ENFORCED];
-            } else{
-                  AuraHandledException ae = new AuraHandledException('You do not have access, please contact System Admin');
-               	  ae.setMessage(errorMessage);
-               	  throw ae;
-            }
-        return employee;
-    }
     
     @AuraEnabled(cacheable=true)
     public static List<Timesheet_Line_Item__c> getTimesheetLineItems(Id timesheetId){
@@ -95,7 +62,7 @@ public class TimesheetLineItemLwcController {
         if(idsToDelete != null && idsToDelete.size() > 0){
             deleteTimesheetLineItems(idsToDelete);
         }
-        if(timesheetLineItems != null && timesheetLineItems.size() !=0){
+        if(timesheetLineItems != null && timesheetLineItems.size() >0){
             upsertTimesheetRecords(timesheetLineItems);
         }
     }

@@ -23,60 +23,58 @@ public with sharing class EmployeeTriggerHandler {
     }
     
     private static Map<Id, Employee__c> getUserEmployeeMapForBeforeInsert(List<Employee__c> employees){
-       List<Id> userIds = new List<Id>();
-       for(Employee__c	 employee : employees){
-           userIds.add(employee.User__c);
-       }
-       Map<Id, Employee__c> employeeMap = new Map<Id, Employee__c>();
+        Map<Id, Employee__c> userEmployeeMap = new Map<Id, Employee__c>();
         if(Employee__c.SObjectType.getDescribe().isCreateable() &&
-           Schema.SObjectType.Employee__c.fields.Id.isAccessible() &&
-           Schema.SObjectType.Employee__c.fields.User__c.isAccessible()) {
-               employeeMap = new Map<Id, Employee__c	>([SELECT
+        Schema.SObjectType.Employee__c.fields.User__c.isCreateable()) {
+            Map<Id, Employee__c> employeeMap = new Map<Id, Employee__c>([SELECT
                                                            Id, 
                                                            User__c 
                                                            FROM Employee__c	 
-                                                           WHERE User__c = : userIds 
+                                                           WHERE User__c = : getUserIds(employees) 
                                                            WITH SECURITY_ENFORCED]);
-           } else{
-               for(Employee__c	 employee : employees){
-           			employee.addError('You do not have access, Please contact system admin');
-       			}
-           }
-        Map<Id, Employee__c> userEmployeeMap = new Map<Id, Employee__c>();
-        if(employeeMap.size() > 0){
-            for(Id id : employeeMap.keySet()){
-            	userEmployeeMap.put(employeeMap.get(id).User__c, employeeMap.get(id));
-        	}
+            if(employeeMap != null && employeeMap.size() > 0){
+                for(Id id : employeeMap.keySet()){
+                    userEmployeeMap.put(employeeMap.get(id).User__c, employeeMap.get(id));
+                }
+            }                                         
+        } else{
+            addError(employees);
         }
         return userEmployeeMap;
     }
     
     private static Map<Id, Employee__c> getUserEmployeeMapForBeforeUpdate(List<Employee__c> employees){
-       List<Id> userIds = new List<Id>();
-       for(Employee__c	 employee : employees){
-           userIds.add(employee.User__c);
-       }
-       Map<Id, Employee__c> employeeMap = new Map<Id, Employee__c>();
-        if(Employee__c.SObjectType.getDescribe().isUpdateable() &&
-           Schema.SObjectType.Employee__c.fields.Id.isAccessible() &&
-           Schema.SObjectType.Employee__c.fields.User__c.isAccessible()) {
-               employeeMap = new Map<Id, Employee__c	>([SELECT
-                                                           Id, 
-                                                           User__c 
-                                                           FROM Employee__c	 
-                                                           WHERE User__c = : userIds 
-                                                           WITH SECURITY_ENFORCED]);
-           } else{
-               for(Employee__c	 employee : employees){
-           			employee.addError('You do not have access, Please contact system admin');
-       			}
-           }
         Map<Id, Employee__c> userEmployeeMap = new Map<Id, Employee__c>();
-        if(employeeMap.size() > 0){
-            for(Id id : employeeMap.keySet()){
-            	userEmployeeMap.put(employeeMap.get(id).User__c, employeeMap.get(id));
-        	}
+        if(Employee__c.SObjectType.getDescribe().isUpdateable() &&
+        Schema.SObjectType.Employee__c.fields.User__c.isUpdateable()) {
+            Map<Id, Employee__c> employeeMap = new Map<Id, Employee__c>([SELECT
+                                                        Id, 
+                                                        User__c 
+                                                        FROM Employee__c	 
+                                                        WHERE User__c = : getUserIds(employees) 
+                                                        WITH SECURITY_ENFORCED]);
+            if(employeeMap != null && employeeMap.size() > 0){
+                for(Id id : employeeMap.keySet()){
+                    userEmployeeMap.put(employeeMap.get(id).User__c, employeeMap.get(id));
+                }
+            }
+        } else{
+            addError(employees);
         }
         return userEmployeeMap;
+    }
+
+    private static List<Id> getUserIds(List<Employee__c> employees){
+        List<Id> userIds = new List<Id>();
+        for(Employee__c	 employee : employees){
+            userIds.add(employee.User__c);
+        }
+        return userIds;
+    }
+
+    private static void addError(List<Employee__c> employees){
+        for(Employee__c	 employee : employees){
+            employee.addError('You do not have access, Please contact system admin');
+        }
     }
 }

@@ -52,34 +52,6 @@ public class TimesheetLineItemLwcControllerTest {
                 List<Project_Employee__c> projectEmployees = TimesheetLineItemLwcController.getProjects(employee.Id);
                 Test.stopTest();
             }catch(AuraHandledException e){
-                System.debug(e);
-                Assert.areEqual('You do not have access, please contact System Admin', e.getMessage());
-            }
-        }
-    }
-    
-    @isTest
-    public static void getEmployeeTest(){
-		Timesheet__c timesheet = [Select Id, Name from Timesheet__c LIMIT 1];
-        User u = [Select Id, Name from User Where FirstName = 'Standard' AND LastName ='User'];
-        System.runAs(u){
-            Test.startTest();
-            Employee__c employee = TimesheetLineItemLwcController.getEmployee(timesheet.Id);
-            Test.stopTest();
-            Assert.areEqual('first  last', employee.Name, 'Assertion failed for the Employee Name');
-        }
-    }
-    
-        @isTest
-    public static void getEmployeeTestWithException(){
-		Timesheet__c timesheet = [Select Id, Name from Timesheet__c LIMIT 1];
-        User u = [Select Id, Name from User Where FirstName = 'NoAccess' AND LastName ='User'];
-        System.runAs(u){
-            try{
-                Test.startTest();
-                Employee__c employee = TimesheetLineItemLwcController.getEmployee(timesheet.Id);
-                Test.stopTest();
-            }catch(Exception e){
                 Assert.areEqual('You do not have access, please contact System Admin', e.getMessage());
             }
         }

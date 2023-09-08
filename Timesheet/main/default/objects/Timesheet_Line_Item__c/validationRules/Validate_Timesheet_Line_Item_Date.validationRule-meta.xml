@@ -5,5 +5,5 @@
     <errorConditionFormula>OR(Date__c      &lt;      Timesheet__r.Start_Date__c,
 Date__c        &gt;    Timesheet__r.End_Date__c )</errorConditionFormula>
     <errorDisplayField>Date__c</errorDisplayField>
-    <errorMessage>The Date should be between Start Date and End Date of the Timesheet Master.</errorMessage>
+    <errorMessage>Date value should be between Start Date and End Date of the Timesheet.</errorMessage>
 </ValidationRule>

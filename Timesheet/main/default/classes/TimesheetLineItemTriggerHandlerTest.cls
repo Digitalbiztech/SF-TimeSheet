@@ -113,7 +113,7 @@ public class TimesheetLineItemTriggerHandlerTest {
             timesheetLineItems.add(timesheetLineItem2);
             
             Test.startTest();
-            TimesheetLineItemTriggerHandler.checkExistingProjectAndActivity(timesheetLineItems);
+            TimesheetLineItemTriggerHandler.checkForDuplicateTimesheetLineItem(timesheetLineItems);
             Test.stopTest();
             
             List<Database.Error> errors = timesheetLineItem2.getErrors();
@@ -135,7 +135,7 @@ public class TimesheetLineItemTriggerHandlerTest {
         
         System.runAs(noAccessUser){
             Test.startTest();
-            TimesheetLineItemTriggerHandler.checkExistingProjectAndActivity(timesheetLineItems);
+            TimesheetLineItemTriggerHandler.checkForDuplicateTimesheetLineItem(timesheetLineItems);
             Test.stopTest();
             
             List<Database.Error> errors = timesheetLineItem2.getErrors();
