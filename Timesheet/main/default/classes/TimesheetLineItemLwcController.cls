@@ -47,8 +47,9 @@ public class TimesheetLineItemLwcController {
                                         Description__c,
                                         Duration__c
                                         FROM Timesheet_Line_Item__c
-                                        WHERE Timesheet__c=:timesheetId 
-                                        with SECURITY_ENFORCED];
+                                        WHERE Timesheet__c=:timesheetId
+                                        with SECURITY_ENFORCED
+                                        ORDER BY Date__c ASC];
            } else{
                AuraHandledException ae = new AuraHandledException('You do not have access, please contact System Admin');
                ae.setMessage(errorMessage);

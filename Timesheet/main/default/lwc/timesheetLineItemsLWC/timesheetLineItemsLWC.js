@@ -1,6 +1,7 @@
 import { LightningElement, track, api, wire } from 'lwc';
 import { getRecord, getFieldValue } from 'lightning/uiRecordApi';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import { refreshApex } from '@salesforce/apex';
 
 import updateTimesheetLineItems from '@salesforce/apex/TimesheetLineItemLwcController.updateTimesheetLineItems';
 import getProjects from '@salesforce/apex/TimesheetLineItemLwcController.getProjects';
@@ -62,6 +63,7 @@ export default class TimesheetLineItemsLWC extends LightningElement {
     this.getProjectValues(this.employeeId);
   }
 
+
   getProjectValues(empIDFromMethod) {
     getProjects({ empId: empIDFromMethod }).then((result) => {
       let arr = [];
@@ -111,6 +113,7 @@ export default class TimesheetLineItemsLWC extends LightningElement {
         mode: 'dismissible'
       });
       this.dispatchEvent(event);
+      return refreshApex(this.wiredLineItems);
     }).catch((error) => {
       let errorMessages = [];
       let fieldErrors = error.body.fieldErrors;
@@ -119,14 +122,14 @@ export default class TimesheetLineItemsLWC extends LightningElement {
       errors.forEach((error) => errorMessages.push(((error[0].message))));
       pageErrors.forEach((error) => errorMessages.push(error.message));
       errorMessages.forEach((errorMessage) =>
-      this.dispatchEvent(
-        new ShowToastEvent({
-          title: 'Error',
-          message: errorMessage,
-          variant: 'error',
-          mode: 'dismissible'
-        })
-      ));
+        this.dispatchEvent(
+          new ShowToastEvent({
+            title: 'Error',
+            message: errorMessage,
+            variant: 'error',
+            mode: 'dismissible'
+          })
+        ));
     });
     this.itemsToDelete = [];
   }
@@ -152,10 +155,10 @@ export default class TimesheetLineItemsLWC extends LightningElement {
         this.timeSheetLineItems[i].Absence_Category__c = null;
       }
       if (this.timeSheetLineItems[i].Type__c === "Absence") {
-        if(this.timeSheetLineItems[i].Absence_Category__c ==='Holiday'){
+        if (this.timeSheetLineItems[i].Absence_Category__c === 'Holiday') {
           this.timeSheetLineItems[i].Duration__c = 8;
         }
-      } 
+      }
     }
   }
 
@@ -190,7 +193,6 @@ export default class TimesheetLineItemsLWC extends LightningElement {
         items.push(timesheetLineItem);
       }
       this.timeSheetLineItems = items;
-      this.copyOfTimesheetLineItems = items;
       this.error = undefined;
     }
     this.populateProjects();
