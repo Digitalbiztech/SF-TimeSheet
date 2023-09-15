@@ -14,20 +14,23 @@ public class TimesheetLineItemLwcControllerTest {
         insert adminUser;
         
         assignpermissionSetForAdmin(adminUser);
-        Employee__c employee = createEmployeeForUser(standardUser.Id);
-        insert employee;
         
-        Timesheet__c timesheet = createTimesheet(employee.Id, standardUser.Id);
-        insert timesheet;
-        
-        Project__c project = createProjectAsBillable('Test Project','Yes');
-        insert project;
-        
-        Project_Employee__c projectEmployee = createProjectEmployee(project.id, employee.Id);
-        insert projectEmployee;
-        
-        Timesheet_Line_Item__c timesheetLineItem = createTimesheetLineItem(timesheet.Id, project.Id);
-        insert timesheetLineItem;
+        System.runAs(adminUser){
+            Employee__c employee = createEmployeeForUser(standardUser.Id);
+            insert employee;
+            
+            Timesheet__c timesheet = createTimesheet(employee.Id, standardUser.Id);
+            insert timesheet;
+            
+            Project__c project = createProjectAsBillable('Test Project','Yes');
+            insert project;
+            
+            Project_Employee__c projectEmployee = createProjectEmployee(project.id, employee.Id);
+            insert projectEmployee;
+            
+            Timesheet_Line_Item__c timesheetLineItem = createTimesheetLineItem(timesheet.Id, project.Id);
+        	insert timesheetLineItem;
+        }
     }
     
     @isTest
@@ -86,23 +89,27 @@ public class TimesheetLineItemLwcControllerTest {
     
     @isTest
     public static void updateTimesheetLineItemsTest(){
+        User u = [Select Id, Name from User Where FirstName = 'Standard' AND LastName ='User'];
+        User adminUser = [Select Id, Name from User Where FirstName = 'Admin' AND LastName ='User'];
         Timesheet__c timesheet = [Select Id, Name from Timesheet__c LIMIT 1];
         Timesheet_Line_Item__c timesheetLineItem1 = [Select Id, Name, Employee__c from Timesheet_Line_Item__c LIMIT 1];
         Project__c newProject = createProjectAsBillable('TestName', 'Yes');
-        insert newProject;
+        System.runAs(adminUser){
+            insert newProject;
+        }
         Timesheet_Line_Item__c timesheetLineItem2 = createTimesheetLineItem(timesheet.Id, newProject.Id);
         timesheetLineItem2.Activity__c = 'Testing';
         List<Timesheet_Line_Item__c> timesheetLineItems = new List<Timesheet_Line_Item__c>();
         timesheetLineItems.add(timesheetLineItem2);
         List<Id> ids = new List<Id>();
         ids.add(timesheetLineItem1.Id);
-        
-        Test.startTest();
-        TimesheetLineItemLwcController.updateTimesheetLineItems(timesheetLineItems, ids);
-        Test.stopTest();
-        
-        Timesheet_Line_Item__c timesheetLineItemFromDB = [Select Id, Name from Timesheet_Line_Item__c LIMIT 1];
-        Assert.areNotEqual(timesheetLineItem1.Id, timesheetLineItemFromDB.Id, 'Assertion failed when two timesheet line items should not match');
+        System.runAs(u){
+            Test.startTest();
+            TimesheetLineItemLwcController.updateTimesheetLineItems(timesheetLineItems, ids);
+            Test.stopTest();
+        }
+        List<Timesheet_Line_Item__c> timesheetLineItemsFromDB = [Select Id, Name from Timesheet_Line_Item__c];
+        Assert.areEqual(1, timesheetLineItemsFromDB.size(), 'Assertion failed for the size fo timesheet line itmes');
 
     }
     
@@ -110,8 +117,11 @@ public class TimesheetLineItemLwcControllerTest {
     public static void updateTimesheetLineItemsTestWithException(){
         Timesheet__c timesheet = [Select Id, Name from Timesheet__c LIMIT 1];
         Timesheet_Line_Item__c timesheetLineItem1 = [Select Id, Name, Employee__c from Timesheet_Line_Item__c LIMIT 1];
+        User adminUser = [Select Id, Name from User Where FirstName = 'Admin' AND LastName ='User'];
         Project__c newProject = createProjectAsBillable('TestName', 'Yes');
-        insert newProject;
+        System.runAs(adminUser){
+            insert newProject;
+        }
         Timesheet_Line_Item__c timesheetLineItem2 = createTimesheetLineItem(timesheet.Id, newProject.Id);
         timesheetLineItem2.Activity__c = 'Testing';
         List<Timesheet_Line_Item__c> timesheetLineItems = new List<Timesheet_Line_Item__c>();

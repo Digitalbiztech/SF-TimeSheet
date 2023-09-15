@@ -3,6 +3,10 @@ public class TimesheetLineItemTriggerHandlerTest {
     
     @testSetup
     public static void setupData(){
+        
+        User adminUser = createAdminUser('Admin', 'User');
+        insert adminUser;
+        
         User noAccessUser = createUser('NoAccess', 'User');
         insert noAccessUser;
         
@@ -10,10 +14,12 @@ public class TimesheetLineItemTriggerHandlerTest {
         insert standardUser;
         
         assignpermissionSetForUser(standardUser);
-        
+        assignpermissionSetForAdmin(adminUser);
         Employee__c employee = createEmployeeForUser(standardUser.Id);
-        insert employee;
         
+        System.runAs(adminUser){
+            insert employee;
+        }        
         Timesheet__c timesheet = createTimesheet(employee.Id, standardUser.Id);
         insert timesheet;
         
@@ -100,7 +106,7 @@ public class TimesheetLineItemTriggerHandlerTest {
     }
     
     @isTest
-    public static void checkExistingProjectAndActivity(){
+    public static void checkForDuplicateTimesheetLineItemTest(){
         User standardUser = [Select Id, Name from User where FirstName = 'Standard' AND LastName = 'User' LIMIT 1];
         Timesheet__c timesheet = [Select Id, Name, Employee__c from Timesheet__c LIMIT 1];
         Project__c project = [Select Id, Name, Billable__c from Project__c LIMIT 1];
@@ -122,13 +128,17 @@ public class TimesheetLineItemTriggerHandlerTest {
     }
     
     @isTest
-    public static void checkExistingProjectAndActivityWithException(){
+    public static void checkForDuplicateTimesheetLineItemTestWithException(){
         User noAccessUser = [Select Id, Name from User where FirstName = 'NoAccess' AND LastName = 'User' LIMIT 1];
+        User standardUser = [Select Id, Name from User where FirstName = 'Standard' AND LastName = 'User' LIMIT 1];
         Timesheet__c timesheet = [Select Id, Name, Employee__c from Timesheet__c LIMIT 1];
         Project__c project = [Select Id, Name, Billable__c from Project__c LIMIT 1];
         Timesheet_Line_Item__c timesheetLineItem = createTimesheetLineItem(timesheet.Id, project.Id);
         Timesheet_Line_Item__c timesheetLineItem2 = createTimesheetLineItem(timesheet.Id, project.Id);
-        insert timesheetLineItem;
+        
+        System.runAs(standardUser){
+            insert timesheetLineItem;
+        }
         
         List<Timesheet_Line_Item__c> timesheetLineItems = new List<Timesheet_Line_Item__c>();
         timesheetLineItems.add(timesheetLineItem2);
@@ -220,5 +230,41 @@ public class TimesheetLineItemTriggerHandlerTest {
         u.LastName = lastName;
         u.Phone = '9876543210';
         return u;
+    }
+    
+    private static User createAdminUser(String firstName, String lastName){
+        Profile p = [Select Id, Name from Profile where Name = 'System Administrator' LIMIT 1];
+        User u = new User();
+        u.Email = 'testEmail@'+ Datetime.now().format('hh.mm.ss.SSS') + '.com';
+        u.ProfileId = p.Id;
+        u.Username = 'testUserName'+ Datetime.now().format('hh.mm.ss.SSS')+'@testmail.com';
+        u.Alias = 'abcd';
+        u.CommunityNickname = 'nickName' + Datetime.now().format('hh.mm.ss.SSS');
+        u.TimeZoneSidKey = 'America/Los_Angeles';
+        u.LocaleSidKey = 'en_US';
+        u.EmailEncodingKey='ISO-8859-1';
+        u.ManagerId = UserInfo.getUserId();
+        u.LanguageLocaleKey='en_US';
+        u.FirstName = firstName;
+        u.LastName = lastName;
+        u.Phone = '9876543210';
+        return u;
+    }
+    
+    private static void assignpermissionSetForAdmin(User u){
+        Id userId = UserInfo.getUserId();
+        User user = [Select Id, Name from User Where Id =: userId];
+        
+        PermissionSet ps = [Select 
+                            Id, 
+                            Name 
+                            FROM PermissionSet 
+                            WHERE Name = 'Timesheet_HR_Admin'];
+        System.runAs(user){
+            PermissionSetAssignment psa = new PermissionSetAssignment();
+        	psa.PermissionSetId = ps.Id;
+        	psa.AssigneeId = u.Id;
+            insert psa;
+        }
     }
 }

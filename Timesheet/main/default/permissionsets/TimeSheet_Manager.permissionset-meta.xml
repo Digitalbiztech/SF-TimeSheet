@@ -4,6 +4,22 @@
         <application>Timesheet</application>
         <visible>true</visible>
     </applicationVisibilities>
+    <classAccesses>
+        <apexClass>TimesheetLineItemController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>TimesheetLineItemLwcController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>TimesheetLineItemTriggerHandler</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <customMetadataTypeAccesses>
+        <enabled>true</enabled>
+        <name>Timesheet_Default_Value__mdt</name>
+    </customMetadataTypeAccesses>
     <fieldPermissions>
         <editable>false</editable>
         <field>Charge_Code__c.Description__c</field>
@@ -115,6 +131,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>Timesheet_Line_Item__c.Billable__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>Timesheet_Line_Item__c.Date__c</field>
         <readable>true</readable>
@@ -127,6 +148,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Timesheet_Line_Item__c.Employee__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Timesheet_Line_Item__c.Hours_Limit_Exceeded__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

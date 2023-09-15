@@ -20,12 +20,13 @@ public class EmployeeTriggerHandlerTest {
         User standardUser = [Select Id, Name from User where FirstName = 'Standard' AND LastName = 'User' LIMIT 1];
         User adminUser = [Select Id, Name from User where FirstName = 'Admin' AND LastName = 'User' LIMIT 1];
         Employee__c employee1 = createEmployeeForUser(standardUser.Id);
-        insert employee1;
-        
-        Employee__c employee2 = createEmployeeForUser(standardUser.Id);
         List<Employee__c> employees = new List<Employee__c>();
-        employees.add(employee2);
+        
         System.runAs(adminUser){
+            insert employee1;
+            
+            Employee__c employee2 = createEmployeeForUser(standardUser.Id);
+            employees.add(employee2);
             
             Test.startTest();
             EmployeeTriggerHandler.checkUserDuplicationForEmployeeBeforeInsert(employees);
@@ -40,12 +41,17 @@ public class EmployeeTriggerHandlerTest {
     @isTest
     public static void beforeInsertTestWithError(){
         User standardUser = [Select Id, Name from User where FirstName = 'Standard' AND LastName = 'User' LIMIT 1];
+        User adminUser = [Select Id, Name from User where FirstName = 'Admin' AND LastName = 'User' LIMIT 1];
         Employee__c employee1 = createEmployeeForUser(standardUser.Id);
-        insert employee1;
+        
+        System.runAs(adminUser){
+            insert employee1;
+        }
         
         Employee__c employee2 = createEmployeeForUser(standardUser.Id);
         List<Employee__c> employees = new List<Employee__c>();
         employees.add(employee2);
+        
         System.runAs(standardUser){
             
             Test.startTest();
@@ -64,14 +70,16 @@ public class EmployeeTriggerHandlerTest {
         User standardUser2 = [Select Id, Name from User where FirstName = 'Standard' AND LastName = 'User2' LIMIT 1];
         User adminUser = [Select Id, Name from User where FirstName = 'Admin' AND LastName = 'User' LIMIT 1];
         Employee__c employee1 = createEmployeeForUser(standardUser.Id);
-        insert employee1;
-        
         Employee__c employee2 = createEmployeeForUser(standardUser2.Id);
-        insert employee2;
         
+        System.runAs(adminUser){
+            insert employee1;
+        	insert employee2;
+        }
         employee2.User__c = standardUser.Id;
         List<Employee__c> employees = new List<Employee__c>();
         employees.add(employee2);
+        
         System.runAs(adminUser){
             
             Test.startTest();
@@ -90,14 +98,17 @@ public class EmployeeTriggerHandlerTest {
         User standardUser2 = [Select Id, Name from User where FirstName = 'Standard' AND LastName = 'User2' LIMIT 1];
         User adminUser = [Select Id, Name from User where FirstName = 'Admin' AND LastName = 'User' LIMIT 1];
         Employee__c employee1 = createEmployeeForUser(standardUser.Id);
-        insert employee1;
-        
         Employee__c employee2 = createEmployeeForUser(standardUser2.Id);
-        insert employee2;
+        
+        System.runAs(adminUser){
+            insert employee1;
+        	insert employee2;
+        }
         
         employee2.User__c = standardUser.Id;
         List<Employee__c> employees = new List<Employee__c>();
         employees.add(employee2);
+        
         System.runAs(standardUser){
             
             Test.startTest();

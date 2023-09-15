@@ -5,5 +5,5 @@
     <errorConditionFormula>AND(ISPICKVAL( Type__c , &quot;Absence&quot;) ,
  Duration__c  &gt; 8)</errorConditionFormula>
     <errorDisplayField>Duration__c</errorDisplayField>
-    <errorMessage>if the type is Absence the Duration fields value should not be greater than 8.</errorMessage>
+    <errorMessage>Duration cannot be greater than 8 for Absence.</errorMessage>
 </ValidationRule>
