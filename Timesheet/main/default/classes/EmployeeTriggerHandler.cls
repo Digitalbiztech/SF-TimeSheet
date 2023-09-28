@@ -15,7 +15,7 @@ public with sharing class EmployeeTriggerHandler {
        Map<Id, Employee__c> userEmployeeMap = getUserEmployeeMapForBeforeUpdate(employees);
         if (userEmployeeMap.size() > 0){
             for(Employee__c	 employee : employees){
-            	if(employee.Id != userEmployeeMap.get(employee.User__c).Id && userEmployeeMap.get(employee.User__c) != null){
+            	if(userEmployeeMap.get(employee.User__c) != null && employee.Id != userEmployeeMap.get(employee.User__c).Id  ){
                 	employee.User__c.addError('An Employee with same user already exists');
             	}
         	}
@@ -24,19 +24,9 @@ public with sharing class EmployeeTriggerHandler {
     
     private static Map<Id, Employee__c> getUserEmployeeMapForBeforeInsert(List<Employee__c> employees){
         Map<Id, Employee__c> userEmployeeMap = new Map<Id, Employee__c>();
-        if(Employee__c.SObjectType.getDescribe().isCreateable() &&
-        Schema.SObjectType.Employee__c.fields.User__c.isCreateable()) {
-            Map<Id, Employee__c> employeeMap = new Map<Id, Employee__c>([SELECT
-                                                           Id, 
-                                                           User__c 
-                                                           FROM Employee__c	 
-                                                           WHERE User__c = : getUserIds(employees) 
-                                                           WITH SECURITY_ENFORCED]);
-            if(employeeMap != null && employeeMap.size() > 0){
-                for(Id id : employeeMap.keySet()){
-                    userEmployeeMap.put(employeeMap.get(id).User__c, employeeMap.get(id));
-                }
-            }                                         
+        if(Employee__c.SObjectType.getDescribe().isCreateable() 
+        && Schema.SObjectType.Employee__c.fields.User__c.isCreateable()) {
+            userEmployeeMap = getUserEmployeeMap(employees);                                  
         } else{
             addError(employees);
         }
@@ -45,21 +35,27 @@ public with sharing class EmployeeTriggerHandler {
     
     private static Map<Id, Employee__c> getUserEmployeeMapForBeforeUpdate(List<Employee__c> employees){
         Map<Id, Employee__c> userEmployeeMap = new Map<Id, Employee__c>();
-        if(Employee__c.SObjectType.getDescribe().isUpdateable() &&
-        Schema.SObjectType.Employee__c.fields.User__c.isUpdateable()) {
-            Map<Id, Employee__c> employeeMap = new Map<Id, Employee__c>([SELECT
-                                                        Id, 
-                                                        User__c 
-                                                        FROM Employee__c	 
-                                                        WHERE User__c = : getUserIds(employees) 
-                                                        WITH SECURITY_ENFORCED]);
-            if(employeeMap != null && employeeMap.size() > 0){
-                for(Id id : employeeMap.keySet()){
-                    userEmployeeMap.put(employeeMap.get(id).User__c, employeeMap.get(id));
-                }
-            }
+        if(Employee__c.SObjectType.getDescribe().isUpdateable() 
+        && Schema.SObjectType.Employee__c.fields.User__c.isUpdateable()) {
+            userEmployeeMap = getUserEmployeeMap(employees);
         } else{
             addError(employees);
+        }
+        return userEmployeeMap;
+    }
+
+    private static Map<Id, Employee__c> getUserEmployeeMap(List<Employee__c> employees){
+        Map<Id, Employee__c> userEmployeeMap = new Map<Id, Employee__c>();
+        Map<Id, Employee__c> employeeMap = new Map<Id, Employee__c>([SELECT
+                                                            Id,
+                                                            User__c
+                                                            FROM Employee__c
+                                                            WHERE User__c = : getUserIds(employees)
+                                                            WITH SECURITY_ENFORCED]);
+        if(employeeMap != null && employeeMap.size() > 0){
+            for(Id id : employeeMap.keySet()){
+                userEmployeeMap.put(employeeMap.get(id).User__c, employeeMap.get(id));
+            }
         }
         return userEmployeeMap;
     }

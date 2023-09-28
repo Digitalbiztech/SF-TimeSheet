@@ -123,7 +123,7 @@ public class TimesheetLineItemTriggerHandlerTest {
             Test.stopTest();
             
             List<Database.Error> errors = timesheetLineItem2.getErrors();
-            Assert.areEqual('LineItem with the same project and activity already exists for this date, please update the existing record', errors.get(0).getMessage());
+            Assert.areEqual('LineItem with the same project and activity already exists for the same date, please update the existing record', errors.get(0).getMessage());
         }
     }
     

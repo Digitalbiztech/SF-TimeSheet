@@ -4,7 +4,7 @@ import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import { refreshApex } from "@salesforce/apex";
 
 import updateTimesheetLineItems from "@salesforce/apex/TimesheetLineItemLwcController.updateTimesheetLineItems";
-import getProjects from "@salesforce/apex/TimesheetLineItemLwcController.getProjects";
+import getProjects from "@salesforce/apex/ProjectController.getProjects";
 import getTimesheetLineItems from "@salesforce/apex/TimesheetLineItemLwcController.getTimesheetLineItems";
 
 import START_DATE from "@salesforce/schema/Timesheet__c.Start_Date__c";

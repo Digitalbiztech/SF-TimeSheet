@@ -37,8 +37,9 @@ public with sharing class TimesheetLineItemController {
                                     WITH SECURITY_ENFORCED 
                                     ORDER BY Date__c ASC ];
         } else{
-            AuraHandledException ae = new AuraHandledException('You do not have access, please contact system admin');
-            ae.setMessage('You do not have access, please contact system admin');
+            String errorMessage = 'You do not have access, please contact system admin';
+            AuraHandledException ae = new AuraHandledException(errorMessage);
+            ae.setMessage(errorMessage);
             throw ae;
         }
         return timesheetLineItems;

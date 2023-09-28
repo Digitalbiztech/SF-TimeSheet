@@ -34,33 +34,6 @@ public class TimesheetLineItemLwcControllerTest {
     }
     
     @isTest
-    public static void getProjectsTest(){
-        Employee__c employee = [SELECT Id, Name FROM Employee__c LIMIT 1];
-        User u = [Select Id, Name from User where FirstName = 'Standard' AND LastName = 'User' LIMIT 1];
-        System.runAs(u){
-            Test.startTest();
-            List<Project_Employee__c> projectEmployees = TimesheetLineItemLwcController.getProjects(employee.Id);
-            Test.stopTest();
-            Assert.areEqual(1, projectEmployees.size(), 'The projectEmployees size assertion failed');
-        }
-    }
-    
-    @isTest
-    public static void getProjectsTestwithException(){
-        Employee__c employee = [SELECT Id, Name FROM Employee__c LIMIT 1];
-        User u = [Select Id, Name from User Where FirstName = 'NoAccess' AND LastName ='User'];
-        System.runAs(u){
-            try{
-                Test.startTest();
-                List<Project_Employee__c> projectEmployees = TimesheetLineItemLwcController.getProjects(employee.Id);
-                Test.stopTest();
-            }catch(AuraHandledException e){
-                Assert.areEqual('You do not have access, please contact System Admin', e.getMessage());
-            }
-        }
-    }
-    
-    @isTest
     public static void getTimesheetLineItemsTest(){
         Timesheet__c timesheet = [Select Id, Name from Timesheet__c LIMIT 1];
         User u = [Select Id, Name from User Where FirstName = 'Standard' AND LastName ='User'];
