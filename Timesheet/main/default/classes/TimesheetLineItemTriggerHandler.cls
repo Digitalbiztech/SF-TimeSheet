@@ -53,7 +53,6 @@ public with sharing class TimesheetLineItemTriggerHandler {
     }
     
     public static void checkForDuplicateTimesheetLineItem(List<Timesheet_Line_Item__c> timesheetLineItems){
-        Map<Id, Timesheet_Line_Item__c> timesheetLineItemMap = new Map<Id, Timesheet_Line_Item__c>();
         if(Timesheet_Line_Item__c.SObjectType.getDescribe().isAccessible() 
         && Schema.SObjectType.Timesheet_Line_Item__c.fields.Id.isAccessible() 
         && Schema.SObjectType.Timesheet_Line_Item__c.fields.Project__c.isAccessible() 
@@ -99,7 +98,7 @@ public with sharing class TimesheetLineItemTriggerHandler {
             dates.add(timesheetLineItem.Date__c);
             timesheetIds.add(timesheetLineItem.Timesheet__c);
         }
-        timesheetLineItemMap = new Map<Id, Timesheet_Line_Item__c>([SELECT
+        Map<Id, Timesheet_Line_Item__c> timesheetLineItemMap = new Map<Id, Timesheet_Line_Item__c>([SELECT
                                                                     Id,
                                                                     Project__c,
                                                                     Date__c,

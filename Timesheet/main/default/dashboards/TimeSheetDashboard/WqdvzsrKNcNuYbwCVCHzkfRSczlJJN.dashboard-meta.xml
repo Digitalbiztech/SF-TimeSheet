@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Dashboard xmlns="http://soap.sforce.com/2006/04/metadata">
     <backgroundEndColor>#FFFFFF</backgroundEndColor>
     <backgroundFadeDirection>Diagonal</backgroundFadeDirection>
@@ -26,7 +26,8 @@
                 <drillToDetailEnabled>false</drillToDetailEnabled>
                 <enableHover>false</enableHover>
                 <expandOthers>false</expandOthers>
-                <groupingColumn>Timesheet_Line_Item__c.Project__c</groupingColumn>
+                <groupingColumn
+        >Timesheet_Line_Item__c.Project__c</groupingColumn>
                 <groupingSortProperties>
                     <groupingSorts>
                         <groupingLevel>g1</groupingLevel>
@@ -35,7 +36,8 @@
                 </groupingSortProperties>
                 <header>Project wise report for Current Month</header>
                 <legendPosition>Bottom</legendPosition>
-                <report>TimeSheetReports/Time_sheet_project_wise_report_Monthly_MnY</report>
+                <report
+        >TimeSheetReports/Time_sheet_project_wise_report_Monthly_MnY</report>
                 <showPercentage>false</showPercentage>
                 <showValues>true</showValues>
                 <sortBy>RowLabelAscending</sortBy>
@@ -62,7 +64,8 @@
                 <drillToDetailEnabled>false</drillToDetailEnabled>
                 <enableHover>false</enableHover>
                 <expandOthers>false</expandOthers>
-                <groupingColumn>Timesheet_Line_Item__c.Activity__c</groupingColumn>
+                <groupingColumn
+        >Timesheet_Line_Item__c.Activity__c</groupingColumn>
                 <groupingSortProperties>
                     <groupingSorts>
                         <groupingLevel>g1</groupingLevel>
@@ -71,7 +74,8 @@
                 </groupingSortProperties>
                 <header>Activity wise report for Current Month</header>
                 <legendPosition>Bottom</legendPosition>
-                <report>TimeSheetReports/Activity_wise_monthly_report_ujl</report>
+                <report
+        >TimeSheetReports/Activity_wise_monthly_report_ujl</report>
                 <showPercentage>false</showPercentage>
                 <showValues>true</showValues>
                 <sortBy>RowLabelAscending</sortBy>
@@ -98,17 +102,20 @@
                 <drillToDetailEnabled>false</drillToDetailEnabled>
                 <enableHover>false</enableHover>
                 <expandOthers>false</expandOthers>
-                <groupingColumn>Timesheet_Line_Item__c.Employee__c</groupingColumn>
+                <groupingColumn
+        >Timesheet_Line_Item__c.Employee__c</groupingColumn>
                 <groupingSortProperties>
                     <groupingSorts>
                         <groupingLevel>g1</groupingLevel>
-                        <sortColumn>s!Timesheet_Line_Item__c.Duration__c</sortColumn>
+                        <sortColumn
+            >s!Timesheet_Line_Item__c.Duration__c</sortColumn>
                         <sortOrder>a</sortOrder>
                     </groupingSorts>
                 </groupingSortProperties>
                 <header>Top Out of Office Employee</header>
                 <legendPosition>Bottom</legendPosition>
-                <report>TimeSheetReports/Top_Out_of_Office_Employee_Month_4hP</report>
+                <report
+        >TimeSheetReports/Top_Out_of_Office_Employee_Month_4hP</report>
                 <showPercentage>false</showPercentage>
                 <showPicturesOnCharts>false</showPicturesOnCharts>
                 <showValues>true</showValues>
@@ -136,7 +143,8 @@
                 <drillToDetailEnabled>false</drillToDetailEnabled>
                 <enableHover>false</enableHover>
                 <expandOthers>false</expandOthers>
-                <groupingColumn>Timesheet_Line_Item__c.Project__c</groupingColumn>
+                <groupingColumn
+        >Timesheet_Line_Item__c.Project__c</groupingColumn>
                 <groupingSortProperties>
                     <groupingSorts>
                         <groupingLevel>g1</groupingLevel>
@@ -145,7 +153,8 @@
                 </groupingSortProperties>
                 <header>Project wise report for Current Week</header>
                 <legendPosition>Right</legendPosition>
-                <report>TimeSheetReports/Time_sheet_project_wise_report_Weekly_TRP</report>
+                <report
+        >TimeSheetReports/Time_sheet_project_wise_report_Weekly_TRP</report>
                 <showPercentage>false</showPercentage>
                 <showTotal>true</showTotal>
                 <showValues>true</showValues>
@@ -173,7 +182,8 @@
                 <drillToDetailEnabled>false</drillToDetailEnabled>
                 <enableHover>false</enableHover>
                 <expandOthers>false</expandOthers>
-                <groupingColumn>Timesheet_Line_Item__c.Activity__c</groupingColumn>
+                <groupingColumn
+        >Timesheet_Line_Item__c.Activity__c</groupingColumn>
                 <groupingSortProperties>
                     <groupingSorts>
                         <groupingLevel>g1</groupingLevel>
@@ -183,7 +193,8 @@
                 <header>Activity wise report for Current Week</header>
                 <legendPosition>Right</legendPosition>
                 <maxValuesDisplayed>6</maxValuesDisplayed>
-                <report>TimeSheetReports/Activity_wise_Weekly_report_Kjd</report>
+                <report
+        >TimeSheetReports/Activity_wise_Weekly_report_Kjd</report>
                 <showPercentage>false</showPercentage>
                 <showTotal>true</showTotal>
                 <showValues>true</showValues>
@@ -211,18 +222,21 @@
                 <drillToDetailEnabled>false</drillToDetailEnabled>
                 <enableHover>false</enableHover>
                 <expandOthers>false</expandOthers>
-                <groupingColumn>Timesheet_Line_Item__c.Employee__c</groupingColumn>
+                <groupingColumn
+        >Timesheet_Line_Item__c.Employee__c</groupingColumn>
                 <groupingSortProperties>
                     <groupingSorts>
                         <groupingLevel>g1</groupingLevel>
-                        <sortColumn>s!Timesheet_Line_Item__c.Duration__c</sortColumn>
+                        <sortColumn
+            >s!Timesheet_Line_Item__c.Duration__c</sortColumn>
                         <sortOrder>a</sortOrder>
                     </groupingSorts>
                 </groupingSortProperties>
                 <header>Top 5 Out of Office Employee Week Wise</header>
                 <legendPosition>Bottom</legendPosition>
                 <maxValuesDisplayed>5</maxValuesDisplayed>
-                <report>TimeSheetReports/Top_Out_of_Office_Employee_Week_Wise_T8c</report>
+                <report
+        >TimeSheetReports/Top_Out_of_Office_Employee_Week_Wise_T8c</report>
                 <showPercentage>false</showPercentage>
                 <showPicturesOnCharts>false</showPicturesOnCharts>
                 <showValues>true</showValues>

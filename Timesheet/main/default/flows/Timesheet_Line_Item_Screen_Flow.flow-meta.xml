@@ -1,17 +1,21 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Flow xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<?xml version="1.0" encoding="UTF-8" ?>
+<Flow
+  xmlns="http://soap.sforce.com/2006/04/metadata"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+>
     <apiVersion>57.0</apiVersion>
     <dynamicChoiceSets>
         <name>Activity</name>
         <dataType>Picklist</dataType>
-        <displayField xsi:nil="true"/>
-        <object xsi:nil="true"/>
+        <displayField xsi:nil="true" />
+        <object xsi:nil="true" />
         <picklistField>Activity__c</picklistField>
         <picklistObject>Timesheet_Line_Item__c</picklistObject>
     </dynamicChoiceSets>
     <dynamicChoiceSets>
         <name>Project_Choice_Sets</name>
-        <collectionReference>Get_Employee_Project_Obj_Records</collectionReference>
+        <collectionReference
+    >Get_Employee_Project_Obj_Records</collectionReference>
         <dataType>String</dataType>
         <displayField>Project_Name__c</displayField>
         <object>Project_Employee__c</object>
@@ -20,8 +24,8 @@
     <dynamicChoiceSets>
         <name>Type_of_Timesheet</name>
         <dataType>Picklist</dataType>
-        <displayField xsi:nil="true"/>
-        <object xsi:nil="true"/>
+        <displayField xsi:nil="true" />
+        <object xsi:nil="true" />
         <picklistField>Type__c</picklistField>
         <picklistObject>Timesheet_Line_Item__c</picklistObject>
     </dynamicChoiceSets>
@@ -31,7 +35,8 @@
         <dataType>Date</dataType>
         <expression>TODAY()</expression>
     </formulas>
-    <interviewLabel>Timesheet Line Item Screen Flow {!$Flow.CurrentDateTime}</interviewLabel>
+    <interviewLabel
+  >Timesheet Line Item Screen Flow {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Timesheet Line Item Screen Flow</label>
     <processMetadataValues>
         <name>BuilderType</name>
@@ -84,7 +89,8 @@
         <inputAssignments>
             <field>Project__c</field>
             <value>
-                <elementReference>Project_Lookup_Scr.selectedChoiceValues</elementReference>
+                <elementReference
+        >Project_Lookup_Scr.selectedChoiceValues</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -107,7 +113,8 @@
         <label>Get Employee Project Obj Records</label>
         <locationX>176</locationX>
         <locationY>158</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <assignNullValuesIfNoRecordsFound
+    >false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>New_Screen</targetReference>
         </connector>
@@ -201,7 +208,8 @@
                     <extensionName>flowruntime:choiceLookup</extensionName>
                     <fieldText>Project_Lookup</fieldText>
                     <fieldType>ComponentChoice</fieldType>
-                    <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+                    <inputsOnNextNavToAssocScrn
+          >UseStoredValues</inputsOnNextNavToAssocScrn>
                     <isRequired>false</isRequired>
                     <storeOutputAutomatically>true</storeOutputAutomatically>
                 </fields>
