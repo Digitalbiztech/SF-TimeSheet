@@ -1,18 +1,18 @@
 public with sharing class EmployeeTriggerHandler {
     
-   public static void checkUserDuplicationForEmployeeBeforeInsert(List<Employee__c	> employees){
-       Map<Id, Employee__c> userEmployeeMap = getUserEmployeeMapForBeforeInsert(employees);
-       if (userEmployeeMap.size() > 0){
-           for(Employee__c	 employee : employees){
+    public static void checkUserDuplicationForEmployeeBeforeInsert(List<Employee__c	> employees){
+        Map<Id, Employee__c> userEmployeeMap = getUserEmployeeMapForBeforeInsert(employees);
+        if (userEmployeeMap.size() > 0){
+            for(Employee__c	 employee : employees){
             	if(userEmployeeMap.get(employee.User__c) != null){
                 	employee.User__c.addError('An Employee with same user already exists');
             	}
         	}  
-       }
+        }
     }
     
     public static void checkUserDuplicationForEmployeeBeforeUpdate(List<Employee__c> employees){
-       Map<Id, Employee__c> userEmployeeMap = getUserEmployeeMapForBeforeUpdate(employees);
+        Map<Id, Employee__c> userEmployeeMap = getUserEmployeeMapForBeforeUpdate(employees);
         if (userEmployeeMap.size() > 0){
             for(Employee__c	 employee : employees){
             	if(userEmployeeMap.get(employee.User__c) != null && employee.Id != userEmployeeMap.get(employee.User__c).Id  ){
@@ -25,8 +25,8 @@ public with sharing class EmployeeTriggerHandler {
     private static Map<Id, Employee__c> getUserEmployeeMapForBeforeInsert(List<Employee__c> employees){
         Map<Id, Employee__c> userEmployeeMap = new Map<Id, Employee__c>();
         if(Employee__c.SObjectType.getDescribe().isCreateable() 
-        && Schema.SObjectType.Employee__c.fields.User__c.isCreateable()) {
-            userEmployeeMap = getUserEmployeeMap(employees);                                  
+            && Schema.SObjectType.Employee__c.fields.User__c.isCreateable()) {
+                userEmployeeMap = getUserEmployeeMap(employees);                                  
         } else{
             addError(employees);
         }
@@ -36,8 +36,8 @@ public with sharing class EmployeeTriggerHandler {
     private static Map<Id, Employee__c> getUserEmployeeMapForBeforeUpdate(List<Employee__c> employees){
         Map<Id, Employee__c> userEmployeeMap = new Map<Id, Employee__c>();
         if(Employee__c.SObjectType.getDescribe().isUpdateable() 
-        && Schema.SObjectType.Employee__c.fields.User__c.isUpdateable()) {
-            userEmployeeMap = getUserEmployeeMap(employees);
+            && Schema.SObjectType.Employee__c.fields.User__c.isUpdateable()) {
+                userEmployeeMap = getUserEmployeeMap(employees);
         } else{
             addError(employees);
         }

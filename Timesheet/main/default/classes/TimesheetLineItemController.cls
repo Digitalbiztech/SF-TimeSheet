@@ -3,14 +3,14 @@ public with sharing class TimesheetLineItemController {
     @AuraEnabled(cacheable=true)
     public static List<Timesheet_Line_Item__c> getTimesheetLineItems(Id processInstanceWorkItemId){
         List<Timesheet_Line_Item__c> timesheetLineItems = new List<Timesheet_Line_Item__c>();
-        if(Timesheet_Line_Item__c.SObjectType.getDescribe().isAccessible() &&
-            Schema.SObjectType.Timesheet_Line_Item__c.fields.Id.isAccessible() &&
-            Schema.SObjectType.Timesheet_Line_Item__c.fields.Name.isAccessible() &&
-            Schema.SObjectType.Timesheet_Line_Item__c.fields.Type__c.isAccessible() &&
-            Schema.SObjectType.Timesheet_Line_Item__c.fields.Date__c.isAccessible() &&
-            Schema.SObjectType.Timesheet_Line_Item__c.fields.Duration__c.isAccessible() &&
-            Schema.SObjectType.Timesheet_Line_Item__c.fields.Project__c.isAccessible() &&
-            Schema.SObjectType.Timesheet_Line_Item__c.fields.Activity__c.isAccessible()){
+        if(Timesheet_Line_Item__c.SObjectType.getDescribe().isAccessible() 
+            && Schema.SObjectType.Timesheet_Line_Item__c.fields.Id.isAccessible() 
+            && Schema.SObjectType.Timesheet_Line_Item__c.fields.Name.isAccessible() 
+            && Schema.SObjectType.Timesheet_Line_Item__c.fields.Type__c.isAccessible() 
+            && Schema.SObjectType.Timesheet_Line_Item__c.fields.Date__c.isAccessible() 
+            && Schema.SObjectType.Timesheet_Line_Item__c.fields.Duration__c.isAccessible() 
+            && Schema.SObjectType.Timesheet_Line_Item__c.fields.Project__c.isAccessible() 
+            && Schema.SObjectType.Timesheet_Line_Item__c.fields.Activity__c.isAccessible()){
                 ProcessInstanceWorkItem piwi = [SELECT
                                                 Id,
                                                 ProcessInstanceId
