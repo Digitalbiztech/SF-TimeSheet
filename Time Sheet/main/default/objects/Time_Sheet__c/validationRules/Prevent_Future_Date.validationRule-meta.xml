@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Prevent_Future_Date</fullName>
-    <active>true</active>
-    <errorConditionFormula>AND(NOT(OR(RecordType.DeveloperName = &apos;Absence_Type&apos;, RecordType.DeveloperName = &apos;Absence_Type_Locked&apos;)),
-TODAY() &lt; Date__c)</errorConditionFormula>
-    <errorMessage>Date should not be the future date</errorMessage>
-</ValidationRule>
