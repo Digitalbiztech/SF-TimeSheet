@@ -1,57 +1,49 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>57.0</apiVersion>
     <assignments>
         <name>Remove_Values_from_Absence_Category</name>
         <label>Remove Values from Absence Category</label>
         <locationX>50</locationX>
-        <locationY>395</locationY>
+        <locationY>431</locationY>
         <assignmentItems>
-            <assignToReference>$Record.dbt__Absence_Category__c</assignToReference>
+            <assignToReference>$Record.Absence_Category__c</assignToReference>
             <operator>Assign</operator>
-            <value>
-                <stringValue></stringValue>
-            </value>
         </assignmentItems>
     </assignments>
     <assignments>
         <name>Remove_Values_from_Project_and_Activity</name>
         <label>Remove Values from Project and Activity</label>
         <locationX>314</locationX>
-        <locationY>395</locationY>
+        <locationY>431</locationY>
         <assignmentItems>
-            <assignToReference>$Record.dbt__Activity__c</assignToReference>
+            <assignToReference>$Record.Activity__c</assignToReference>
             <operator>Assign</operator>
-            <value>
-                <stringValue></stringValue>
-            </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>$Record.dbt__Project__c</assignToReference>
+            <assignToReference>$Record.Project__c</assignToReference>
             <operator>Assign</operator>
-            <value>
-                <stringValue></stringValue>
-            </value>
         </assignmentItems>
     </assignments>
     <decisions>
         <name>Check_the_Type_Value</name>
         <label>Check the Type Value</label>
         <locationX>314</locationX>
-        <locationY>287</locationY>
+        <locationY>311</locationY>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
             <name>Attendance_type</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>$Record.dbt__Type__c</leftValueReference>
+                <leftValueReference>$Record.Type__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>Attendance</stringValue>
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Remove_Values_from_Absence_Category</targetReference>
+                <targetReference
+        >Remove_Values_from_Absence_Category</targetReference>
             </connector>
             <label>Attendance type</label>
         </rules>
@@ -59,20 +51,22 @@
             <name>Absence_Type</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>$Record.dbt__Type__c</leftValueReference>
+                <leftValueReference>$Record.Type__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>Absence</stringValue>
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Remove_Values_from_Project_and_Activity</targetReference>
+                <targetReference
+        >Remove_Values_from_Project_and_Activity</targetReference>
             </connector>
             <label>Absence Type</label>
         </rules>
     </decisions>
     <environments>Default</environments>
-    <interviewLabel>Timesheet Line Item Type RTF {!$Flow.CurrentDateTime}</interviewLabel>
+    <interviewLabel
+  >Timesheet Line Item Type RTF {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Timesheet Line Item Type RTF</label>
     <processMetadataValues>
         <name>BuilderType</name>

@@ -1,0 +1,28 @@
+{
+  "packageDirectories": [
+    {
+      "path": "force-app",
+      "default": true
+    },
+    {
+      "path": "Timesheet",
+      "package": "Timesheet",
+      "versionName": "ver 0.3",
+      "versionNumber": "0.3.0.NEXT",
+      "default": false,
+      "versionDescription": ""
+    }
+  ],
+  "name": "SF-TimeSheet",
+  "namespace": "dbt",
+  "sfdcLoginUrl": "https://login.salesforce.com",
+  "sourceApiVersion": "57.0",
+  "packageAliases": {
+    "Timesheet": "0Ho4W000000wkQiSAI",
+    "Timesheet@0.1.0-1": "04t4W0000038azbQAA",
+    "Timesheet@0.2.0-1": "04t4W000002nibtQAA",
+    "Timesheet@0.3.0-1": "04t4W000002nicrQAA",
+    "Timesheet@0.4.0-2": "04t4W000002w3OjQAI",
+    "Timesheet@0.5.0-1": "04t4W000002w4uWQAQ"
+  }
+}

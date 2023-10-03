@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>57.0</apiVersion>
     <assignments>
@@ -7,7 +7,8 @@
         <locationX>264</locationX>
         <locationY>636</locationY>
         <assignmentItems>
-            <assignToReference>TimesheetMasterRecordCollection</assignToReference>
+            <assignToReference
+      >TimesheetMasterRecordCollection</assignToReference>
             <operator>Add</operator>
             <value>
                 <elementReference>TimesheetMasterRecord</elementReference>
@@ -23,17 +24,19 @@
         <locationX>264</locationX>
         <locationY>516</locationY>
         <assignmentItems>
-            <assignToReference>TimesheetMasterRecord.End_Date__c</assignToReference>
+            <assignToReference
+      >TimesheetMasterRecord.End_Date__c</assignToReference>
             <operator>Assign</operator>
             <value>
                 <elementReference>endDate</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>TimesheetMasterRecord.Start_Date__c</assignToReference>
+            <assignToReference
+      >TimesheetMasterRecord.Start_Date__c</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>StartDate</elementReference>
+                <elementReference>stateDate</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -51,24 +54,28 @@
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>TimesheetMasterRecord.Manager__c</assignToReference>
+            <assignToReference
+      >TimesheetMasterRecord.Manager__c</assignToReference>
             <operator>Assign</operator>
             <value>
                 <elementReference>Employee_Loop.Manager__c</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>TimesheetMasterRecord.Employee__c</assignToReference>
+            <assignToReference
+      >TimesheetMasterRecord.Employee__c</assignToReference>
             <operator>Assign</operator>
             <value>
                 <elementReference>Employee_Loop.Id</elementReference>
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Add_Timesheet_Masters_to_Collection</targetReference>
+            <targetReference
+      >Add_Timesheet_Masters_to_Collection</targetReference>
         </connector>
     </assignments>
-    <description>This scheduled trigger flow creates weekly Timesheet for each employee every Monday at 12:00 AM</description>
+    <description
+  >This scheduled trigger flow creates weekly Timesheet for each employee every Monday at 12:00 AM</description>
     <environments>Default</environments>
     <formulas>
         <name>endDate</name>
@@ -78,14 +85,16 @@
     <formulas>
         <name>Record_Name</name>
         <dataType>String</dataType>
-        <expression>&quot;Timesheet for &quot; + TEXT({!StartDate}) + &quot; to &quot;+ TEXT({!endDate})</expression>
+        <expression
+    >&quot;Timesheet for &quot; + TEXT({!stateDate}) + &quot; to &quot;+ TEXT({!endDate})</expression>
     </formulas>
     <formulas>
-        <name>StartDate</name>
+        <name>stateDate</name>
         <dataType>Date</dataType>
         <expression>TODAY()</expression>
     </formulas>
-    <interviewLabel>Timesheets Creation STF {!$Flow.CurrentDateTime}</interviewLabel>
+    <interviewLabel
+  >Timesheets Creation STF {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Timesheets Creation STF</label>
     <loops>
         <name>Employee_Loop</name>
@@ -132,7 +141,8 @@
         <label>Get Employees</label>
         <locationX>176</locationX>
         <locationY>276</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <assignNullValuesIfNoRecordsFound
+    >false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Employee_Loop</targetReference>
         </connector>
@@ -166,7 +176,7 @@
         </schedule>
         <triggerType>Scheduled</triggerType>
     </start>
-    <status>Active</status>
+    <status>Obsolete</status>
     <variables>
         <name>TimesheetMasterRecord</name>
         <dataType>SObject</dataType>

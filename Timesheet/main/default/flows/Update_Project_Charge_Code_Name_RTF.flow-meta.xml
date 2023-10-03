@@ -1,13 +1,15 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>56.0</apiVersion>
     <environments>Default</environments>
     <formulas>
         <name>projectChargeCodeName</name>
         <dataType>String</dataType>
-        <expression>{!$Record.dbt__Project__r.Name} + &apos; - &apos; + {!$Record.dbt__Charge_Code__r.Name}</expression>
+        <expression
+    >{!$Record.Project__r.Name} + &apos;  &apos; + {!$Record.Charge_Code__r.Name}</expression>
     </formulas>
-    <interviewLabel>Update Project Charge Code Name {!$Flow.CurrentDateTime}</interviewLabel>
+    <interviewLabel
+  >Update Project Charge Code Name {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Update Project Charge Code Name RTF</label>
     <processMetadataValues>
         <name>BuilderType</name>

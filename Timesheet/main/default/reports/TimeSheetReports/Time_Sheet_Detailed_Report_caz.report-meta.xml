@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Report xmlns="http://soap.sforce.com/2006/04/metadata">
     <columns>
         <field>CHILD_NAME</field>
@@ -25,6 +25,15 @@
         <aggregateTypes>Sum</aggregateTypes>
         <field>Timesheet_Line_Item__c.Duration__c</field>
     </columns>
+    <filter>
+        <criteriaItems>
+            <column>Timesheet_Line_Item__c.Employee__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
+            <operator>contains</operator>
+            <value>Saichand</value>
+        </criteriaItems>
+    </filter>
     <format>Summary</format>
     <groupingsDown>
         <dateGranularity>Day</dateGranularity>
@@ -36,7 +45,8 @@
         <name>co</name>
         <value>0</value>
     </params>
-    <reportType>CustomEntityCustomEntity$Timesheet__c$Timesheet_Line_Item__c</reportType>
+    <reportType
+  >CustomEntityCustomEntity$Timesheet__c$Timesheet_Line_Item__c</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
     <showGrandTotal>true</showGrandTotal>

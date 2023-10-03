@@ -1,21 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Met_Weekly_Hours__c</fullName>
     <externalId>false</externalId>
-    <formula>Total_Hours__c  &gt;= CASE(WEEKDAY(Start_Date__c), 
-
-2,$CustomMetadata.Timesheet_Default_Value__mdt.Default_Values.Working_Days_per_Week__c*
-$CustomMetadata.Timesheet_Default_Value__mdt.Default_Values.Working_Hours_Per_Day__c , 
-
-3, ($CustomMetadata.Timesheet_Default_Value__mdt.Default_Values.Working_Days_per_Week__c - 1)*$CustomMetadata.Timesheet_Default_Value__mdt.Default_Values.Working_Hours_Per_Day__c , 
-
-4, ($CustomMetadata.Timesheet_Default_Value__mdt.Default_Values.Working_Days_per_Week__c - 2)*$CustomMetadata.Timesheet_Default_Value__mdt.Default_Values.Working_Hours_Per_Day__c, 
-
-5, ($CustomMetadata.Timesheet_Default_Value__mdt.Default_Values.Working_Days_per_Week__c - 3)*$CustomMetadata.Timesheet_Default_Value__mdt.Default_Values.Working_Hours_Per_Day__c, 
-
-6, ($CustomMetadata.Timesheet_Default_Value__mdt.Default_Values.Working_Days_per_Week__c - 4)*$CustomMetadata.Timesheet_Default_Value__mdt.Default_Values.Working_Hours_Per_Day__c,
-
-0)</formula>
+    <formula
+  >Total_Hours__c  &gt;= CASE(WEEKDAY(Start_Date__c), 2,5*8,3,4*8,4,3*8,5,2*8,6,1*8,0)</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
     <label>Met Weekly Hours</label>
     <trackHistory>false</trackHistory>

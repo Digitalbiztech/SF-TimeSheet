@@ -1,88 +1,156 @@
 @isTest
 public class TimesheetLineItemTriggerHandlerTest {
     
-    @isTest
-    public static void beforeInsertTest(){
-        User u = createAdminUser();
-        insert u;
+    @testSetup
+    public static void setupData(){
         
-        Employee__c employee = createEmployeeForUser(u.Id);
-        insert employee;
+        User adminUser = createAdminUser('Admin', 'User');
+        insert adminUser;
         
-        Timesheet__c timesheet = createTimesheet(employee.Id, u.Id);
+        User noAccessUser = createUser('NoAccess', 'User');
+        insert noAccessUser;
+        
+        User standardUser = createUser('Standard', 'User');
+        insert standardUser;
+        
+        assignpermissionSetForUser(standardUser);
+        assignpermissionSetForAdmin(adminUser);
+        Employee__c employee = createEmployeeForUser(standardUser.Id);
+        
+        System.runAs(adminUser){
+            insert employee;
+        }        
+        Timesheet__c timesheet = createTimesheet(employee.Id, standardUser.Id);
         insert timesheet;
         
         Project__c project = createProjectAsBillable('Test Project','Yes');
         insert project;
+    }
+    
+    @isTest
+    public static void updateEmployeeBeforeInsert(){
+        User standardUser = [Select Id, Name from User where FirstName = 'Standard' AND LastName = 'User' LIMIT 1];
+        Timesheet__c timesheet = [Select Id, Name, Employee__c from Timesheet__c LIMIT 1];
+        Project__c project = [Select Id, Name from Project__c LIMIT 1];
+        Timesheet_Line_Item__c timesheetLineItem = createTimesheetLineItem(timesheet.Id, project.Id);
+        List<Timesheet_Line_Item__c> timesheetLineItems = new List<Timesheet_Line_Item__c>();
+        timesheetLineItems.add(timesheetLineItem);
         
+        System.runAs(standardUser){
+            Test.startTest();
+            TimesheetLineItemTriggerHandler.updateEmployeeId(timesheetLineItems);
+            Test.stopTest();
+            
+            Assert.areEqual(timesheet.Employee__c, timesheetLineItem.Employee__c , 'Assertion failed for Timesheet Line Item before insert for updating employee Id');
+        }
+    }
+    
+    @isTest
+    public static void updateEmployeeBeforeInsertWithException(){
+        User noAccessUser = [Select Id, Name from User where FirstName = 'NoAccess' AND LastName = 'User' LIMIT 1];
+        Timesheet__c timesheet = [Select Id, Name, Employee__c from Timesheet__c LIMIT 1];
+        Project__c project = [Select Id, Name from Project__c LIMIT 1];
+        Timesheet_Line_Item__c timesheetLineItem = createTimesheetLineItem(timesheet.Id, project.Id);
+        List<Timesheet_Line_Item__c> timesheetLineItems = new List<Timesheet_Line_Item__c>();
+        timesheetLineItems.add(timesheetLineItem);
+        
+        System.runAs(noAccessUser){
+            Test.startTest();
+            TimesheetLineItemTriggerHandler.updateEmployeeId(timesheetLineItems);
+            Test.stopTest();
+            
+            List<Database.Error> errors = timesheetLineItem.getErrors();
+            Assert.areEqual(1, errors.size());
+            Assert.areEqual('You do not have access, Please contact system admin', errors.get(0).getMessage());
+        }
+    }
+    
+    @isTest
+    public static void updateEmployeeBillableField(){
+        User standardUser = [Select Id, Name from User where FirstName = 'Standard' AND LastName = 'User' LIMIT 1];
+        Timesheet__c timesheet = [Select Id, Name, Employee__c from Timesheet__c LIMIT 1];
+        Project__c project = [Select Id, Name, Billable__c from Project__c LIMIT 1];
+        Timesheet_Line_Item__c timesheetLineItem = createTimesheetLineItem(timesheet.Id, project.Id);
+        List<Timesheet_Line_Item__c> timesheetLineItems = new List<Timesheet_Line_Item__c>();
+        timesheetLineItems.add(timesheetLineItem);
+        
+        System.runAs(standardUser){
+            Test.startTest();
+            TimesheetLineItemTriggerHandler.updateBillableField(timesheetLineItems);
+            Test.stopTest();
+            
+            Assert.areEqual(project.Billable__c , timesheetLineItem.Billable__c , 'Assertion failed for Timesheet Line Item before insert for updating employee Id');
+        }
+        
+        
+    }
+    
+    @isTest
+    public static void updateEmployeeBillableFieldWithException(){
+        User noAccessUser = [Select Id, Name from User where FirstName = 'NoAccess' AND LastName = 'User' LIMIT 1];
+        Timesheet__c timesheet = [Select Id, Name, Employee__c from Timesheet__c LIMIT 1];
+        Project__c project = [Select Id, Name, Billable__c from Project__c LIMIT 1];
+        Timesheet_Line_Item__c timesheetLineItem = createTimesheetLineItem(timesheet.Id, project.Id);
+        List<Timesheet_Line_Item__c> timesheetLineItems = new List<Timesheet_Line_Item__c>();
+        timesheetLineItems.add(timesheetLineItem);
+        
+        System.runAs(noAccessUser){
+            Test.startTest();
+            TimesheetLineItemTriggerHandler.updateBillableField(timesheetLineItems);
+            Test.stopTest();
+            
+            List<Database.Error> errors = timesheetLineItem.getErrors();
+            Assert.areEqual(1, errors.size());
+            Assert.areEqual('You do not have access, Please contact system admin', errors.get(0).getMessage());
+        }
+    }
+    
+    @isTest
+    public static void checkForDuplicateTimesheetLineItemTest(){
+        User standardUser = [Select Id, Name from User where FirstName = 'Standard' AND LastName = 'User' LIMIT 1];
+        Timesheet__c timesheet = [Select Id, Name, Employee__c from Timesheet__c LIMIT 1];
+        Project__c project = [Select Id, Name, Billable__c from Project__c LIMIT 1];
         Timesheet_Line_Item__c timesheetLineItem = createTimesheetLineItem(timesheet.Id, project.Id);
         Timesheet_Line_Item__c timesheetLineItem2 = createTimesheetLineItem(timesheet.Id, project.Id);
         
-        Test.startTest();
-	    insert timesheetLineItem;
-        try{
-            insert timesheetLineItem2;
-        } catch(DmlException e){
-            Assert.areEqual('LineItem with the same project and activity already exists for this date, please update the existing record', e.getDmlMessage(0), 'Assertion failed when a timesheet line item is created with same project');
+        System.runAs(standardUser){
+            insert timesheetLineItem;
+        	List<Timesheet_Line_Item__c> timesheetLineItems = new List<Timesheet_Line_Item__c>();
+            timesheetLineItems.add(timesheetLineItem2);
+            
+            Test.startTest();
+            TimesheetLineItemTriggerHandler.checkForDuplicateTimesheetLineItem(timesheetLineItems);
+            Test.stopTest();
+            
+            List<Database.Error> errors = timesheetLineItem2.getErrors();
+            Assert.areEqual('LineItem with the same project and activity already exists for the same date, please update the existing record', errors.get(0).getMessage());
         }
-        Test.stopTest();
-        
-        Timesheet_Line_Item__c timesheetLineItemFromDB = [Select Id, Employee__c, Billable__c from Timesheet_Line_Item__c where Id = : timesheetLineItem.Id];
-        Assert.areEqual(timesheet.Employee__c, timesheetLineItemFromDB.Employee__c, 'Assertion failed for Employee');
-        Assert.areEqual(project.Billable__c, timesheetLineItemFromDB.Billable__c, 'Assertion failed for Billable field');
     }
     
     @isTest
-    public static void beforeUpdateTest(){
-        
-        User u = createAdminUser();
-        insert u;
-        
-        Employee__c employee = createEmployeeForUser(u.Id);
-        insert employee;
-        
-        Timesheet__c timesheet = createTimesheet(employee.Id, u.Id);
-        insert timesheet;
-        
-        Project__c project = createProjectAsBillable('Test Project','Yes');
-        insert project;
-        Project__c project2 = createProjectAsBillable('Test Project 2','Yes');
-        insert project2;
-        
+    public static void checkForDuplicateTimesheetLineItemTestWithException(){
+        User noAccessUser = [Select Id, Name from User where FirstName = 'NoAccess' AND LastName = 'User' LIMIT 1];
+        User standardUser = [Select Id, Name from User where FirstName = 'Standard' AND LastName = 'User' LIMIT 1];
+        Timesheet__c timesheet = [Select Id, Name, Employee__c from Timesheet__c LIMIT 1];
+        Project__c project = [Select Id, Name, Billable__c from Project__c LIMIT 1];
         Timesheet_Line_Item__c timesheetLineItem = createTimesheetLineItem(timesheet.Id, project.Id);
-        Timesheet_Line_Item__c timesheetLineItem2 = createTimesheetLineItem(timesheet.Id, project2.Id);
-        insert timesheetLineItem;
-        insert timesheetLineItem2;
-        timesheetLineItem2.Project__c = project.Id;
+        Timesheet_Line_Item__c timesheetLineItem2 = createTimesheetLineItem(timesheet.Id, project.Id);
         
-        Test.startTest();
-	    
-        try{
-            update timesheetLineItem2;
-        } catch(DmlException e){
-            Assert.areEqual('LineItem with the same project and activity already exists for this date, please update the existing record', e.getDmlMessage(0), 'Assertion failed when a timesheet line item is created with same project');
+        System.runAs(standardUser){
+            insert timesheetLineItem;
         }
-        Test.stopTest();
-    }
-    
-    private static User createAdminUser(){
-        Profile p = [Select Id, Name from Profile where Name = 'System Administrator' LIMIT 1];
         
-        User u = new User();
-        u.Email = 'testEmail@'+ Datetime.now().format('hh.mm.ss.SSS') + '.com';
-        u.ProfileId = p.Id;
-        u.Username = 'testUserName'+ Datetime.now().format('hh.mm.ss.SSS')+'@testmail.com';
-        u.Alias = 'abcd';
-        u.CommunityNickname = 'nickName' + Datetime.now().format('hh.mm.ss.SSS');
-        u.TimeZoneSidKey = 'America/Los_Angeles';
-        u.LocaleSidKey = 'en_US';
-        u.EmailEncodingKey='ISO-8859-1';
-        u.ManagerId = UserInfo.getUserId();
-        u.LanguageLocaleKey='en_US';
-        u.FirstName = 'fName'+ Datetime.now().format('hh.mm.ss.SSS');
-        u.LastName = 'lName' + Datetime.now().format('hh.mm.ss.SSS');
-        u.Phone = '9876543210';
-        return u;
+        List<Timesheet_Line_Item__c> timesheetLineItems = new List<Timesheet_Line_Item__c>();
+        timesheetLineItems.add(timesheetLineItem2);
+        
+        System.runAs(noAccessUser){
+            Test.startTest();
+            TimesheetLineItemTriggerHandler.checkForDuplicateTimesheetLineItem(timesheetLineItems);
+            Test.stopTest();
+            
+            List<Database.Error> errors = timesheetLineItem2.getErrors();
+            Assert.areEqual('You do not have access, Please contact system admin', errors.get(0).getMessage());
+        }
     }
     
     private static Employee__c createEmployeeForUser(Id userId){
@@ -92,7 +160,7 @@ public class TimesheetLineItemTriggerHandlerTest {
         employee.Last_Name__c = 'lName';
         employee.User__c = userId;
         employee.Email__c = 'testEmail@'+ Datetime.now().format('hh.mm.ss.SSS') + '.com';
-        employee.Manager__c = UserInfo.getUserId();
+        employee.Manager__c = userInfo.getUserId();
         return employee;
     }
     
@@ -126,5 +194,77 @@ public class TimesheetLineItemTriggerHandlerTest {
         timesheetLineItem.Duration__c = 5;
         timesheetLineItem.Description__c = 'Test Description';
         return timesheetLineItem;
+    }
+    
+    private static void assignpermissionSetForUser(User u){
+        Id userId = UserInfo.getUserId();
+        User user = [Select Id, Name from User Where Id =: userId];
+        
+        PermissionSet ps = [Select 
+                            Id, 
+                            Name 
+                            FROM PermissionSet 
+                            WHERE Name = 'Timesheet_HR_Admin'];
+        System.runAs(user){
+            PermissionSetAssignment psa = new PermissionSetAssignment();
+        	psa.PermissionSetId = ps.Id;
+        	psa.AssigneeId = u.Id;
+            insert psa;
+        }
+    }
+    
+    private static User createUser(String firstName, String lastName){
+        Profile p = [Select Id, Name from Profile where Name = 'Standard User' LIMIT 1];
+        User u = new User();
+        u.Email = 'testEmail@'+ Datetime.now().format('hh.mm.ss.SSS') + '.com';
+        u.ProfileId = p.Id;
+        u.Username = 'testUserName'+ Datetime.now().format('hh.mm.ss.SSS')+'@testmail.com';
+        u.Alias = 'abcd';
+        u.CommunityNickname = 'nickName' + Datetime.now().format('hh.mm.ss.SSS');
+        u.TimeZoneSidKey = 'America/Los_Angeles';
+        u.LocaleSidKey = 'en_US';
+        u.EmailEncodingKey='ISO-8859-1';
+        u.ManagerId = UserInfo.getUserId();
+        u.LanguageLocaleKey='en_US';
+        u.FirstName = firstName;
+        u.LastName = lastName;
+        u.Phone = '9876543210';
+        return u;
+    }
+    
+    private static User createAdminUser(String firstName, String lastName){
+        Profile p = [Select Id, Name from Profile where Name = 'System Administrator' LIMIT 1];
+        User u = new User();
+        u.Email = 'testEmail@'+ Datetime.now().format('hh.mm.ss.SSS') + '.com';
+        u.ProfileId = p.Id;
+        u.Username = 'testUserName'+ Datetime.now().format('hh.mm.ss.SSS')+'@testmail.com';
+        u.Alias = 'abcd';
+        u.CommunityNickname = 'nickName' + Datetime.now().format('hh.mm.ss.SSS');
+        u.TimeZoneSidKey = 'America/Los_Angeles';
+        u.LocaleSidKey = 'en_US';
+        u.EmailEncodingKey='ISO-8859-1';
+        u.ManagerId = UserInfo.getUserId();
+        u.LanguageLocaleKey='en_US';
+        u.FirstName = firstName;
+        u.LastName = lastName;
+        u.Phone = '9876543210';
+        return u;
+    }
+    
+    private static void assignpermissionSetForAdmin(User u){
+        Id userId = UserInfo.getUserId();
+        User user = [Select Id, Name from User Where Id =: userId];
+        
+        PermissionSet ps = [Select 
+                            Id, 
+                            Name 
+                            FROM PermissionSet 
+                            WHERE Name = 'Timesheet_HR_Admin'];
+        System.runAs(user){
+            PermissionSetAssignment psa = new PermissionSetAssignment();
+        	psa.PermissionSetId = ps.Id;
+        	psa.AssigneeId = u.Id;
+            insert psa;
+        }
     }
 }

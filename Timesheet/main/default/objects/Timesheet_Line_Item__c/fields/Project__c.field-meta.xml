@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Project__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
@@ -14,11 +14,9 @@
         <isOptional>false</isOptional>
     </lookupFilter>
     <referenceTo>Project__c</referenceTo>
-    <relationshipLabel>Timesheet Line Items</relationshipLabel>
-    <relationshipName>Timesheet_Line_Items</relationshipName>
+    <relationshipName>Time_Sheets</relationshipName>
     <required>false</required>
-    <trackFeedHistory>true</trackFeedHistory>
-    <trackHistory>false</trackHistory>
+    <trackHistory>true</trackHistory>
     <trackTrending>false</trackTrending>
     <type>Lookup</type>
 </CustomField>
