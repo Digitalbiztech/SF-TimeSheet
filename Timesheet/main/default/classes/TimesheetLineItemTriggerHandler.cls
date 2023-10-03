@@ -54,12 +54,12 @@ public with sharing class TimesheetLineItemTriggerHandler {
     
     public static void checkForDuplicateTimesheetLineItem(List<Timesheet_Line_Item__c> timesheetLineItems){
         if(Timesheet_Line_Item__c.SObjectType.getDescribe().isAccessible() 
-        && Schema.SObjectType.Timesheet_Line_Item__c.fields.Id.isAccessible() 
-        && Schema.SObjectType.Timesheet_Line_Item__c.fields.Project__c.isAccessible() 
-        && Schema.SObjectType.Timesheet_Line_Item__c.fields.Date__c.isAccessible() 
-        && Schema.SObjectType.Timesheet_Line_Item__c.fields.Activity__c.isAccessible() 
-        && Schema.SObjectType.Timesheet_Line_Item__c.fields.Timesheet__c.isAccessible()) {
-            validateDuplicationforTimesheetLineItem(timesheetLineItems);
+            && Schema.SObjectType.Timesheet_Line_Item__c.fields.Id.isAccessible() 
+            && Schema.SObjectType.Timesheet_Line_Item__c.fields.Project__c.isAccessible() 
+            && Schema.SObjectType.Timesheet_Line_Item__c.fields.Date__c.isAccessible() 
+            && Schema.SObjectType.Timesheet_Line_Item__c.fields.Activity__c.isAccessible() 
+            && Schema.SObjectType.Timesheet_Line_Item__c.fields.Timesheet__c.isAccessible()) {
+                validateDuplicationforTimesheetLineItem(timesheetLineItems);
         } else{
             for(Timesheet_Line_Item__c timesheetLineItem : timesheetLineItems){
                 timesheetLineItem.addError(errorMessage);
