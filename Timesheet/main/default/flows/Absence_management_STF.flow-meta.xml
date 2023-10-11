@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <actionCalls>
         <name>Employee_Email_Alert</name>
         <label>Employee Email Alert</label>
         <locationX>264</locationX>
-        <locationY>1692</locationY>
+        <locationY>1524</locationY>
         <actionName>emailSimple</actionName>
         <actionType>emailSimple</actionType>
         <connector>
@@ -20,8 +20,7 @@
         <inputParameters>
             <name>emailAddresses</name>
             <value>
-                <elementReference
-        >IteratethroughEmployees.User__r.Email</elementReference>
+                <elementReference>IteratethroughEmployees.User__r.Email</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -30,12 +29,14 @@
                 <stringValue>Vacation Limit Exceeded</stringValue>
             </value>
         </inputParameters>
+        <nameSegment>emailSimple</nameSegment>
+        <versionSegment>1</versionSegment>
     </actionCalls>
     <actionCalls>
         <name>Employee_Notification</name>
         <label>Employee Notification</label>
         <locationX>264</locationX>
-        <locationY>1932</locationY>
+        <locationY>1740</locationY>
         <actionName>customNotificationAction</actionName>
         <actionType>customNotificationAction</actionType>
         <connector>
@@ -45,8 +46,7 @@
         <inputParameters>
             <name>customNotifTypeId</name>
             <value>
-                <elementReference
-        >Get_Custom_Notification_Type.Id</elementReference>
+                <elementReference>Get_Custom_Notification_Type.Id</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -73,12 +73,14 @@
                 <elementReference>IteratethroughEmployees.Id</elementReference>
             </value>
         </inputParameters>
+        <nameSegment>customNotificationAction</nameSegment>
+        <versionSegment>1</versionSegment>
     </actionCalls>
     <actionCalls>
         <name>Manager_Email_Alert</name>
         <label>Manager Email Alert</label>
         <locationX>264</locationX>
-        <locationY>1812</locationY>
+        <locationY>1632</locationY>
         <actionName>emailSimple</actionName>
         <actionType>emailSimple</actionType>
         <connector>
@@ -94,23 +96,23 @@
         <inputParameters>
             <name>emailAddresses</name>
             <value>
-                <elementReference
-        >IteratethroughEmployees.Manager__r.Email</elementReference>
+                <elementReference>IteratethroughEmployees.Manager__r.Email</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
             <name>emailSubject</name>
             <value>
-                <stringValue
-        >Vacation Limit Exceeded for {!IteratethroughEmployees.Name}</stringValue>
+                <stringValue>Vacation Limit Exceeded for {!IteratethroughEmployees.Name}</stringValue>
             </value>
         </inputParameters>
+        <nameSegment>emailSimple</nameSegment>
+        <versionSegment>1</versionSegment>
     </actionCalls>
     <actionCalls>
         <name>Manager_Notification</name>
         <label>Manager Notification</label>
         <locationX>264</locationX>
-        <locationY>2052</locationY>
+        <locationY>1848</locationY>
         <actionName>customNotificationAction</actionName>
         <actionType>customNotificationAction</actionType>
         <connector>
@@ -120,8 +122,7 @@
         <inputParameters>
             <name>customNotifTypeId</name>
             <value>
-                <elementReference
-        >Get_Custom_Notification_Type.Id</elementReference>
+                <elementReference>Get_Custom_Notification_Type.Id</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -148,13 +149,15 @@
                 <elementReference>IteratethroughEmployees.Id</elementReference>
             </value>
         </inputParameters>
+        <nameSegment>customNotificationAction</nameSegment>
+        <versionSegment>1</versionSegment>
     </actionCalls>
     <apiVersion>56.0</apiVersion>
     <assignments>
         <name>Assign_Duration_Value</name>
         <label>Assign Duration Value</label>
         <locationX>396</locationX>
-        <locationY>2508</locationY>
+        <locationY>2256</locationY>
         <assignmentItems>
             <assignToReference>Duration_copy_var</assignToReference>
             <operator>Add</operator>
@@ -177,21 +180,19 @@
         <name>Collect_Ids</name>
         <label>Collect Ids</label>
         <locationX>396</locationX>
-        <locationY>1452</locationY>
+        <locationY>1308</locationY>
         <assignmentItems>
             <assignToReference>Emp_Id</assignToReference>
             <operator>Add</operator>
             <value>
-                <elementReference
-        >IteratethroughEmployees.User__c</elementReference>
+                <elementReference>IteratethroughEmployees.User__c</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>Mng_Id</assignToReference>
             <operator>Add</operator>
             <value>
-                <elementReference
-        >IteratethroughEmployees.Manager__c</elementReference>
+                <elementReference>IteratethroughEmployees.Manager__c</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -202,7 +203,7 @@
         <name>Collect_Updated_Records</name>
         <label>Collect Updated Records</label>
         <locationX>396</locationX>
-        <locationY>2388</locationY>
+        <locationY>2148</locationY>
         <assignmentItems>
             <assignToReference>Updated_No_of_vacations</assignToReference>
             <operator>Add</operator>
@@ -218,13 +219,12 @@
         <name>Get_Absence_Duration</name>
         <label>Get Absence Duration</label>
         <locationX>484</locationX>
-        <locationY>1236</locationY>
+        <locationY>1116</locationY>
         <assignmentItems>
             <assignToReference>Duration_Var</assignToReference>
             <operator>Add</operator>
             <value>
-                <elementReference
-        >Iterate_through_Timesheets.Duration__c</elementReference>
+                <elementReference>Iterate_through_Timesheets.Duration__c</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -235,7 +235,7 @@
         <name>Remove_Values_from_Collection</name>
         <label>Remove Values from Collection</label>
         <locationX>396</locationX>
-        <locationY>2628</locationY>
+        <locationY>2364</locationY>
         <assignmentItems>
             <assignToReference>Emp_Id_Copy</assignToReference>
             <operator>Add</operator>
@@ -272,10 +272,9 @@
         <name>Update_Number_of_Vacations_taken</name>
         <label>Update Number of Vacations taken</label>
         <locationX>396</locationX>
-        <locationY>2268</locationY>
+        <locationY>2040</locationY>
         <assignmentItems>
-            <assignToReference
-      >IteratethroughEmployees.No_of_Vacations_Taken__c</assignToReference>
+            <assignToReference>IteratethroughEmployees.No_of_Vacations_Taken__c</assignToReference>
             <operator>Assign</operator>
             <value>
                 <elementReference>Dur_to_Day_Conv</elementReference>
@@ -290,16 +289,13 @@
         <elementSubtype>FilterCollectionProcessor</elementSubtype>
         <label>Get Respective Employee Time Sheets</label>
         <locationX>396</locationX>
-        <locationY>996</locationY>
-        <assignNextValueToReference
-    >currentItem_Get_Respective_Employee_Time_Sheets</assignNextValueToReference>
-        <collectionProcessorType
-    >FilterCollectionProcessor</collectionProcessorType>
+        <locationY>900</locationY>
+        <assignNextValueToReference>currentItem_Get_Respective_Employee_Time_Sheets</assignNextValueToReference>
+        <collectionProcessorType>FilterCollectionProcessor</collectionProcessorType>
         <collectionReference>Get_Time_Sheets</collectionReference>
         <conditionLogic>and</conditionLogic>
         <conditions>
-            <leftValueReference
-      >currentItem_Get_Respective_Employee_Time_Sheets.Employee__c</leftValueReference>
+            <leftValueReference>currentItem_Get_Respective_Employee_Time_Sheets.Employee__c</leftValueReference>
             <operator>EqualTo</operator>
             <rightValue>
                 <elementReference>IteratethroughEmployees.Id</elementReference>
@@ -313,7 +309,7 @@
         <name>Check_Accrued_Vacation_Days</name>
         <label>Check Accrued Vacation Days</label>
         <locationX>396</locationX>
-        <locationY>1572</locationY>
+        <locationY>1416</locationY>
         <defaultConnector>
             <targetReference>Update_Number_of_Vacations_taken</targetReference>
         </defaultConnector>
@@ -325,16 +321,14 @@
                 <leftValueReference>Dur_to_Day_Conv</leftValueReference>
                 <operator>GreaterThan</operator>
                 <rightValue>
-                    <elementReference
-          >Get_Metadata_Type.Accrued_Vacation_Days__c</elementReference>
+                    <elementReference>Get_Metadata_Type.Accrued_Vacation_Days__c</elementReference>
                 </rightValue>
             </conditions>
             <conditions>
                 <leftValueReference>Dur_to_Day_Conv</leftValueReference>
                 <operator>NotEqualTo</operator>
                 <rightValue>
-                    <elementReference
-          >IteratethroughEmployees.No_of_Vacations_Taken__c</elementReference>
+                    <elementReference>IteratethroughEmployees.No_of_Vacations_Taken__c</elementReference>
                 </rightValue>
             </conditions>
             <connector>
@@ -347,20 +341,17 @@
     <formulas>
         <name>Dur_to_Day_Conv</name>
         <dataType>Number</dataType>
-        <expression
-    >{!Duration_Var} / {!Get_Metadata_Type.Working_Hours_Per_Day__c}</expression>
+        <expression>{!Duration_Var} / {!Get_Metadata_Type.Working_Hours_Per_Day__c}</expression>
         <scale>2</scale>
     </formulas>
-    <interviewLabel
-  >Absence management STF {!$Flow.CurrentDateTime}</interviewLabel>
+    <interviewLabel>Absence management STF {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Absence management STF</label>
     <loops>
         <name>Iterate_through_Timesheets</name>
         <label>Iterate through Timesheets</label>
         <locationX>396</locationX>
-        <locationY>1116</locationY>
-        <collectionReference
-    >Get_Respective_Employee_Time_Sheets</collectionReference>
+        <locationY>1008</locationY>
+        <collectionReference>Get_Respective_Employee_Time_Sheets</collectionReference>
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
             <targetReference>Get_Absence_Duration</targetReference>
@@ -373,12 +364,11 @@
         <name>IteratethroughEmployees</name>
         <label>Iterate through Employees</label>
         <locationX>176</locationX>
-        <locationY>876</locationY>
+        <locationY>792</locationY>
         <collectionReference>Get_Employees</collectionReference>
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
-            <targetReference
-      >Get_Respective_Employee_Time_Sheets</targetReference>
+            <targetReference>Get_Respective_Employee_Time_Sheets</targetReference>
         </nextValueConnector>
         <noMoreValuesConnector>
             <targetReference>Update_Employees</targetReference>
@@ -407,9 +397,8 @@
         <name>Get_Custom_Notification_Type</name>
         <label>Get Custom Notification Type</label>
         <locationX>176</locationX>
-        <locationY>756</locationY>
-        <assignNullValuesIfNoRecordsFound
-    >false</assignNullValuesIfNoRecordsFound>
+        <locationY>684</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>IteratethroughEmployees</targetReference>
         </connector>
@@ -431,9 +420,8 @@
         <name>Get_Employees</name>
         <label>Get Employees</label>
         <locationX>176</locationX>
-        <locationY>276</locationY>
-        <assignNullValuesIfNoRecordsFound
-    >false</assignNullValuesIfNoRecordsFound>
+        <locationY>252</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Get_Time_Sheets</targetReference>
         </connector>
@@ -455,9 +443,8 @@
         <name>Get_Metadata_Type</name>
         <label>Get Metadata Type</label>
         <locationX>176</locationX>
-        <locationY>516</locationY>
-        <assignNullValuesIfNoRecordsFound
-    >false</assignNullValuesIfNoRecordsFound>
+        <locationY>468</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Get_Users</targetReference>
         </connector>
@@ -479,9 +466,8 @@
         <name>Get_Time_Sheets</name>
         <label>Get Time Sheets</label>
         <locationX>176</locationX>
-        <locationY>396</locationY>
-        <assignNullValuesIfNoRecordsFound
-    >false</assignNullValuesIfNoRecordsFound>
+        <locationY>360</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Get_Metadata_Type</targetReference>
         </connector>
@@ -517,9 +503,8 @@
         <name>Get_Users</name>
         <label>Get Users</label>
         <locationX>176</locationX>
-        <locationY>636</locationY>
-        <assignNullValuesIfNoRecordsFound
-    >false</assignNullValuesIfNoRecordsFound>
+        <locationY>576</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Get_Custom_Notification_Type</targetReference>
         </connector>
@@ -535,7 +520,7 @@
             <field>ManagerId</field>
             <operator>EqualTo</operator>
             <value>
-                <stringValue />
+                <stringValue></stringValue>
             </value>
         </filters>
         <getFirstRecordOnly>false</getFirstRecordOnly>
@@ -548,7 +533,7 @@
         <name>Update_Employees</name>
         <label>Update Employees</label>
         <locationX>176</locationX>
-        <locationY>2844</locationY>
+        <locationY>2556</locationY>
         <inputReference>Updated_No_of_vacations</inputReference>
     </recordUpdates>
     <start>
@@ -579,8 +564,7 @@ System Admin</text>
     <textTemplates>
         <name>Manager_Email_Body</name>
         <isViewedAsPlainText>true</isViewedAsPlainText>
-        <text
-    >Hi {!IteratethroughEmployees.Owner:User.Manager.FirstName} {!IteratethroughEmployees.Owner:User.Manager.LastName},
+        <text>Hi {!IteratethroughEmployees.Owner:User.Manager.FirstName} {!IteratethroughEmployees.Owner:User.Manager.LastName},
 
 {!IteratethroughEmployees.Name} has exceeded the vacation limit.
 Allotted Vacation Leave : {!Get_Metadata_Type.Accrued_Vacation_Days__c}
