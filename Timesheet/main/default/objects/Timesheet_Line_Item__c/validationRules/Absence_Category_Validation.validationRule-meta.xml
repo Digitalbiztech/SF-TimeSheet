@@ -1,9 +1,8 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Absence_Category_Validation</fullName>
     <active>true</active>
     <description>Absence category is required for Absence</description>
-    <errorConditionFormula
-  >AND( ISPICKVAL(Type__c, &apos;Absence&apos;),  ISPICKVAL( Absence_Category__c , &apos; &apos;) )</errorConditionFormula>
+    <errorConditionFormula>AND( ISPICKVAL(Type__c, &apos;Absence&apos;),  ISPICKVAL( Absence_Category__c , &apos; &apos;) )</errorConditionFormula>
     <errorMessage>Absence category is required</errorMessage>
 </ValidationRule>

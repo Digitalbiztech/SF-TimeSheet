@@ -1,14 +1,13 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>57.0</apiVersion>
     <assignments>
         <name>Add_Timesheet_Masters_to_Collection</name>
         <label>Add Timesheet Masters to Collection</label>
         <locationX>264</locationX>
-        <locationY>636</locationY>
+        <locationY>576</locationY>
         <assignmentItems>
-            <assignToReference
-      >TimesheetMasterRecordCollection</assignToReference>
+            <assignToReference>TimesheetMasterRecordCollection</assignToReference>
             <operator>Add</operator>
             <value>
                 <elementReference>TimesheetMasterRecord</elementReference>
@@ -22,21 +21,19 @@
         <name>Assign_values_to_Timesheet_Master</name>
         <label>Assign values to Timesheet Master</label>
         <locationX>264</locationX>
-        <locationY>516</locationY>
+        <locationY>468</locationY>
         <assignmentItems>
-            <assignToReference
-      >TimesheetMasterRecord.End_Date__c</assignToReference>
+            <assignToReference>TimesheetMasterRecord.End_Date__c</assignToReference>
             <operator>Assign</operator>
             <value>
                 <elementReference>endDate</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference
-      >TimesheetMasterRecord.Start_Date__c</assignToReference>
+            <assignToReference>TimesheetMasterRecord.Start_Date__c</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>stateDate</elementReference>
+                <elementReference>startDate</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -54,28 +51,24 @@
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference
-      >TimesheetMasterRecord.Manager__c</assignToReference>
+            <assignToReference>TimesheetMasterRecord.Manager__c</assignToReference>
             <operator>Assign</operator>
             <value>
                 <elementReference>Employee_Loop.Manager__c</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference
-      >TimesheetMasterRecord.Employee__c</assignToReference>
+            <assignToReference>TimesheetMasterRecord.Employee__c</assignToReference>
             <operator>Assign</operator>
             <value>
                 <elementReference>Employee_Loop.Id</elementReference>
             </value>
         </assignmentItems>
         <connector>
-            <targetReference
-      >Add_Timesheet_Masters_to_Collection</targetReference>
+            <targetReference>Add_Timesheet_Masters_to_Collection</targetReference>
         </connector>
     </assignments>
-    <description
-  >This scheduled trigger flow creates weekly Timesheet for each employee every Monday at 12:00 AM</description>
+    <description>This scheduled trigger flow creates weekly Timesheet for each employee every Monday at 12:00 AM</description>
     <environments>Default</environments>
     <formulas>
         <name>endDate</name>
@@ -85,22 +78,20 @@
     <formulas>
         <name>Record_Name</name>
         <dataType>String</dataType>
-        <expression
-    >&quot;Timesheet for &quot; + TEXT({!stateDate}) + &quot; to &quot;+ TEXT({!endDate})</expression>
+        <expression>&quot;Timesheet for &quot; + TEXT({!startDate}) + &quot; to &quot;+ TEXT({!endDate})</expression>
     </formulas>
     <formulas>
-        <name>stateDate</name>
+        <name>startDate</name>
         <dataType>Date</dataType>
         <expression>TODAY()</expression>
     </formulas>
-    <interviewLabel
-  >Timesheets Creation STF {!$Flow.CurrentDateTime}</interviewLabel>
+    <interviewLabel>Timesheets Creation STF {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Timesheets Creation STF</label>
     <loops>
         <name>Employee_Loop</name>
         <label>Employee Loop</label>
         <locationX>176</locationX>
-        <locationY>396</locationY>
+        <locationY>360</locationY>
         <collectionReference>Get_Employees</collectionReference>
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
@@ -133,16 +124,15 @@
         <name>Create_Timesheet_Masters</name>
         <label>Create Timesheet Masters</label>
         <locationX>176</locationX>
-        <locationY>852</locationY>
+        <locationY>768</locationY>
         <inputReference>TimesheetMasterRecordCollection</inputReference>
     </recordCreates>
     <recordLookups>
         <name>Get_Employees</name>
         <label>Get Employees</label>
         <locationX>176</locationX>
-        <locationY>276</locationY>
-        <assignNullValuesIfNoRecordsFound
-    >false</assignNullValuesIfNoRecordsFound>
+        <locationY>252</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Employee_Loop</targetReference>
         </connector>
@@ -176,7 +166,7 @@
         </schedule>
         <triggerType>Scheduled</triggerType>
     </start>
-    <status>Obsolete</status>
+    <status>Active</status>
     <variables>
         <name>TimesheetMasterRecord</name>
         <dataType>SObject</dataType>

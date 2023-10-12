@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>57.0</apiVersion>
     <assignments>
@@ -42,8 +42,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference
-        >Remove_Values_from_Absence_Category</targetReference>
+                <targetReference>Remove_Values_from_Absence_Category</targetReference>
             </connector>
             <label>Attendance type</label>
         </rules>
@@ -58,15 +57,13 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference
-        >Remove_Values_from_Project_and_Activity</targetReference>
+                <targetReference>Remove_Values_from_Project_and_Activity</targetReference>
             </connector>
             <label>Absence Type</label>
         </rules>
     </decisions>
     <environments>Default</environments>
-    <interviewLabel
-  >Timesheet Line Item Type RTF {!$Flow.CurrentDateTime}</interviewLabel>
+    <interviewLabel>Timesheet Line Item Type RTF {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Timesheet Line Item Type RTF</label>
     <processMetadataValues>
         <name>BuilderType</name>
