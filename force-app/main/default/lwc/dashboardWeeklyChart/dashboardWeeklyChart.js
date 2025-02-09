@@ -5,7 +5,7 @@ import ChartJS from '@salesforce/resourceUrl/jsChart';
 import { getChartData } from 'c/dashboardSharedData';
 import userId from '@salesforce/user/Id';
 
-export default class ChartTwo extends LightningElement {
+export default class ChartTwo extends LightningElement { 
     @track chartData;
 
     attendanceChart;
