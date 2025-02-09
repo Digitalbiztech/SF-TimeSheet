@@ -9,7 +9,11 @@ package.xml
 **/.eslintrc.json
 
 # LWC Jest
+<<<<<<< HEAD
 **/__tests__/**
 **/tsconfig.json
 
 **/*.ts
+=======
+**/__tests__/**
+>>>>>>> a3e6b8b47551ab49910b5a8c4033334b257507a9

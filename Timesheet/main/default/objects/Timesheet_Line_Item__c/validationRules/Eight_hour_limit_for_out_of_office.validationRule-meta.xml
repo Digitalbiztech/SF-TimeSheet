@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Eight_hour_limit_for_out_of_office</fullName>
+    <active>true</active>
+    <errorConditionFormula
+  >AND(OR(ISPICKVAL( Absence_Category__c , &quot;Sick Leave&quot;),
+ISPICKVAL( Absence_Category__c , &quot;PTO-Planned&quot;), 
+ISPICKVAL(Absence_Category__c ,&quot;PTO-Un Planned&quot;)),
+Duration__c &gt; 8)</errorConditionFormula>
+    <errorMessage>Enter 8 hours or Less for Absence Type</errorMessage>
+</ValidationRule>

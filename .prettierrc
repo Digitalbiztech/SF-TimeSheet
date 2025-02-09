@@ -1,9 +1,12 @@
 {
   "trailingComma": "none",
+<<<<<<< HEAD
   "plugins": [
     "prettier-plugin-apex",
     "@prettier/plugin-xml"
   ],
+=======
+>>>>>>> a3e6b8b47551ab49910b5a8c4033334b257507a9
   "overrides": [
     {
       "files": "**/lwc/**/*.html",
