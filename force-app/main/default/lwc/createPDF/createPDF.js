@@ -39,14 +39,12 @@ export default class PdfGenerator extends LightningElement {
     /**
      * @description Initializes PDF libraries
      */
-    async initializePDFLibraries() {
+    initializePDFLibraries() {
         this.jsPDFInitialized = true;
         try {
-            await Promise.all([
-                loadScript(this, JS_PDF),
-                loadScript(this, jsPDFAutoTable)
-            ]);
-            this.isLoading = false;
+            loadScript(this, JS_PDF)
+            .then(() => loadScript(this, jsPDFAutoTable))
+            .then(() => { this.isLoading = false; })
         } catch (error) {
             console.error('Error loading PDF libraries:', error);
             this.loadError = true;
@@ -110,11 +108,29 @@ export default class PdfGenerator extends LightningElement {
      * @description Processes timesheet line items
      */
     processLineItems(lineItems) {
-        this.TimesheetLineItems = lineItems.map(element => ({
-            ...element,
-            duration: element.duration.toString(),
-            Day: this.weekdays[new Date(element.dbt__Date__c).getDay()]
-        }));
+        let dateCursor = new Date(this.Timesheet.dbt__Start_Date__c);
+        const endDate = new Date(this.Timesheet.dbt__End_Date__c);
+
+        const tempLineItems = [];
+        while (dateCursor <= endDate) {
+            const yyyyMmDd = dateCursor.toISOString().split('T')[0]; // "YYYY-MM-DD" format
+            tempLineItems.push({
+                dbt__Date__c: yyyyMmDd,
+                duration: "0",
+                Day: this.weekdays[dateCursor.getDay()]
+            });
+            
+            dateCursor.setDate(dateCursor.getDate() + 1);
+        }
+
+        lineItems.forEach(item => {
+            const match = tempLineItems.find(row => row.dbt__Date__c === item.dbt__Date__c);
+            if (match) {
+                match.duration = item.duration.toString();
+            }
+        });
+
+        this.TimesheetLineItems = tempLineItems;
     }
 
     /**
@@ -129,8 +145,8 @@ export default class PdfGenerator extends LightningElement {
 
         this.addHeader(doc);
         this.addTable(doc);
-        
-        doc.save(`timesheet_${this.Timesheet?.dbt__End_Date__c || 'generated'}.pdf`);
+
+        doc.save(`${this.Timesheet?.dbt__Employee__r?.Name || "Unknown Contractor"}_Timesheet_${this.Timesheet?.dbt__End_Date__c || 'generated'}.pdf`);
     }
 
     /**
@@ -148,8 +164,7 @@ export default class PdfGenerator extends LightningElement {
         pic.src = imageLogo;
 
         doc.text("Name of Contractor: " + contractorName, 10, 10);
-        doc.addImage(pic, 190, 2, 15, 15);
-        doc.text("Digital Biz Tech", 148, 10);
+        doc.addImage(pic, 175, 2, 30, 30);
         doc.text("Fortnight Ending: " + fortnightEnding, 10, 20);
         doc.text("Name of Manager: " + clientManagerName, 10, 30);
         doc.text("Manager Email: " + clientManagerEmail, 10, 40);
@@ -173,7 +188,7 @@ export default class PdfGenerator extends LightningElement {
             body: this.TimesheetLineItems,
             theme: 'grid',
             headStyles: {
-                fillColor: [0, 172, 148],
+                fillColor: [0, 56, 101],
                 textColor: [255, 255, 255],
                 fontSize: 13,
                 fontStyle: 'bold',
@@ -187,13 +202,25 @@ export default class PdfGenerator extends LightningElement {
                 valign: 'middle',
                 halign: 'center'
             },
-            didParseCell: (data) => {
-                const { row, column } = data;
-                if (row.raw?.Day === 'Saturday' || row.raw?.Day === 'Sunday') {
-                    data.cell.styles.fillColor = [240, 240, 240];
-                }
-            }
+            didParseCell: this.handleCellStyling
         });
+    }
+
+    /**
+     * @description Handles cell styling
+     */
+    handleCellStyling(data) {
+        const { row, cell, column } = data;
+        const day = row.raw?.Day;
+        const duration = row.raw?.duration;
+
+        if (column.dataKey === 'duration' && duration === '0') {
+            cell.styles.fillColor = [255, 207, 170];
+        }
+
+        if (day === 'Saturday' || day === 'Sunday') {
+            cell.styles.fillColor = [230, 230, 230];
+        }
     }
 
     get generateButtonLabel() {

@@ -19,8 +19,8 @@ export default class CreateEmployeeTimesheet extends LightningElement {
     startDate = "No Start Date";
     endDate = "No End Date";
     Client = "";
-    totalDurationAttendance = 0;
-    totalDurationAbsence = 0;
+    totalDuration = 0;
+    totalDays = 0;
 
     // Constants
     weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -54,14 +54,12 @@ export default class CreateEmployeeTimesheet extends LightningElement {
     /**
      * @description Initializes PDF libraries
      */
-    async initializePDFLibraries() {
+    initializePDFLibraries() {
         this.jsPDFInitialized = true;
         try {
-            await Promise.all([
-                loadScript(this, JS_PDF),
-                loadScript(this, jsPDFAutoTable)
-            ]);
-            this.isLoading = false;
+            loadScript(this, JS_PDF)
+            .then(() => loadScript(this, jsPDFAutoTable))
+            .then(() => { this.isLoading = false; })
         } catch (error) {
             console.error('Error loading PDF libraries:', error);
             this.loadError = true;
@@ -79,23 +77,25 @@ export default class CreateEmployeeTimesheet extends LightningElement {
         try {
             this.isGeneratingPDF = true;
 
+            this.totalDuration = 0;
+            this.totalDays = 0;
+
             // Parallel data fetching
-            const [employeeData, timesheetData] = await Promise.all([
+            const [employeeData, lineItems] = await Promise.all([
                 this.fetchEmployeeData(),
                 this.fetchTimesheetData()
             ]);
 
-            if (!timesheetData?.length) {
+            if (!lineItems?.length) {
                 this.showToast('Warning', 'No Timesheet Items found for the selected period.', 'warning');
                 return;
             }
 
             this.Employee = employeeData;
-            this.TimesheetLineItems = timesheetData;
-            this.processTimesheetData();
-            console.time('pdf');
+
+            this.processTimesheetData(lineItems);
+            
             await this.handleGeneratePDF();
-            console.timeEnd('pdf');
             
         } catch (error) {
             console.error('Error processing timesheet:', error);
@@ -126,6 +126,9 @@ export default class CreateEmployeeTimesheet extends LightningElement {
             this.showToast('Warning', 'End date must be after start date', 'warning');
             return false;
         }
+
+        this.startDate = this.sd.toISOString().split("T")[0];
+        this.endDate = this.ed.toISOString().split("T")[0];
 
         return true;
     }
@@ -165,92 +168,41 @@ export default class CreateEmployeeTimesheet extends LightningElement {
     /**
      * @description Processes timesheet data
      */
-    processTimesheetData() {
-        const dateSet = new Set(this.TimesheetLineItems.map(item => item.dbt__Date__c));
-        
-        this.resetTotals();
-        this.processExistingTimeSheets();
-        this.addMissingDates(dateSet);
-        this.sortTimesheetItems();
+    processTimesheetData(lineItems) {
+        this.processLineItems(lineItems);
         this.addTotalRow();
-        this.setDateRange();
     }
 
     /**
-     * @description Resets totals
+     * @description Processes timesheet line items
      */
-    resetTotals() {
-        this.totalDurationAttendance = 0;
-        this.totalDurationAbsence = 0;
-    }
+    processLineItems(lineItems) {
+        let dateCursor = new Date(this.startDate);
+        const endDate = new Date(this.endDate);
 
-    /**
-     * @description Process existing timesheet entries
-     */
-    processExistingTimeSheets() {
-        this.TimesheetLineItems = this.TimesheetLineItems.map(element => {
-            const date = new Date(element.dbt__Date__c);
-            const processedElement = {
-                ...element,
-                duration: element.duration.toString(),
-                Day: this.weekdays[date.getDay()]
-            };
-
-            if (element.dbt__Type__c === "Attendance") {
-                this.totalDurationAttendance += parseFloat(element.duration || 0);
-            } else if (element.dbt__Type__c === "Absence") {
-                this.totalDurationAbsence += parseFloat(element.duration || 0);
-            }
-
-            return processedElement;
-        });
-    }
-
-    /**
-     * @description Sets date range
-     */
-    setDateRange() {
-        this.startDate = this.sd.toISOString().split("T")[0];
-        this.endDate = this.ed.toISOString().split("T")[0];
-    }
-
-    /**
-     * @description Adds missing dates
-     */
-    addMissingDates(dateSet) {
-        const currentDate = new Date(this.sd);
-        const endDate = new Date(this.ed);
-        const missingDates = [];
-
-        while (currentDate <= endDate) {
-            const formattedDate = currentDate.toISOString().split("T")[0];
+        const tempLineItems = [];
+        while (dateCursor <= endDate) {
+            const yyyyMmDd = dateCursor.toISOString().split('T')[0]; // "YYYY-MM-DD" format
+            tempLineItems.push({
+                dbt__Date__c: yyyyMmDd,
+                duration: "0",
+                Day: this.weekdays[dateCursor.getDay()]
+            });
             
-            if (!dateSet.has(formattedDate)) {
-                missingDates.push({
-                    dbt__Date__c: formattedDate,
-                    duration: "0",
-                    Day: this.weekdays[currentDate.getDay()],
-                    dbt__Type__c: "Missing"
-                });
-            }
-            
-            currentDate.setDate(currentDate.getDate() + 1);
+            dateCursor.setDate(dateCursor.getDate() + 1);
+            this.totalDays++;
         }
 
-        this.TimesheetLineItems = [...this.TimesheetLineItems, ...missingDates];
-    }
+        lineItems.forEach(item => {
+            const match = tempLineItems.find(row => row.dbt__Date__c === item.dbt__Date__c);
+            if (match) {
+                match.duration = item.duration.toString();
+            }
 
-    /**
-     * @description Sorts timesheet items
-     */
-    sortTimesheetItems() {
-        this.TimesheetLineItems.sort((a, b) => {
-            const dateA = new Date(a.dbt__Date__c);
-            const dateB = new Date(b.dbt__Date__c);
-            const dateDiff = dateA - dateB;
-            
-            return dateDiff || (b.dbt__Type__c > a.dbt__Type__c ? 1 : -1);
+            this.totalDuration += parseFloat(item.duration || 0);
         });
+
+        this.TimesheetLineItems = tempLineItems;
     }
 
     /**
@@ -258,10 +210,9 @@ export default class CreateEmployeeTimesheet extends LightningElement {
      */
     addTotalRow() {
         this.TimesheetLineItems.push({
-            Day: " ",
-            dbt__Date__c: "Total",
-            dbt__Type__c: "Attendance",
-            duration: this.totalDurationAttendance.toString()
+            Day: "Total",
+            dbt__Date__c: this.totalDays.toString(),
+            duration: this.totalDuration.toString()
         });
     }
 
@@ -280,7 +231,7 @@ export default class CreateEmployeeTimesheet extends LightningElement {
             });
 
             this.addPDFContent(doc);
-            doc.save(`timesheet_${this.startDate}_${this.endDate}.pdf`);
+            doc.save(`${this.Employee?.Name || "Unknown Contractor"}_Timesheet_${this.startDate}_${this.endDate}.pdf`);
             this.showToast('Success', 'PDF generated successfully', 'success');
         } catch (error) {
             console.error('Error generating PDF:', error);
@@ -328,7 +279,7 @@ export default class CreateEmployeeTimesheet extends LightningElement {
         pic.src = imageLogo;
 
         doc.text("Name of Contractor: " + contractorName, 10, 10);
-        doc.addImage(pic, 190, 2, 15, 15);
+        doc.addImage(pic, 175, 2, 30, 30);
         doc.text("Client: " + this.Client, 10, 20);
         doc.text("Name of Manager: " + clientmanagerName, 10, 30);
         doc.text("Period Ending: " + this.endDate, 10, 40);
@@ -357,9 +308,9 @@ export default class CreateEmployeeTimesheet extends LightningElement {
             body: rows,
             foot: footer,
             startY: 60,
-            alternateRowStyles: { fillColor: [245, 245, 245] },
+            // alternateRowStyles: { fillColor: [245, 245, 245] },
             headStyles: {
-                fillColor: [0, 172, 148],
+                fillColor: [0, 56, 101],
                 textColor: [255, 255, 255],
                 fontSize: 13,
                 fontStyle: 'bold',
@@ -374,7 +325,7 @@ export default class CreateEmployeeTimesheet extends LightningElement {
                 halign: 'center'
             },
             footStyles: {
-                fillColor: [128, 157, 60],
+                fillColor: [157, 196, 75],
                 textColor: [255, 255, 255],
                 fontStyle: 'bold',
                 fontSize: 12,
@@ -395,11 +346,11 @@ export default class CreateEmployeeTimesheet extends LightningElement {
         const duration = row.raw?.duration;
 
         if (column.dataKey === 'duration' && duration === '0') {
-            cell.styles.fillColor = [255, 179, 142];
+            cell.styles.fillColor = [255, 207, 170];
         }
 
         if (day === 'Saturday' || day === 'Sunday') {
-            cell.styles.fillColor = [179, 200, 207];
+            cell.styles.fillColor = [230, 230, 230];
         }
     }
 
