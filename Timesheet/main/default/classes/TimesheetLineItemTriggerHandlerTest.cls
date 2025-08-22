@@ -161,6 +161,7 @@ public class TimesheetLineItemTriggerHandlerTest {
         employee.User__c = userId;
         employee.Email__c = 'testEmail@'+ Datetime.now().format('hh.mm.ss.SSS') + '.com';
         employee.Manager__c = userInfo.getUserId();
+        employee.Employment_Type_c__c = 'Full Time';
         return employee;
     }
     

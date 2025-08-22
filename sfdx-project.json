@@ -7,8 +7,9 @@
     {
       "path": "Timesheet",
       "package": "Timesheet",
-      "versionName": "ver 0.3",
-      "versionNumber": "0.3.0.NEXT",
+      "versionName": "ver NEXT",
+      "versionNumber": "0.6.0.NEXT",
+      "ancestorVersion": "0.4.0",
       "default": false,
       "versionDescription": ""
     },
@@ -25,6 +26,20 @@
           "versionNumber": "0.1.0.LATEST"
         }
       ]
+    },
+    {
+      "versionName": "ver 0.1",
+      "versionNumber": "0.1.0.NEXT",
+      "path": "updates/pdf",
+      "default": false,
+      "package": "pdfUpdate",
+      "versionDescription": "",
+      "dependencies": [
+        {
+          "package": "Timesheet",
+          "versionNumber": "0.4.0.LATEST"
+        }
+      ]
     }
   ],
   "name": "SF-TimeSheet",
@@ -39,6 +54,7 @@
     "Timesheet@0.4.0-2": "04t4W000002w3OjQAI",
     "Timesheet@0.5.0-1": "04t4W000002w4uWQAQ",
     "coreUpdate": "0HoKb000000sXtlKAE",
-    "coreUpdate@0.1.0-3": "04tKb0000011MiMIAU"
+    "coreUpdate@0.1.0-3": "04tKb0000011MiMIAU",
+    "pdfUpdate": "0HoKb000000sXtqKAE"
   }
 }
