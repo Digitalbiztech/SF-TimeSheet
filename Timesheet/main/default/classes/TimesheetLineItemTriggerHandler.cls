@@ -9,6 +9,7 @@ public with sharing class TimesheetLineItemTriggerHandler {
     
     public static void beforeUpdate(List<Timesheet_Line_Item__c> timesheetLineItems){
         checkForDuplicateTimesheetLineItem(timesheetLineItems);
+        updateBillableField(timesheetLineItems);
     }
     
     public static void updateEmployeeId(List<Timesheet_Line_Item__c> timesheetLineItems){
@@ -39,6 +40,7 @@ public with sharing class TimesheetLineItemTriggerHandler {
     }
     
     public static void updateBillableField(List<Timesheet_Line_Item__c> timesheetLineItems){
+        System.debug('Entering into updateBillableField method');
         if(Project__c.SObjectType.getDescribe().isAccessible() 
             && Schema.SObjectType.Project__c.fields.Id.isAccessible() 
             && Schema.SObjectType.Project__c.fields.Billable__c.isAccessible()
@@ -68,6 +70,7 @@ public with sharing class TimesheetLineItemTriggerHandler {
     }
 
     private static void assignBillableField(List<Timesheet_Line_Item__c> timesheetLineItems){
+        System.debug('Entering into assignBillableField method');
         List<Timesheet_Line_Item__c> newTimesheetLineItems = new List<Timesheet_Line_Item__c>();
         Set<Id> projectIds = new Set<Id>();
         for(Timesheet_Line_Item__c timesheetLineItem : timesheetLineItems){
@@ -103,6 +106,7 @@ public with sharing class TimesheetLineItemTriggerHandler {
                                                                     Project__c,
                                                                     Date__c,
                                                                     Activity__c,
+                                                                    Absence_Category__c,
                                                                     Timesheet__c
                                                                     FROM Timesheet_Line_Item__c
                                                                     WHERE Project__c = : projectIds
@@ -115,8 +119,9 @@ public with sharing class TimesheetLineItemTriggerHandler {
                     &&  timesheetLineItem.Date__c == timesheetLineItemMap.get(id).Date__c  
                     && timesheetLineItem.Project__c == timesheetLineItemMap.get(id).Project__c 
                     && timesheetLineItem.Timesheet__c == timesheetLineItemMap.get(id).Timesheet__c 
-                    && timesheetLineItem.Activity__c == timesheetLineItemMap.get(id).Activity__c){
-                        timesheetLineItem.Project__c.addError('LineItem with the same project and activity already exists for the same date, please update the existing record');
+                    && timesheetLineItem.Activity__c == timesheetLineItemMap.get(id).Activity__c 
+                    && timesheetLineItem.Absence_Category__c == timesheetLineItemMap.get(id).Absence_Category__c){
+                        timesheetLineItem.addError('LineItem with the same project and activity or same absense category already exists for the same date, please update the existing record');
                 }
             }
         }

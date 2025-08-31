@@ -32,7 +32,7 @@ private class GetTimesheetTest {
                 User__c = u.Id,
                 Client_Manager__c = clientManager.Id,
                 Client_Manager_email__c = clientManager.Email,
-                Employment_Type_c__c = 'Full Time'
+                Employment_Type__c = 'Full Time'
             );
             insert employee;
 

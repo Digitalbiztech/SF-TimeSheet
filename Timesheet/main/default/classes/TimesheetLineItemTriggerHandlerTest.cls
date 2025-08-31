@@ -123,7 +123,7 @@ public class TimesheetLineItemTriggerHandlerTest {
             Test.stopTest();
             
             List<Database.Error> errors = timesheetLineItem2.getErrors();
-            Assert.areEqual('LineItem with the same project and activity already exists for the same date, please update the existing record', errors.get(0).getMessage());
+            Assert.areEqual('LineItem with the same project and activity or same absense category already exists for the same date, please update the existing record', errors.get(0).getMessage());
         }
     }
     
@@ -161,7 +161,7 @@ public class TimesheetLineItemTriggerHandlerTest {
         employee.User__c = userId;
         employee.Email__c = 'testEmail@'+ Datetime.now().format('hh.mm.ss.SSS') + '.com';
         employee.Manager__c = userInfo.getUserId();
-        employee.Employment_Type_c__c = 'Full Time';
+        employee.Employment_Type__c = 'Full Time';
         return employee;
     }
     

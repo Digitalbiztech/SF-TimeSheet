@@ -32,7 +32,7 @@ private class GetEmployeeDetailsTest {
                 User__c = u.Id,
                 Client_Manager__c = clientManager.Id,
                 Client_Manager_email__c = clientManager.Email,
-                Employment_Type_c__c = 'Full Time'
+                Employment_Type__c = 'Full Time'
             );
             insert employee;
 
@@ -100,13 +100,19 @@ private class GetEmployeeDetailsTest {
 
     @isTest
     static void testGetEmployee_nullId() {
-        Test.startTest();
-        try {
-            GetEmployeeDetails.getEmployee(null);
-            System.assert(false, 'Expected exception was not thrown');
-        } catch (Exception e) {
-            // System.assert(e.getMessage().contains('Employee ID cannot be null'), 'Expected error message mismatch');
+        User adminUser = createAdminUser('Admin', 'User');
+        insert adminUser;
+        
+        assignpermissionSetForAdmin(adminUser);
+        System.runAs(adminUser){
+            Test.startTest();
+            try {
+                GetEmployeeDetails.getEmployee(null);
+                System.assert(false, 'Expected exception was not thrown');
+            } catch (Exception e) {
+                // System.assert(e.getMessage().contains('Employee ID cannot be null'), 'Expected error message mismatch');
+            }
+            Test.stopTest();
         }
-        Test.stopTest();
     }
 }

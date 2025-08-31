@@ -1,0 +1,10 @@
+[
+    {
+        "sobject": "dbt__Employee__c",
+        "saveRefs": false,
+        "resolveRefs": false,
+        "files": [
+            "dbt__Employee__c.json"
+        ]
+    }
+]

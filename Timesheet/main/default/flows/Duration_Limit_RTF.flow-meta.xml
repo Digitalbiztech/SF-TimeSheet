@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>56.0</apiVersion>
     <assignments>
@@ -10,8 +10,7 @@
             <assignToReference>dur_Coll</assignToReference>
             <operator>Add</operator>
             <value>
-                <elementReference
-        >Iterate_through_Timesheets.Duration__c</elementReference>
+                <elementReference>Iterate_through_Timesheets.Duration__c</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -38,8 +37,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference
-      >Duration_Value_Check_with_Working_hours</targetReference>
+            <targetReference>Duration_Value_Check_with_Working_hours</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -48,8 +46,7 @@
         <locationX>50</locationX>
         <locationY>1127</locationY>
         <assignmentItems>
-            <assignToReference
-      >$Record.Hours_Limit_Exceeded__c</assignToReference>
+            <assignToReference>$Record.Hours_Limit_Exceeded__c</assignToReference>
             <operator>Assign</operator>
             <value>
                 <booleanValue>true</booleanValue>
@@ -62,8 +59,7 @@
         <locationX>578</locationX>
         <locationY>1019</locationY>
         <assignmentItems>
-            <assignToReference
-      >$Record.Hours_Limit_Exceeded__c</assignToReference>
+            <assignToReference>$Record.Hours_Limit_Exceeded__c</assignToReference>
             <operator>Assign</operator>
             <value>
                 <booleanValue>true</booleanValue>
@@ -83,8 +79,7 @@
                 <leftValueReference>dur_Coll</leftValueReference>
                 <operator>GreaterThan</operator>
                 <rightValue>
-                    <elementReference
-          >Get_Custom_Meta_data.Maximum_Working_Hrs_Per_Day__c</elementReference>
+                    <elementReference>Get_Custom_Meta_data.Maximum_Working_Hrs_Per_Day__c</elementReference>
                 </rightValue>
             </conditions>
             <connector>
@@ -106,8 +101,7 @@
             <name>Triggered_record_has_prior_value</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference
-        >$Record__Prior.Duration__c</leftValueReference>
+                <leftValueReference>$Record__Prior.Duration__c</leftValueReference>
                 <operator>NotEqualTo</operator>
                 <rightValue>
                     <elementReference>$Record.Duration__c</elementReference>
@@ -132,8 +126,7 @@
                 <leftValueReference>dur_Coll</leftValueReference>
                 <operator>GreaterThan</operator>
                 <rightValue>
-                    <elementReference
-          >Get_Custom_Meta_data.Maximum_Working_Hrs_Per_Day__c</elementReference>
+                    <elementReference>Get_Custom_Meta_data.Maximum_Working_Hrs_Per_Day__c</elementReference>
                 </rightValue>
             </conditions>
             <connector>
@@ -183,8 +176,7 @@
         <label>Get Custom Meta data</label>
         <locationX>446</locationX>
         <locationY>395</locationY>
-        <assignNullValuesIfNoRecordsFound
-    >false</assignNullValuesIfNoRecordsFound>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Iterate_through_Timesheets</targetReference>
         </connector>
@@ -207,8 +199,7 @@
         <label>Get TimeSheets</label>
         <locationX>446</locationX>
         <locationY>287</locationY>
-        <assignNullValuesIfNoRecordsFound
-    >false</assignNullValuesIfNoRecordsFound>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Get_Custom_Meta_data</targetReference>
         </connector>
@@ -224,8 +215,7 @@
             <field>Employee__c</field>
             <operator>EqualTo</operator>
             <value>
-                <elementReference
-        >$Record.Timesheet__r.Employee__c</elementReference>
+                <elementReference>$Record.Timesheet__r.Employee__c</elementReference>
             </value>
         </filters>
         <getFirstRecordOnly>false</getFirstRecordOnly>

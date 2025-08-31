@@ -31,7 +31,7 @@ private class GetRangeOfTimesheetsLineItemsTest {
                 User__c = u.Id,
                 Client_Manager__c = manager.Id,
                 Client_Manager_email__c = manager.Email,
-                Employment_Type_c__c = 'Full Time'
+                Employment_Type__c = 'Full Time'
             );
             insert employee;
 

@@ -110,14 +110,14 @@ export default class PdfGenerator extends LightningElement {
      * @description Processes timesheet line items
      */
     processLineItems(lineItems) {
-        let dateCursor = new Date(this.Timesheet.dbt__Start_Date__c);
-        const endDate = new Date(this.Timesheet.dbt__End_Date__c);
+        let dateCursor = new Date(this.Timesheet.Start_Date__c);
+        const endDate = new Date(this.Timesheet.End_Date__c);
 
         const tempLineItems = [];
         while (dateCursor <= endDate) {
             const yyyyMmDd = dateCursor.toISOString().split('T')[0]; // "YYYY-MM-DD" format
             tempLineItems.push({
-                dbt__Date__c: yyyyMmDd,
+                Date__c: yyyyMmDd,
                 duration: "0",
                 Day: this.weekdays[dateCursor.getDay()]
             });
@@ -126,7 +126,7 @@ export default class PdfGenerator extends LightningElement {
         }
 
         lineItems.forEach(item => {
-            const match = tempLineItems.find(row => row.dbt__Date__c === item.dbt__Date__c);
+            const match = tempLineItems.find(row => row.Date__c === item.Date__c);
             if (match) {
                 match.duration = item.duration.toString();
             }
@@ -148,26 +148,26 @@ export default class PdfGenerator extends LightningElement {
         this.addHeader(doc);
         this.addTable(doc);
 
-        doc.save(`${this.Timesheet?.dbt__Employee__r?.Name || "Unknown Contractor"}_Timesheet_${this.Timesheet?.dbt__End_Date__c || 'generated'}.pdf`);
+        doc.save(`${this.Timesheet?.Employee__r?.Name || "Unknown Contractor"}_Timesheet_${this.Timesheet?.End_Date__c || 'generated'}.pdf`);
     }
 
     /**
      * @description Adds header to PDF
      */
     addHeader(doc) {
-        const contractorName = this.Timesheet?.dbt__Employee__r?.Name || "Unknown Contractor";
-        const clientManagerName = this.Timesheet?.dbt__Employee__r?.Client_Manager__r?.Name || "Unknown Manager";
-        const clientManagerEmail = this.Timesheet?.dbt__Employee__r?.Client_Manager_email__c || "No Email Provided";
-        const fortnightEnding = this.Timesheet?.dbt__End_Date__c || "Unknown Date";
-        const billableHours = this.Timesheet?.dbt__Billable_Hours__c || "0";
-        const totalHours = this.Timesheet?.dbt__Total_Hours__c || "0";
+        const contractorName = this.Timesheet?.Employee__r?.Name || "Unknown Contractor";
+        const clientManagerName = this.Timesheet?.Employee__r?.Client_Manager__r?.Name || "Unknown Manager";
+        const clientManagerEmail = this.Timesheet?.Employee__r?.Client_Manager_email__c || "No Email Provided";
+        const fortnightEnding = this.Timesheet?.End_Date__c || "Unknown Date";
+        const billableHours = this.Timesheet?.Billable_Hours__c || "0";
+        const totalHours = this.Timesheet?.Total_Hours__c || "0";
 
         const pic = new Image();
         pic.src = imageLogo;
 
         doc.setFontSize(22);
         doc.setTextColor(0, 56, 101);
-        doc.text(`Timesheet_${this.Timesheet?.dbt__Start_Date__c || 'NA'}_${this.Timesheet?.dbt__End_Date__c || 'Na'}`, 18, this.tableRowStart - 20); 
+        doc.text(`Timesheet_${this.Timesheet?.Start_Date__c || 'NA'}_${this.Timesheet?.End_Date__c || 'Na'}`, 18, this.tableRowStart - 20); 
         doc.setFontSize(12);
         doc.setTextColor(0, 0, 0);
 
@@ -190,7 +190,7 @@ export default class PdfGenerator extends LightningElement {
     addTable(doc) {
         const columns = [
             { header: 'Day', dataKey: 'Day' },
-            { header: 'Date', dataKey: 'dbt__Date__c' },
+            { header: 'Date', dataKey: 'Date__c' },
             { header: 'Hours_Worked', dataKey: 'duration' }
         ];
 
