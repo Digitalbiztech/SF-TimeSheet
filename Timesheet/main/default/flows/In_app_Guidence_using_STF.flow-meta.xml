@@ -18,7 +18,7 @@
         <nameSegment>AssignPermissionSetViaFlow</nameSegment>
         <offset>0</offset>
     </actionCalls>
-    <apiVersion>63.0</apiVersion>
+    <apiVersion>64.0</apiVersion>
     <assignments>
         <description>Storing the newly created permission set assignment in a collection.</description>
         <name>all</name>

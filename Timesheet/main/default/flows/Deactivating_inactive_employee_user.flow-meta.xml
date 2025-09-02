@@ -3,8 +3,8 @@
     <actionCalls>
         <name>Send_Email_Action_1</name>
         <label>Send Email Action 1</label>
-        <locationX>440</locationX>
-        <locationY>1140</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <actionName>emailSimple</actionName>
         <actionType>emailSimple</actionType>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
@@ -38,18 +38,19 @@
         <nameSegment>emailSimple</nameSegment>
         <offset>0</offset>
     </actionCalls>
-    <apiVersion>63.0</apiVersion>
+    <apiVersion>64.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <decisions>
         <name>Check_If_Last_Working_Date_is_Today</name>
         <label>Check If Last Working Date is Today</label>
-        <locationX>440</locationX>
-        <locationY>276</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
             <name>Last_Working_Date_is_Today</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>$Record.Last_Working_Date__c</leftValueReference>
+                <leftValueReference>$Record.dbt__Last_Working_Date__c</leftValueReference>
                 <operator>LessThanOrEqualTo</operator>
                 <rightValue>
                     <elementReference>CheckingLastWorkingDate</elementReference>
@@ -91,8 +92,8 @@
     <recordLookups>
         <name>Get_Permission_sets</name>
         <label>Get Permission sets</label>
-        <locationX>440</locationX>
-        <locationY>600</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Get_Users_Id</targetReference>
@@ -112,8 +113,8 @@
     <recordLookups>
         <name>Get_User_From_Employee</name>
         <label>Get User From Employee</label>
-        <locationX>176</locationX>
-        <locationY>384</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Deactivating_User</targetReference>
@@ -133,8 +134,8 @@
     <recordLookups>
         <name>Get_Users_Email</name>
         <label>Get Users Email</label>
-        <locationX>440</locationX>
-        <locationY>924</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Transform_2</targetReference>
@@ -154,8 +155,8 @@
     <recordLookups>
         <name>Get_Users_Id</name>
         <label>Get Users Id</label>
-        <locationX>440</locationX>
-        <locationY>708</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Transform_1</targetReference>
@@ -175,8 +176,8 @@
     <recordUpdates>
         <name>Deactivating_User</name>
         <label>Deactivating User</label>
-        <locationX>176</locationX>
-        <locationY>492</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <faultConnector>
             <targetReference>Get_Permission_sets</targetReference>
         </faultConnector>
@@ -189,7 +190,7 @@
         <inputReference>$Record.User__r</inputReference>
     </recordUpdates>
     <start>
-        <locationX>50</locationX>
+        <locationX>0</locationX>
         <locationY>0</locationY>
         <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
         <filterLogic>and</filterLogic>
@@ -235,8 +236,8 @@ Salesforce Automation System</text>
     <transforms>
         <name>Transform_1</name>
         <label>Transform 1</label>
-        <locationX>440</locationX>
-        <locationY>816</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <connector>
             <targetReference>Get_Users_Email</targetReference>
         </connector>
@@ -256,8 +257,8 @@ Salesforce Automation System</text>
     <transforms>
         <name>Transform_2</name>
         <label>Transform 2</label>
-        <locationX>440</locationX>
-        <locationY>1032</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <connector>
             <targetReference>Send_Email_Action_1</targetReference>
         </connector>

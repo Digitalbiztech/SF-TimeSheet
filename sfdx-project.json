@@ -17,7 +17,7 @@
   "name": "SF-TimeSheet",
   "namespace": "dbt",
   "sfdcLoginUrl": "https://login.salesforce.com",
-  "sourceApiVersion": "62.0",
+  "sourceApiVersion": "64.0",
   "packageAliases": {
     "Timesheet": "0Ho4W000000wkQiSAI",
     "Timesheet@0.1.0-1": "04t4W0000038azbQAA",
@@ -35,6 +35,20 @@
     "Timesheet@0.6.0-9": "04tKb0000011MoBIAU",
     "Timesheet@0.6.0-10": "04tKb0000011MoGIAU",
     "Timesheet@0.6.0-11": "04tKb0000011MoLIAU",
-    "Timesheet@0.6.0-12": "04tKb0000011MoQIAU"
+    "Timesheet@0.6.0-12": "04tKb0000011MoQIAU",
+    "Timesheet@0.6.0-13": "04tKb0000011MoVIAU",
+    "Timesheet@0.6.0-14": "04tKb0000011MoaIAE",
+    "Timesheet@0.6.0-15": "04tKb0000011MofIAE",
+    "Timesheet@0.6.0-16": "04tKb0000011MokIAE",
+    "Timesheet@0.6.0-17": "04tKb0000011MopIAE",
+    "Timesheet@0.6.0-18": "04tKb0000011MouIAE",
+    "Timesheet@0.6.0-19": "04tKb0000011MozIAE",
+    "Timesheet@0.6.0-20": "04tKb0000011Mp4IAE",
+    "Timesheet@0.6.0-21": "04tKb0000011Mp9IAE",
+    "Timesheet@0.6.0-22": "04tKb0000011MpEIAU",
+    "Timesheet@0.6.0-23": "04tKb0000011MpJIAU",
+    "Timesheet@0.6.0-24": "04tKb0000011MpOIAU",
+    "Timesheet@0.6.0-25": "04tKb0000011MpTIAU",
+    "Timesheet@0.6.0-26": "04tKb0000011MpYIAU"
   }
 }

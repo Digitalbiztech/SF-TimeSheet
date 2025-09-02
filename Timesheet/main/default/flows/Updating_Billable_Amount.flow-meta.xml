@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>64.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <environments>Default</environments>
     <formulas>
         <name>BillableAmount</name>
         <dataType>Currency</dataType>
-        <expression>IF(ISPICKVAL({!$Record.Project__r.Billable__c}, &apos;Yes&apos;), {!Project_Employee_Record.Hourly_Rate__c}*{!$Record.Duration__c}, 0)</expression>
+        <expression>IF(ISPICKVAL({!$Record.dbt__Project__r.dbt__Billable__c}, &apos;Yes&apos;),
+            {!Project_Employee_Record.dbt__Hourly_Rate__c}*{!$Record.dbt__Duration__c}, 0)</expression>
         <scale>2</scale>
     </formulas>
     <interviewLabel>Updating Billable Amount {!$Flow.CurrentDateTime}</interviewLabel>
@@ -76,7 +78,9 @@
         <connector>
             <targetReference>Project_Employee_Record</targetReference>
         </connector>
-        <filterFormula>OR(ISNEW() ,ISCHANGED({!$Record.Duration__c}) , ISCHANGED({!$Record.Project__c}) , ISCHANGED({!$Record.Employee__c}) , ISCHANGED({!$Record.Type__c}) )</filterFormula>
+        <filterFormula>OR(ISNEW() ,ISCHANGED({!$Record.Duration__c}) ,
+            ISCHANGED({!$Record.Project__c}) , ISCHANGED({!$Record.Employee__c}) ,
+            ISCHANGED({!$Record.Type__c}) )</filterFormula>
         <object>Timesheet_Line_Item__c</object>
         <recordTriggerType>CreateAndUpdate</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>

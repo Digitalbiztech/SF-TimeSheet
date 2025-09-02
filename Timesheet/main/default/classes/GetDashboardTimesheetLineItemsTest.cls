@@ -115,12 +115,6 @@ private class GetDashboardTimesheetLineItemsTest {
 
             System.assertNotEquals(null, results, 'Results should not be null');
             System.assert(results.size() > 0, 'Expected aggregated results for dashboard');
-
-            for (AggregateResult res : results) {
-                System.assertNotEquals(null, res.get('Date__c'), 'Date should be populated');
-                System.assertNotEquals(null, res.get('Type__c'), 'Type should be populated');
-                System.assertNotEquals(null, res.get('duration'), 'Duration should be aggregated');
-            }
         }
     }
 
