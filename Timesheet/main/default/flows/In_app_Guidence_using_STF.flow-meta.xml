@@ -1,30 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <actionCalls>
-        <description>Assigning permission sets to users who have pending timesheet. Using Apex class.</description>
-        <name>Assign</name>
-        <label>Assign Permission sets</label>
-        <locationX>50</locationX>
-        <locationY>984</locationY>
-        <actionName>AssignPermissionSetViaFlow</actionName>
-        <actionType>apex</actionType>
-        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
-        <inputParameters>
-            <name>perSetAssignAll</name>
-            <value>
-                <elementReference>PermissionSetAssignments_All</elementReference>
-            </value>
-        </inputParameters>
-        <nameSegment>AssignPermissionSetViaFlow</nameSegment>
-        <offset>0</offset>
-    </actionCalls>
     <apiVersion>64.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <description>Storing the newly created permission set assignment in a collection.</description>
-        <name>all</name>
+        <name>All_user_permission_sets</name>
         <label>All user-permission sets</label>
-        <locationX>138</locationX>
-        <locationY>792</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>PermissionSetAssignments_All</assignToReference>
             <operator>Add</operator>
@@ -38,10 +21,10 @@
     </assignments>
     <assignments>
         <description>We are creating a permission set assignment record.</description>
-        <name>Assignment_1</name>
+        <name>Storing_single_user_permission_set</name>
         <label>Storing single user-permission set</label>
-        <locationX>138</locationX>
-        <locationY>684</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>PermissionSetAssignment_Single.AssigneeId</assignToReference>
             <operator>Assign</operator>
@@ -56,15 +39,72 @@
                 <elementReference>Get_Permission_set.Id</elementReference>
             </value>
         </assignmentItems>
+        <assignmentItems>
+            <assignToReference>PermissionSetAssignment_Single.ExpirationDate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Expiry_date</elementReference>
+            </value>
+        </assignmentItems>
         <connector>
-            <targetReference>all</targetReference>
+            <targetReference>Decision_3</targetReference>
         </connector>
     </assignments>
     <decisions>
+        <name>Decision_3</name>
+        <label>Decision 3</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>All_user_permission_sets</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Already_contains</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>PermissionSetAssignments_All</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <elementReference>PermissionSetAssignment_Single</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Loop_Pending_Timesheet_Records</targetReference>
+            </connector>
+            <label>Already contains</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>is_assignment_already_present</name>
+        <label>is assignment already present?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Storing_single_user_permission_set</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>assignment_present</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>assigned_ids</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <elementReference>Loop_Pending_Timesheet_Records.Employee__r.User__r.Id</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Loop_Pending_Timesheet_Records</targetReference>
+            </connector>
+            <label>assignment present</label>
+        </rules>
+    </decisions>
+    <decisions>
         <name>Timesheet_record_present</name>
         <label>Timesheet record present?</label>
-        <locationX>182</locationX>
-        <locationY>360</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
             <name>Outcome_1_of_Timesheet_record_present</name>
@@ -89,6 +129,11 @@
         <expression>{!StartOfWeek}+6</expression>
     </formulas>
     <formulas>
+        <name>Expiry_date</name>
+        <dataType>DateTime</dataType>
+        <expression>NOW()+3</expression>
+    </formulas>
+    <formulas>
         <name>StartOfWeek</name>
         <dataType>Date</dataType>
         <expression>TODAY() - MOD(TODAY() - DATE(1900,1,1), 7)</expression>
@@ -98,15 +143,15 @@
     <loops>
         <name>Loop_Pending_Timesheet_Records</name>
         <label>Loop Pending Timesheet Records</label>
-        <locationX>50</locationX>
-        <locationY>576</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <collectionReference>Get_This_Week_Timesheets</collectionReference>
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
-            <targetReference>Assignment_1</targetReference>
+            <targetReference>is_assignment_already_present</targetReference>
         </nextValueConnector>
         <noMoreValuesConnector>
-            <targetReference>Assign</targetReference>
+            <targetReference>Insert_Permission_Set_Assignments</targetReference>
         </noMoreValuesConnector>
     </loops>
     <processMetadataValues>
@@ -128,14 +173,21 @@
         </value>
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
+    <recordCreates>
+        <name>Insert_Permission_Set_Assignments</name>
+        <label>Insert Permission Set Assignments</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <inputReference>PermissionSetAssignments_All</inputReference>
+    </recordCreates>
     <recordLookups>
         <name>Get_Permission_set</name>
         <label>Get Permission set</label>
-        <locationX>50</locationX>
-        <locationY>468</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Loop_Pending_Timesheet_Records</targetReference>
+            <targetReference>Get_Permission_set_assignment_records</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -150,10 +202,31 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
+        <name>Get_Permission_set_assignment_records</name>
+        <label>Get Permission set assignment records</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>assigned_ids</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>PermissionSetId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>Get_Permission_set.Id</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>PermissionSetAssignment</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
         <name>Get_This_Week_Timesheets</name>
         <label>Get This Week Timesheets</label>
-        <locationX>182</locationX>
-        <locationY>252</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Timesheet_record_present</targetReference>
@@ -185,19 +258,40 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <start>
-        <locationX>56</locationX>
+        <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>Get_This_Week_Timesheets</targetReference>
         </connector>
         <schedule>
             <frequency>Weekly</frequency>
-            <startDate>2025-05-16</startDate>
-            <startTime>05:00:00.000Z</startTime>
+            <startDate>2025-09-09</startDate>
+            <startTime>08:15:00.000Z</startTime>
         </schedule>
         <triggerType>Scheduled</triggerType>
     </start>
     <status>Active</status>
+    <transforms>
+        <name>assigned_ids</name>
+        <label>assigned ids</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Loop_Pending_Timesheet_Records</targetReference>
+        </connector>
+        <dataType>String</dataType>
+        <isCollection>true</isCollection>
+        <scale>0</scale>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+        <transformValues>
+            <transformValueActions>
+                <transformType>Map</transformType>
+                <value>
+                    <elementReference>Get_Permission_set_assignment_records[$EachItem].AssigneeId</elementReference>
+                </value>
+            </transformValueActions>
+        </transformValues>
+    </transforms>
     <variables>
         <name>PermissionSetAssignment_Single</name>
         <dataType>SObject</dataType>

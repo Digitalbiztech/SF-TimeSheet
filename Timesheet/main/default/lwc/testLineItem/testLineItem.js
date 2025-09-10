@@ -176,6 +176,33 @@ export default class TestLineItem extends LightningElement {
         this.dispatchEvent(evt);
     }
 
+    // Format a Date object as 'YYYY-MM-DD' (local date)
+    formatDateYMD(date) {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+
+    // Parse server-side date string and return a Date object representing local midnight for that date.
+    // Accepts "YYYY-MM-DD" or full ISO "YYYY-MM-DDTHH:MM:SSZ".
+    localDateFromServer(dateStr) {
+        if (!dateStr) return null;
+        // Take only the date portion before 'T' if present
+        const dateOnly = String(dateStr).split('T')[0];
+        const parts = dateOnly.split('-');
+        if (parts.length !== 3) {
+            // fallback - let JS try to parse; may include timezone
+            const fallback = new Date(dateStr);
+            // normalize to local midnight
+            return new Date(fallback.getFullYear(), fallback.getMonth(), fallback.getDate());
+        }
+        const y = parseInt(parts[0], 10);
+        const m = parseInt(parts[1], 10) - 1;
+        const d = parseInt(parts[2], 10);
+        return new Date(y, m, d);
+    }
+
     connectedCallback() {
         const fetchPromise = new Promise((resolve, reject) => {
             this.fetchTimesheetData(this.recordId, result => {
@@ -229,15 +256,20 @@ export default class TestLineItem extends LightningElement {
     }
 
     createDays() {
-        console.log('Timesheet Start Date', this.TimesheetStartDate);
-        let startDate = new Date(this.TimesheetStartDate);
+        // Defensive: if TimesheetStartDate is already a Date, normalize it; if it's a string, parse safely
+        const startDateObj = (this.TimesheetStartDate instanceof Date)
+            ? new Date(this.TimesheetStartDate.getFullYear(), this.TimesheetStartDate.getMonth(), this.TimesheetStartDate.getDate())
+            : this.localDateFromServer(this.TimesheetStartDate);
+
+        if (!startDateObj) {
+            console.warn('createDays: invalid TimesheetStartDate', this.TimesheetStartDate);
+            this.dayList = [];
+            return;
+        }
 
         this.dayList = Array.from({ length: 7 }, (_, i) => {
-            
-            const tempDate = new Date(startDate);
-            tempDate.setDate(tempDate.getDate() + i);
-            
-            return tempDate.toISOString().split('T')[0];
+            const temp = new Date(startDateObj.getFullYear(), startDateObj.getMonth(), startDateObj.getDate() + i);
+            return this.formatDateYMD(temp);
         });
     }
 
@@ -260,7 +292,7 @@ export default class TestLineItem extends LightningElement {
                 this.projectOptions = result.map(proj => ({
                     label: proj.dbt__Project__r.Name,
                     value: proj.dbt__Project__c,
-                    billable: proj.dbt__Project__r.dbt__Billable__c,
+                    billable: proj.dbt__Project__r?.dbt__Billable__c,
                     hourly_rate: proj.dbt__Hourly_Rate__c || 0 
                 }));
             })
@@ -283,7 +315,8 @@ export default class TestLineItem extends LightningElement {
         // console.log("data",JSON.stringify(data));
   
         data.forEach(item => {
-            const date = new Date(item.dbt__Date__c);
+            // Use localDateFromServer to get a local-midnight Date object (no TZ shift)
+            const date = this.localDateFromServer(item.dbt__Date__c);
             const dayIndex = date.getDay() === 0 ? 6 : date.getDay() - 1;
 
             if(includeId){
@@ -308,8 +341,8 @@ export default class TestLineItem extends LightningElement {
                         ...this.getBlankData("Attendance"),
                         projectName: item.dbt__Project__c,
                         activityName: item.dbt__Activity__c,
-                        billable: item.dbt__Project__r.dbt__Billable__c,
-                        hourlyRate: selectedProject.hourly_rate || 0
+                        billable: item.dbt__Project__r?.dbt__Billable__c,
+                        hourlyRate: (selectedProject && selectedProject.hourly_rate) ? selectedProject.hourly_rate : 0
                     };
                 }
                 updateDate(attendanceData[key]); 
@@ -491,7 +524,7 @@ export default class TestLineItem extends LightningElement {
             }
 
             // Show success toast
-            this.showToast('warning', 'Row Removed. Click Submit to save ', 'warning');
+            this.showToast('warning', 'Row Removed. Click Save to submit', 'warning');
         } catch (error) {
             // Show error toast
             this.showToast('Error', 'Failed to delete row', 'error');
@@ -554,7 +587,7 @@ export default class TestLineItem extends LightningElement {
                             this.showToast('Error', "Project name or Activity name cannot be blank", 'error');
                             return true; // Stop iteration
                         }
-                        currentRecordIDs.add(day.id);
+                        if (day.id) currentRecordIDs.add(day.id);
                         upsertList.push({
                             sobjectType: 'dbt__Timesheet_Line_Item__c',
                             Id: day.id,
@@ -581,7 +614,7 @@ export default class TestLineItem extends LightningElement {
                             this.showToast('Error', "Absence name cannot be blank", 'error');
                             return true; // Stop iteration
                         }
-                        currentRecordIDs.add(day.id);
+                        if (day.id) currentRecordIDs.add(day.id);
                         upsertList.push({
                             sobjectType: 'dbt__Timesheet_Line_Item__c',
                             Id: day.id,
