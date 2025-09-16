@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Prompt xmlns="http://soap.sforce.com/2006/04/metadata">
+    <masterLabel>Timesheet Submission</masterLabel>
+    <promptVersions>
+        <actionButtonLabel>Submit Now</actionButtonLabel>
+        <actionButtonLink>/lightning/o/dbt__Timesheet__c/list?filterName=dbt__This_Week_Timesheets</actionButtonLink>
+        <body>&lt;p&gt;Ensure you submit your timesheet by Friday at 5 PM to prevent payment
+            delays.&lt;/p&gt;</body>
+        <customApplication>Timesheet</customApplication>
+        <delayDays>7</delayDays>
+        <dismissButtonLabel>Dismiss</dismissButtonLabel>
+        <displayPosition>BottomRight</displayPosition>
+        <displayType>FloatingPanel</displayType>
+        <experience>Lightning</experience>
+        <isPublished>true</isPublished>
+        <masterLabel>Timesheet Submission</masterLabel>
+        <publishedDate>2025-09-09</publishedDate>
+        <shouldDisplayActionButton>true</shouldDisplayActionButton>
+        <shouldIgnoreGlobalDelay>true</shouldIgnoreGlobalDelay>
+        <startDate>2025-03-23</startDate>
+        <themeColor>Theme1</themeColor>
+        <themeSaturation>Dark</themeSaturation>
+        <timesToDisplay>10</timesToDisplay>
+        <title>Submit Your Timesheet</title>
+        <uiFormulaRule>
+            <criteria>
+                <leftValue>{!$Permission.CustomPermission.Timesheet_Guidance_Access}</leftValue>
+                <operator>EQUAL</operator>
+                <rightValue>TRUE</rightValue>
+            </criteria>
+        </uiFormulaRule>
+        <userAccess>SpecificPermissions</userAccess>
+        <userProfileAccess>Everyone</userProfileAccess>
+        <versionNumber>1</versionNumber>
+    </promptVersions>
+</Prompt>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Validate_Timesheet_Line_Item_Date</fullName>
+    <active>true</active>
+    <errorConditionFormula>OR(Date__c      &lt;      Timesheet__r.Start_Date__c,
+Date__c        &gt;    Timesheet__r.End_Date__c )</errorConditionFormula>
+    <errorDisplayField>Date__c</errorDisplayField>
+    <errorMessage>Date value should be between Start Date and End Date of the Timesheet.</errorMessage>
+</ValidationRule>
