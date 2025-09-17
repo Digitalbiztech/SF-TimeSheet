@@ -68,6 +68,16 @@ export default class dashboardWeeklyChart extends LightningElement {
         }
         this.isChartJsInitialized = true;
 
+        // Defensive stub: if ResizeObserver exists but isn't constructible or missing, provide a fallback.
+        if (!window.ResizeObserver || typeof window.ResizeObserver !== 'function') {
+            window.ResizeObserver = class {
+                constructor(cb) { this.cb = cb; this._handler = () => cb([]); window.addEventListener('resize', this._handler); }
+                observe() {}
+                unobserve() {}
+                disconnect() { window.removeEventListener('resize', this._handler); }
+            };
+        }
+
         loadScript(this, ChartJS)
             .then(() => {
                 this.initializeChart();

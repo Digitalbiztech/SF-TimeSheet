@@ -76,7 +76,7 @@ function processData(abc) {
     const millisecondsInWeek = 604800000; // 7 days in milliseconds
     
     // Get reference date for week calculations
-    const minDate = new Date(abc[abc.length - 1].dbt__Date__c);
+    const minDate = new Date(abc[abc.length - 1].Date__c);
     const startOfFirstWeek = getMonday(minDate);  
 
     /**
@@ -105,9 +105,9 @@ function processData(abc) {
     }
 
     // Process each timesheet entry
-    abc.forEach(({ dbt__Type__c, dbt__Date__c, Name, duration }) => {
+    abc.forEach(({ Type__c, Date__c, Name, duration }) => {
         // Extract date components
-        const date = new Date(dbt__Date__c);
+        const date = new Date(Date__c);
         const year = date.getFullYear();
         const month = date.toLocaleString('default', { month: 'short' }).toLowerCase();
         const day = date.toDateString();
@@ -154,7 +154,7 @@ function processData(abc) {
         yearData.duration += duration;
 
         // Process attendance entries
-        if (dbt__Type__c === "Attendance") {
+        if (Type__c === "Attendance") {
             // Update attendance totals
             dayData.attendance += duration;
             weekData.attendance += duration;
@@ -168,7 +168,7 @@ function processData(abc) {
             yearData.projects.set(Name, (yearData.projects.get(Name) || 0) + duration);
         } 
         // Process absence entries
-        else if (dbt__Type__c === "Absence") {
+        else if (Type__c === "Absence") {
             dayData.absence += duration;
             weekData.absence += duration;
             monthData.absence += duration;
