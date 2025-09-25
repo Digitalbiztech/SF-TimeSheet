@@ -30,7 +30,7 @@ export default class TestLineItem extends LightningElement {
   wiredTimesheet({ error, data }) {
     if (data) {
       this.timesheetInfo = data;
-      console.info('dbt__Timesheet__c schema (UI API):', data);
+    //   console.info('dbt__Timesheet__c schema (UI API):', data);
     } else if (error) {
       console.error('Error loading dbt__Timesheet__c schema', error);
     }
@@ -40,7 +40,7 @@ export default class TestLineItem extends LightningElement {
   wiredEmployee({ error, data }) {
     if (data) {
       this.employeeInfo = data;
-      console.info('dbt__Employee__c schema (UI API):', data);
+    //   console.info('dbt__Employee__c schema (UI API):', data);
     } else if (error) {
       console.error('Error loading dbt__Employee__c schema', error);
     }
@@ -50,7 +50,7 @@ export default class TestLineItem extends LightningElement {
   wiredProjectEmployee({ error, data }) {
     if (data) {
       this.projectEmployeeInfo = data;
-      console.info('dbt__Project_Employee__c schema (UI API):', data);
+    //   console.info('dbt__Project_Employee__c schema (UI API):', data);
     } else if (error) {
       console.error('Error loading dbt__Project_Employee__c schema', error);
     }
@@ -60,46 +60,10 @@ export default class TestLineItem extends LightningElement {
   wiredTimesheetLine({ error, data }) {
     if (data) {
       this.timesheetLineInfo = data;
-      console.info('dbt__Timesheet_Line_Item__c schema (UI API):', data);
+    //   console.info('dbt__Timesheet_Line_Item__c schema (UI API):', data);
     } else if (error) {
       console.error('Error loading dbt__Timesheet_Line_Item__c schema', error);
     }
-  }
-
-  // Button handler to explicitly log everything (including expanded fields)
-  handleLogAll() {
-    // Helper to print object info and expand fields
-    const dump = (label, info) => {
-      if (!info) {
-        console.warn(`${label} info not available yet.`);
-        return;
-      }
-      console.groupCollapsed(`${label} — object info summary`);
-      console.log('apiName:', info.apiName);
-      console.log('label:', info.label);
-      console.log('labelPlural:', info.labelPlural);
-      console.log('keyPrefix:', info.keyPrefix);
-      console.log('createable:', info.createable, 'updateable:', info.updateable, 'deletable:', info.deletable, 'queryable:', info.queryable);
-      console.log('recordTypeInfos:', info.recordTypeInfos);
-      console.log('supportedScopes:', info.supportedScopes);
-      console.log('themeInfo:', info.themeInfo);
-      console.groupEnd();
-
-      console.groupCollapsed(`${label} — fields (count: ${Object.keys(info.fields).length})`);
-      // Iterate and log each field describe
-      Object.entries(info.fields).forEach(([fieldApi, fieldDescribe]) => {
-        // For readability, log as grouped entries
-        console.groupCollapsed(fieldApi);
-        console.log(fieldDescribe);
-        console.groupEnd();
-      });
-      console.groupEnd();
-    };
-
-    dump('dbt__Timesheet__c', this.timesheetInfo);
-    dump('dbt__Employee__c', this.employeeInfo);
-    dump('dbt__Project_Employee__c', this.projectEmployeeInfo);
-    dump('dbt__Timesheet_Line_Item__c', this.timesheetLineInfo);
   }
 
     @api recordId;
@@ -206,7 +170,7 @@ export default class TestLineItem extends LightningElement {
     connectedCallback() {
         const fetchPromise = new Promise((resolve, reject) => {
             this.fetchTimesheetData(this.recordId, result => {
-                console.log('timesheet data',JSON.stringify(result));
+                // console.log('timesheet data',JSON.stringify(result));
                 this.wiredTimesheetResult = result;
                 resolve(result);
             });
@@ -237,7 +201,7 @@ export default class TestLineItem extends LightningElement {
     loadTimesheet() {
         return getTimesheet({ timesheetId: this.recordId })
             .then(result => {
-                console.log('load timesheet',JSON.stringify(result));
+                // console.log('load timesheet',JSON.stringify(result));
                 this.EmployeeID = result.dbt__Employee__c;
                 this.TimesheetStartDate = result.dbt__Start_Date__c;
                 this.TimeSheetEndDate = result.dbt__End_Date__c;
@@ -524,7 +488,7 @@ export default class TestLineItem extends LightningElement {
             }
 
             // Show success toast
-            this.showToast('warning', 'Row Removed. Click Save to submit', 'warning');
+            this.showToast('warning', 'Row Removed. Please Click Save', 'warning');
         } catch (error) {
             // Show error toast
             this.showToast('Error', 'Failed to delete row', 'error');

@@ -110,7 +110,7 @@
         <schedule>
             <frequency>Daily</frequency>
             <startDate>2025-04-08</startDate>
-            <startTime>08:57:00.000Z</startTime>
+            <startTime>00:00:00.000Z</startTime>
         </schedule>
         <triggerType>Scheduled</triggerType>
     </start>

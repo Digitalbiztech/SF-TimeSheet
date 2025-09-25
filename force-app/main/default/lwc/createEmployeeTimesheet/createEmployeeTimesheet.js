@@ -71,6 +71,42 @@ export default class CreateEmployeeTimesheet extends LightningElement {
     }
 
     /**
+     * Helper — parse "YYYY-MM-DD" or ISO strings as a local Date (so no UTC shift)
+     */
+    parseDateAsLocal(dateStr) {
+        if (!dateStr) return null;
+        if (dateStr instanceof Date) return new Date(dateStr.getFullYear(), dateStr.getMonth(), dateStr.getDate());
+
+        const ymd = String(dateStr).split('T')[0].split(' ')[0];
+        const parts = ymd.split('-');
+        if (parts.length < 3) return null;
+        const year = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1;
+        const day = parseInt(parts[2], 10);
+        return new Date(year, month, day);
+    }
+
+    /**
+     * Helper — format a Date (local) into "YYYY-MM-DD"
+     */
+    formatYMD(date) {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+
+    /**
+     * Generate normalized "YYYY-MM-DD" from whatever Salesforce returned for the line item date.
+     * Handles "YYYY-MM-DD", "YYYY-MM-DDTHH:mm:ssZ", Date objects, etc.
+     */
+    extractYMDFromSFDate(sfDate) {
+        if (!sfDate) return '';
+        if (sfDate instanceof Date) return this.formatYMD(sfDate);
+        return String(sfDate).split('T')[0].split(' ')[0];
+    }
+
+    /**
      * @description Handles click event for generating timesheet
      */
     async handleClick() {
@@ -121,16 +157,23 @@ export default class CreateEmployeeTimesheet extends LightningElement {
             return false;
         }
 
-        this.sd = new Date(startDate.value);
-        this.ed = new Date(endDate.value);
+        // Parse as local dates to avoid timezone shifts
+        this.sd = this.parseDateAsLocal(startDate.value);
+        this.ed = this.parseDateAsLocal(endDate.value);
+
+        if (!this.sd || !this.ed) {
+            this.showToast('Warning', 'Invalid date format', 'warning');
+            return false;
+        }
 
         if (this.ed < this.sd) {
             this.showToast('Warning', 'End date must be after start date', 'warning');
             return false;
         }
 
-        this.startDate = this.sd.toISOString().split("T")[0];
-        this.endDate = this.ed.toISOString().split("T")[0];
+        // Use local-format YYYY-MM-DD (avoid toISOString which converts to UTC)
+        this.startDate = this.formatYMD(this.sd);
+        this.endDate = this.formatYMD(this.ed);
 
         return true;
     }
@@ -177,14 +220,21 @@ export default class CreateEmployeeTimesheet extends LightningElement {
 
     /**
      * @description Processes timesheet line items
+     * (Rewritten to use local-midnight Date creation and normalized matching to avoid timezone shifts)
      */
     processLineItems(lineItems) {
-        let dateCursor = new Date(this.startDate);
-        const endDate = new Date(this.endDate);
+        const startDateLocal = this.parseDateAsLocal(this.startDate);
+        const endDateLocal = this.parseDateAsLocal(this.endDate);
+        if (!startDateLocal || !endDateLocal) {
+            this.TimesheetLineItems = [];
+            return;
+        }
 
         const tempLineItems = [];
-        while (dateCursor <= endDate) {
-            const yyyyMmDd = dateCursor.toISOString().split('T')[0]; // "YYYY-MM-DD" format
+        const dateCursor = new Date(startDateLocal); // local midnight
+
+        while (dateCursor <= endDateLocal) {
+            const yyyyMmDd = this.formatYMD(dateCursor);
             tempLineItems.push({
                 Date__c: yyyyMmDd,
                 duration: "0",
@@ -195,14 +245,21 @@ export default class CreateEmployeeTimesheet extends LightningElement {
             this.totalDays++;
         }
 
-        lineItems.forEach(item => {
-            const match = tempLineItems.find(row => row.Date__c === item.Date__c);
-            if (match) {
-                match.duration = item.duration.toString();
-            }
+        // Normalize incoming items to YYYY-MM-DD before matching
+        const normalizedItems = (lineItems || []).map(item => ({
+            ymd: this.extractYMDFromSFDate(item.Date__c),
+            duration: item.duration != null ? String(item.duration) : "0"
+        }));
 
-            this.totalDuration += parseFloat(item.duration || 0);
+        tempLineItems.forEach(row => {
+            const match = normalizedItems.find(it => it.ymd === row.Date__c);
+            if (match) {
+                row.duration = match.duration;
+            }
         });
+
+        // Sum totalDuration from original lineItems (safe parse)
+        this.totalDuration = (lineItems || []).reduce((acc, it) => acc + (parseFloat(it.duration) || 0), 0);
 
         this.TimesheetLineItems = tempLineItems;
     }

@@ -66,42 +66,6 @@ export default class TestLineItem extends LightningElement {
     }
   }
 
-  // Button handler to explicitly log everything (including expanded fields)
-  handleLogAll() {
-    // Helper to print object info and expand fields
-    const dump = (label, info) => {
-      if (!info) {
-        console.warn(`${label} info not available yet.`);
-        return;
-      }
-      console.groupCollapsed(`${label} — object info summary`);
-      console.log('apiName:', info.apiName);
-      console.log('label:', info.label);
-      console.log('labelPlural:', info.labelPlural);
-      console.log('keyPrefix:', info.keyPrefix);
-      console.log('createable:', info.createable, 'updateable:', info.updateable, 'deletable:', info.deletable, 'queryable:', info.queryable);
-      console.log('recordTypeInfos:', info.recordTypeInfos);
-      console.log('supportedScopes:', info.supportedScopes);
-      console.log('themeInfo:', info.themeInfo);
-      console.groupEnd();
-
-      console.groupCollapsed(`${label} — fields (count: ${Object.keys(info.fields).length})`);
-      // Iterate and log each field describe
-      Object.entries(info.fields).forEach(([fieldApi, fieldDescribe]) => {
-        // For readability, log as grouped entries
-        console.groupCollapsed(fieldApi);
-        console.log(fieldDescribe);
-        console.groupEnd();
-      });
-      console.groupEnd();
-    };
-
-    dump('Timesheet__c', this.timesheetInfo);
-    dump('Employee__c', this.employeeInfo);
-    dump('Project_Employee__c', this.projectEmployeeInfo);
-    dump('Timesheet_Line_Item__c', this.timesheetLineInfo);
-  }
-
     @api recordId;
     @track projectsList = [];
     @track projectOptions = [];
@@ -206,7 +170,7 @@ export default class TestLineItem extends LightningElement {
     connectedCallback() {
         const fetchPromise = new Promise((resolve, reject) => {
             this.fetchTimesheetData(this.recordId, result => {
-                console.log('timesheet data',JSON.stringify(result));
+                // console.log('timesheet data',JSON.stringify(result));
                 this.wiredTimesheetResult = result;
                 resolve(result);
             });
@@ -237,7 +201,7 @@ export default class TestLineItem extends LightningElement {
     loadTimesheet() {
         return getTimesheet({ timesheetId: this.recordId })
             .then(result => {
-                console.log('load timesheet',JSON.stringify(result));
+                // console.log('load timesheet',JSON.stringify(result));
                 this.EmployeeID = result.Employee__c;
                 this.TimesheetStartDate = result.Start_Date__c;
                 this.TimeSheetEndDate = result.End_Date__c;

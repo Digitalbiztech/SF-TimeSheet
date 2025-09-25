@@ -4,10 +4,9 @@
     <promptVersions>
         <actionButtonLabel>Submit Now</actionButtonLabel>
         <actionButtonLink>/lightning/o/dbt__Timesheet__c/list?filterName=dbt__This_Week_Timesheets</actionButtonLink>
-        <body>&lt;p&gt;Ensure you submit your timesheet by Friday at 5 PM to prevent payment
-            delays.&lt;/p&gt;</body>
+        <body>&lt;p&gt;Ensure you submit your timesheet by Friday at 5 PM to prevent payment delays.&lt;/p&gt;</body>
         <customApplication>Timesheet</customApplication>
-        <delayDays>7</delayDays>
+        <delayDays>1</delayDays>
         <dismissButtonLabel>Dismiss</dismissButtonLabel>
         <displayPosition>BottomRight</displayPosition>
         <displayType>FloatingPanel</displayType>
@@ -20,7 +19,7 @@
         <startDate>2025-03-23</startDate>
         <themeColor>Theme1</themeColor>
         <themeSaturation>Dark</themeSaturation>
-        <timesToDisplay>10</timesToDisplay>
+        <timesToDisplay>30</timesToDisplay>
         <title>Submit Your Timesheet</title>
         <uiFormulaRule>
             <criteria>

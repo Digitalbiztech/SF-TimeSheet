@@ -107,28 +107,78 @@ export default class PdfGenerator extends LightningElement {
     }
 
     /**
+     * Helper — parse "YYYY-MM-DD" or ISO strings as a local Date (so no UTC shift)
+     */
+    parseDateAsLocal(dateStr) {
+        if (!dateStr) return null;
+        // If it's already a Date instance, construct a local-midnight date from its Y/M/D
+        if (dateStr instanceof Date) return new Date(dateStr.getFullYear(), dateStr.getMonth(), dateStr.getDate());
+
+        // If string (ISO or "YYYY-MM-DD"), extract YYYY-MM-DD safely
+        const ymd = String(dateStr).split('T')[0].split(' ')[0];
+        const parts = ymd.split('-');
+        if (parts.length < 3) return null;
+        const year = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1; // monthIndex
+        const day = parseInt(parts[2], 10);
+        return new Date(year, month, day); // local midnight
+    }
+
+    /**
+     * Helper — format a Date (local) into "YYYY-MM-DD"
+     */
+    formatYMD(date) {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+
+    /**
+     * Generate normalized "YYYY-MM-DD" from whatever Salesforce returned for the line item date.
+     * Handles "YYYY-MM-DD", "YYYY-MM-DDTHH:mm:ssZ", Date objects, etc.
+     */
+    extractYMDFromSFDate(sfDate) {
+        if (!sfDate) return '';
+        if (sfDate instanceof Date) return this.formatYMD(sfDate);
+        return String(sfDate).split('T')[0].split(' ')[0];
+    }
+
+    /**
      * @description Processes timesheet line items
+     * (Rewritten to use local-midnight Date creation to avoid timezone shifts)
      */
     processLineItems(lineItems) {
-        let dateCursor = new Date(this.Timesheet.dbt__Start_Date__c);
-        const endDate = new Date(this.Timesheet.dbt__End_Date__c);
+        const startDateLocal = this.parseDateAsLocal(this.Timesheet.dbt__Start_Date__c);
+        const endDateLocal = this.parseDateAsLocal(this.Timesheet.dbt__End_Date__c);
+        if (!startDateLocal || !endDateLocal) {
+            this.TimesheetLineItems = [];
+            return;
+        }
 
         const tempLineItems = [];
-        while (dateCursor <= endDate) {
-            const yyyyMmDd = dateCursor.toISOString().split('T')[0]; // "YYYY-MM-DD" format
+        const dateCursor = new Date(startDateLocal); // local
+
+        while (dateCursor <= endDateLocal) {
+            const yyyyMmDd = this.formatYMD(dateCursor);
             tempLineItems.push({
                 dbt__Date__c: yyyyMmDd,
                 duration: "0",
                 Day: this.weekdays[dateCursor.getDay()]
             });
-            
-            dateCursor.setDate(dateCursor.getDate() + 1);
+            dateCursor.setDate(dateCursor.getDate() + 1); // increments local day
         }
 
-        lineItems.forEach(item => {
-            const match = tempLineItems.find(row => row.dbt__Date__c === item.dbt__Date__c);
-            if (match) {
-                match.duration = item.duration.toString();
+        // Normalize incoming items to YYYY-MM-DD before matching
+        const normalizedItems = (lineItems || []).map(item => ({
+            ymd: this.extractYMDFromSFDate(item.dbt__Date__c),
+            duration: item.duration != null ? String(item.duration) : "0"
+        }));
+
+        tempLineItems.forEach(row => {
+            const found = normalizedItems.find(it => it.ymd === row.dbt__Date__c);
+            if (found) {
+                row.duration = found.duration;
             }
         });
 

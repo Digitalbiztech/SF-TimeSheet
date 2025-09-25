@@ -76,7 +76,7 @@ public class TimesheetLineItemLwcControllerTest {
         timesheetLineItems.add(timesheetLineItem2);
         List<Id> ids = new List<Id>();
         ids.add(timesheetLineItem1.Id);
-        System.runAs(u){
+        System.runAs(adminUser){
             Test.startTest();
             TimesheetLineItemLwcController.updateTimesheetLineItems(timesheetLineItems, ids);
             Test.stopTest();

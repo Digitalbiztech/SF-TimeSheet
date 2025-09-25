@@ -11,7 +11,7 @@ import USER_ID from '@salesforce/user/Id';
 
 // LMS imports for handling user selection
 import { subscribe, MessageContext } from 'lightning/messageService';
-import SELECTED_USER_CHANNEL from '@salesforce/messageChannel/SelectedUserChannel__c';
+import SELECTED_USER_CHANNEL from '@salesforce/messageChannel/UserChannel__c';
 
 export default class dashboardPieChart extends LightningElement {
     @track chartData;
@@ -39,6 +39,40 @@ export default class dashboardPieChart extends LightningElement {
 
     // Track event listener initialization
     eventListenersAttached = false;
+
+    /**
+     * UTC helpers to avoid timezone shifts when parsing/formatting the day string.
+     * - parseDayStringToUTC expects the same format used in dashboardSharedData: "Mon Jan 01 2024"
+     * - formatUTCDateKey returns the same format (with zero-padded day) and is timezone-safe.
+     */
+    shortDayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    shortMonthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    pad(n) { return n < 10 ? '0' + n : String(n); }
+
+    parseDayStringToUTC(str) {
+        if (!str || typeof str !== 'string') {
+            const dt = new Date(str || Date.now());
+            return new Date(Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate()));
+        }
+        const parts = str.trim().split(/\s+/); // expect [DayName, Month, DD, YYYY]
+        if (parts.length === 4) {
+            const monthIndex = this.shortMonthNames.indexOf(parts[1]);
+            const dayNum = parseInt(parts[2], 10);
+            const yearNum = parseInt(parts[3], 10);
+            if (monthIndex >= 0 && !isNaN(dayNum) && !isNaN(yearNum)) {
+                // Construct Date at UTC midnight for that date (avoids local-timezone offset)
+                return new Date(Date.UTC(yearNum, monthIndex, dayNum));
+            }
+        }
+        // fallback - parse then normalize to UTC midnight
+        const dt = new Date(str);
+        return new Date(Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate()));
+    }
+
+    formatUTCDateKey(dateObj) {
+        const d = dateObj instanceof Date ? dateObj : new Date(dateObj);
+        return `${this.shortDayNames[d.getUTCDay()]} ${this.shortMonthNames[d.getUTCMonth()]} ${this.pad(d.getUTCDate())} ${d.getUTCFullYear()}`;
+    }
 
     /**
      * @description Lifecycle hook when component is inserted into the DOM
@@ -233,7 +267,12 @@ export default class dashboardPieChart extends LightningElement {
                     items: dayItems,
                     currentIndex: this.currentDayIndex,
                     goal: this.goals.day,
-                    title: (data) => `Day: ${data.day}`,
+                    // Use UTC-safe parsing/formatting to avoid timezone drift
+                    title: (data) => {
+                        const parsed = this.parseDayStringToUTC(data.day);
+                        const formatted = this.formatUTCDateKey(parsed);
+                        return `Day: ${formatted}`;
+                    },
                 },
             };
 

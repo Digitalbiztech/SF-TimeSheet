@@ -82,7 +82,7 @@
         <schedule>
             <frequency>Weekly</frequency>
             <startDate>2025-05-11</startDate>
-            <startTime>17:00:00.000Z</startTime>
+            <startTime>07:59:00.000Z</startTime>
         </schedule>
         <triggerType>Scheduled</triggerType>
     </start>

@@ -5,7 +5,7 @@
 
 import { LightningElement, api, track, wire } from 'lwc';
 import { publish, MessageContext } from 'lightning/messageService';
-import SELECTED_USER_CHANNEL from '@salesforce/messageChannel/SelectedUserChannel__c';
+import SELECTED_USER_CHANNEL from '@salesforce/messageChannel/UserChannel__c';
 import getManagerEmployeeDetails from '@salesforce/apex/GetDashboardManagerEmployeeDetails.getManagerEmployeeDetails';
 import USER_ID from '@salesforce/user/Id';
 

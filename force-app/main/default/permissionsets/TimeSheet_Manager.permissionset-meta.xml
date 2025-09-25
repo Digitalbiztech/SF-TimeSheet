@@ -172,11 +172,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Timesheet__c.Employee__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
         <field>Timesheet__c.End_Date__c</field>
         <readable>true</readable>
     </fieldPermissions>

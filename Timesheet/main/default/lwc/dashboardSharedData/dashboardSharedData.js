@@ -74,20 +74,67 @@ function processData(abc) {
 
     // Time constants
     const millisecondsInWeek = 604800000; // 7 days in milliseconds
-    
-    // Get reference date for week calculations
-    const minDate = new Date(abc[abc.length - 1].dbt__Date__c);
-    const startOfFirstWeek = getMonday(minDate);  
+    const millisecondsInDay = 86400000;
 
-    /**
-     * @description Gets Monday date for a given date
-     * @param {Date} date - Input date
-     * @returns {Date} Monday date
-     */
-    function getMonday(date) {  
-        date.setDate(date.getDate() - (date.getDay() || 7) + 1);  
-        return (date.setHours(0, 0, 0, 0), date);
+    // Helper: parse incoming Salesforce date/datetime to a Date anchored at UTC midnight
+    function parseToUTCDate(input) {
+        // If input is already a Date object, convert to UTC midnight
+        if (input instanceof Date) {
+            return new Date(Date.UTC(input.getUTCFullYear(), input.getUTCMonth(), input.getUTCDate()));
+        }
+
+        // If input is like "YYYY-MM-DD" (Salesforce Date), append Z to treat as UTC date
+        // If input includes time or timezone, create Date and then normalize to UTC midnight
+        if (typeof input === 'string') {
+            // If it's exactly YYYY-MM-DD (no "T"), handle as date-only
+            const dateOnlyMatch = /^\d{4}-\d{2}-\d{2}$/.test(input);
+            if (dateOnlyMatch) {
+                const [y, m, d] = input.split('-').map(Number);
+                return new Date(Date.UTC(y, m - 1, d));
+            } else {
+                // Has time component / timezone; create Date and then normalize to UTC midnight
+                const dt = new Date(input);
+                return new Date(Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate()));
+            }
+        }
+
+        // Fallback
+        const dt = new Date(input);
+        return new Date(Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate()));
     }
+
+    // Helper: get Monday (start of week) in UTC for a given date (returns a Date at UTC midnight)
+    function getMondayUTC(date) {
+        const dt = parseToUTCDate(date); // dt is UTC midnight of that date
+        const day = dt.getUTCDay(); // 0 (Sun) - 6 (Sat)
+        const daysToSubtract = (day + 6) % 7; // converts so Monday -> 0, Sunday -> 6
+        const mondayTime = dt.getTime() - (daysToSubtract * millisecondsInDay);
+        return new Date(Date.UTC(new Date(mondayTime).getUTCFullYear(), new Date(mondayTime).getUTCMonth(), new Date(mondayTime).getUTCDate()));
+    }
+
+    // Helper: format a Date (UTC) similarly to Date.prototype.toDateString() but using UTC values
+    const shortDayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const shortMonthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    function formatDateStringUTC(date) {
+        const d = parseToUTCDate(date);
+        const dayName = shortDayNames[d.getUTCDay()];
+        const monthName = shortMonthNames[d.getUTCMonth()];
+        const dayNum = d.getUTCDate();
+        const year = d.getUTCFullYear();
+        // zero-pad day number to two digits when < 10
+        const pad = (n) => (n < 10 ? '0' + n : String(n));
+        return `${dayName} ${monthName} ${pad(dayNum)} ${year}`;
+    }
+
+    // Helper: get short month lowercased (consistent with previous behavior)
+    function getMonthShortLowerUTC(date) {
+        const d = parseToUTCDate(date);
+        return shortMonthNames[d.getUTCMonth()].toLowerCase();
+    }
+
+    // Get reference date for week calculations (use last element like original code but normalize to UTC)
+    const minDate = parseToUTCDate(abc[abc.length - 1].dbt__Date__c);
+    const startOfFirstWeek = getMondayUTC(minDate);
 
     /**
      * @description Generates formatted date range string for a week
@@ -96,22 +143,22 @@ function processData(abc) {
      */
     function getStartAndEndDate(weekNumber) {
         const startDate = new Date(startOfFirstWeek.getTime() + (weekNumber - 1) * millisecondsInWeek);
-        const endDate = new Date(startDate.getTime() + 518400000); // 6 days in ms
+        const endDate = new Date(startDate.getTime() + 6 * millisecondsInDay); // 6 days in ms
 
-        startDate.setHours(0, 0, 0, 0);
-        endDate.setHours(23, 59, 59, 999);
-
-        return `${startDate.toDateString()} - ${endDate.toDateString()}`;
+        // Use UTC-based formatting consistent with the rest
+        return `${formatDateStringUTC(startDate)} - ${formatDateStringUTC(endDate)}`;
     }
 
     // Process each timesheet entry
     abc.forEach(({ dbt__Type__c, dbt__Date__c, Name, duration }) => {
-        // Extract date components
-        const date = new Date(dbt__Date__c);
-        const year = date.getFullYear();
-        const month = date.toLocaleString('default', { month: 'short' }).toLowerCase();
-        const day = date.toDateString();
-        const week = Math.floor((getMonday(date) - startOfFirstWeek) / millisecondsInWeek) + 1;
+        // Parse and anchor date to UTC midnight to avoid local timezone shifts
+        const dateUTC = parseToUTCDate(dbt__Date__c);
+
+        // Extract date components using UTC methods
+        const year = dateUTC.getUTCFullYear();
+        const month = getMonthShortLowerUTC(dateUTC); // short month in lowercase
+        const day = formatDateStringUTC(dateUTC); // formatted day string similar to toDateString but UTC-aware (day zero-padded)
+        const week = Math.floor((getMondayUTC(dateUTC).getTime() - startOfFirstWeek.getTime()) / millisecondsInWeek) + 1;
 
         // Initialize or get year data
         const yearData = getOrSet(years_months, year, {

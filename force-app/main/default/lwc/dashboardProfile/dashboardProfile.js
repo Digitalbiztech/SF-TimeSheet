@@ -10,7 +10,7 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
 // LMS imports for handling user selection across components
 import { subscribe, MessageContext } from 'lightning/messageService';
-import SELECTED_USER_CHANNEL from '@salesforce/messageChannel/SelectedUserChannel__c';
+import SELECTED_USER_CHANNEL from '@salesforce/messageChannel/UserChannel__c';
 
 export default class dashboardProfile extends LightningElement {
     // Public properties for component configuration

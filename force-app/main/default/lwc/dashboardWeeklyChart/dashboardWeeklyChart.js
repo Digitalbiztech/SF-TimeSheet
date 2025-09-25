@@ -11,7 +11,7 @@ import USER_ID from '@salesforce/user/Id';
 
 // LMS imports for handling user selection
 import { subscribe, MessageContext } from 'lightning/messageService';
-import SELECTED_USER_CHANNEL from '@salesforce/messageChannel/SelectedUserChannel__c';
+import SELECTED_USER_CHANNEL from '@salesforce/messageChannel/UserChannel__c';
 
 export default class dashboardWeeklyChart extends LightningElement { 
     @track chartData;
@@ -27,6 +27,38 @@ export default class dashboardWeeklyChart extends LightningElement {
 
     subscription = null;
     selectedUserId = USER_ID; // Default to current user
+
+    // UTC helpers to avoid timezone shifts
+    shortDayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    shortMonthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    pad(n) { return n < 10 ? '0' + n : String(n); }
+
+    /**
+     * Parse a day string in format "Mon Jan 01 2024" (same as dashboardSharedData) to a Date at UTC midnight.
+     * Fallback normalizes any input to UTC midnight.
+     */
+    parseDayStringToUTC(str) {
+        if (!str || typeof str !== 'string') {
+            const dt = new Date(str || Date.now());
+            return new Date(Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate()));
+        }
+        const parts = str.trim().split(/\s+/); // expect [DayName, Month, DD, YYYY]
+        if (parts.length === 4) {
+            const monthIndex = this.shortMonthNames.indexOf(parts[1]);
+            const dayNum = parseInt(parts[2], 10);
+            const yearNum = parseInt(parts[3], 10);
+            if (monthIndex >= 0 && !isNaN(dayNum) && !isNaN(yearNum)) {
+                return new Date(Date.UTC(yearNum, monthIndex, dayNum));
+            }
+        }
+        const dt = new Date(str);
+        return new Date(Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate()));
+    }
+
+    formatDateKeyUTC(dateObj) {
+        const d = dateObj instanceof Date ? dateObj : new Date(dateObj);
+        return `${this.shortDayNames[d.getUTCDay()]} ${this.shortMonthNames[d.getUTCMonth()]} ${this.pad(d.getUTCDate())} ${d.getUTCFullYear()}`;
+    }
 
     /**
      * @description Lifecycle hook when component is inserted into the DOM
@@ -67,16 +99,6 @@ export default class dashboardWeeklyChart extends LightningElement {
             return;
         }
         this.isChartJsInitialized = true;
-
-        // Defensive stub: if ResizeObserver exists but isn't constructible or missing, provide a fallback.
-        if (!window.ResizeObserver || typeof window.ResizeObserver !== 'function') {
-            window.ResizeObserver = class {
-                constructor(cb) { this.cb = cb; this._handler = () => cb([]); window.addEventListener('resize', this._handler); }
-                observe() {}
-                unobserve() {}
-                disconnect() { window.removeEventListener('resize', this._handler); }
-            };
-        }
 
         loadScript(this, ChartJS)
             .then(() => {
@@ -172,10 +194,11 @@ export default class dashboardWeeklyChart extends LightningElement {
             return { datasets: [], labels: [], title: 'No Data' };
         }
 
-        // Get week date range
+        // Get week date range string and parse using UTC-safe parser
         let weekString = getStartAndEndDate(weekItems[this.currentWeekIndex].week);
-        const startDate = new Date(weekString.split(' - ')[0]);
-        const endDate = new Date(weekString.split(' - ')[1]);
+        const [startStr, endStr] = weekString.split(' - ').map(s => s.trim());
+        const startDateUTC = this.parseDayStringToUTC(startStr);
+        const endDateUTC = this.parseDayStringToUTC(endStr);
 
         const title = `Week: ${weekString}`;
 
@@ -189,7 +212,7 @@ export default class dashboardWeeklyChart extends LightningElement {
 
         let dayData = [];
 
-        // Process week data
+        // Process week data - day keys are already formatted strings from dashboardSharedData
         weekItems[this.currentWeekIndex].dates.forEach((date) => {
             dayData[date.day] = date;
 
@@ -202,25 +225,30 @@ export default class dashboardWeeklyChart extends LightningElement {
             }
         });
 
-        // Generate daily data points
-        for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-            let dayString = d.toDateString();
-            barLabels.push(dayString);
+        // Generate daily data points using UTC increments
+        const msDay = 86400000;
+        const startTs = Date.UTC(startDateUTC.getUTCFullYear(), startDateUTC.getUTCMonth(), startDateUTC.getUTCDate());
+        const endTs = Date.UTC(endDateUTC.getUTCFullYear(), endDateUTC.getUTCMonth(), endDateUTC.getUTCDate());
+
+        for (let ts = startTs; ts <= endTs; ts += msDay) {
+            const dUTC = new Date(ts);
+            const dayKey = this.formatDateKeyUTC(dUTC);
+            barLabels.push(dayKey);
 
             // Process project data
             barDataProjects.forEach((value, key) => {
-                if (dayData[dayString] && dayData[dayString].projects.has(key)) {
-                    barDataProjects.get(key).push(dayData[dayString].projects.get(key));
+                if (dayData[dayKey] && dayData[dayKey].projects.has(key)) {
+                    barDataProjects.get(key).push(dayData[dayKey].projects.get(key));
                 } else {
                     barDataProjects.get(key).push(0);
                 }
             });
 
             // Process attendance and absence data
-            if (dayData[dayString]) {
-                barDataAbsence.push(dayData[dayString].absence);
-                barDataAttendance.push(dayData[dayString].attendance);
-                barDataDurations.push(dayData[dayString].duration);
+            if (dayData[dayKey]) {
+                barDataAbsence.push(dayData[dayKey].absence);
+                barDataAttendance.push(dayData[dayKey].attendance);
+                barDataDurations.push(dayData[dayKey].duration);
             } else {
                 barDataAbsence.push(0);
                 barDataAttendance.push(0);
@@ -520,10 +548,34 @@ export default class dashboardWeeklyChart extends LightningElement {
                                 stepSize: 1,
                                 maxRotation: 0,
                                 minRotation: 0,
-                                callback: function (value) {
+                                callback: (value) => {
                                     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-                                    const date = new Date(this.getLabelForValue(value));
-                                    return days[date.getDay()];
+                                    // value is index into labels; use label string and parse it to UTC safely
+                                    const label = this.attendanceChart ? this.attendanceChart.data.labels[value] : null;
+                                    if (!label) return '';
+                                    const parts = (label + '').trim().split(/\s+/); // [DayName, Month, DD, YYYY]
+                                    if (parts.length === 4) {
+                                        const monthIndex = this._component ? this._component.shortMonthNames.indexOf(parts[1]) : -1;
+                                        // fallback: try parse via Date
+                                    }
+                                    // Parse using a safe approach similar to other helpers:
+                                    // label format is "Mon Jan 01 2024" -> create UTC Date
+                                    try {
+                                        const parts2 = (label + '').trim().split(/\s+/);
+                                        if (parts2.length === 4) {
+                                            const monthIndex2 = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].indexOf(parts2[1]);
+                                            const dayNum2 = parseInt(parts2[2], 10);
+                                            const yearNum2 = parseInt(parts2[3], 10);
+                                            if (monthIndex2 >= 0 && !isNaN(dayNum2) && !isNaN(yearNum2)) {
+                                                const dt = new Date(Date.UTC(yearNum2, monthIndex2, dayNum2));
+                                                return days[dt.getUTCDay()];
+                                            }
+                                        }
+                                        const dtFallback = new Date(label);
+                                        return days[dtFallback.getDay()];
+                                    } catch (e) {
+                                        return '';
+                                    }
                                 },
                                 font: { size: 9 },
                             },
@@ -544,6 +596,9 @@ export default class dashboardWeeklyChart extends LightningElement {
                     },
                 },
             });
+            // Attach a reference so tick callback can access component if needed
+            // (Chart internals don't expose component; this is a small helper reference)
+            this.attendanceChart._component = this;
         }
     }
 }

@@ -1,4 +1,66 @@
 public with sharing class EmployeeTriggerHandler {
+
+    public static void populateClientManager(List<Employee__c> newList) {
+        Set<Id> managerIds = new Set<Id>();
+        for (Employee__c e : newList) {
+            if (e.Manager__c != null && (e.Client_Manager__c == null || e.Client_Manager_email__c == null)) {
+                managerIds.add(e.Manager__c);
+            }
+        }
+        if (managerIds.isEmpty()) return;
+
+        Map<Id, User> usersById = new Map<Id, User>(
+            [SELECT Id, Email FROM User WHERE Id IN :managerIds]
+        );
+
+        for (Employee__c e : newList) {
+            if (e.Manager__c != null && (e.Client_Manager__c == null || e.Client_Manager_email__c == null)) {
+                User mgr = usersById.get(e.Manager__c);
+                if (mgr != null) {
+                    e.Client_Manager__c = mgr.Id;
+                    e.Client_Manager_email__c = mgr.Email;
+                }
+            }
+        }
+    }
+
+    public static void populateEmployeeFields(List<Employee__c> empList) {
+        Set<Id> userIds = new Set<Id>();
+        for (Employee__c emp : empList) {
+            if (emp.User__c != null) {
+                userIds.add(emp.User__c);
+            	}
+        	}  
+
+        if (!userIds.isEmpty()) {
+            Map<Id, User> userMap = new Map<Id, User>([
+                SELECT Id, FirstName, LastName, ManagerId
+                FROM User
+                WHERE Id IN :userIds
+            ]);
+
+            for (Employee__c emp : empList) {
+                if (emp.User__c != null && userMap.containsKey(emp.User__c)) {
+                    User u = userMap.get(emp.User__c);
+                    // Only map fields from User (not overwriting Name anymore)
+                    emp.Manager__c = u.ManagerId;
+                    emp.OwnerId   = u.Id;
+            	}
+        	}
+       }
+    }
+    
+    public static void populateEmployeeName(List<Employee__c> empList) {
+        for (Employee__c emp : empList) {
+            String firstName = emp.First_Name__c;
+            String lastName  = emp.Last_Name__c;
+
+            if (String.isNotBlank(firstName) || String.isNotBlank(lastName)) {
+                emp.Name = (String.isNotBlank(firstName) ? firstName : '') +
+                           (String.isNotBlank(lastName)  ? ' ' + lastName : '');
+            }
+        }
+    }
     
     public static void checkUserDuplicationForEmployeeBeforeInsert(List<Employee__c	> employees){
         Map<Id, Employee__c> userEmployeeMap = getUserEmployeeMapForBeforeInsert(employees);

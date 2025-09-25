@@ -265,8 +265,8 @@
         </connector>
         <schedule>
             <frequency>Weekly</frequency>
-            <startDate>2025-09-09</startDate>
-            <startTime>08:15:00.000Z</startTime>
+            <startDate>2025-08-08</startDate>
+            <startTime>00:00:00.000Z</startTime>
         </schedule>
         <triggerType>Scheduled</triggerType>
     </start>

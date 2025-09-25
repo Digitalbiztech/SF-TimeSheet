@@ -12,7 +12,7 @@ import USER_ID from '@salesforce/user/Id';
 
 // LMS imports for handling user selection
 import { subscribe, MessageContext } from 'lightning/messageService';
-import SELECTED_USER_CHANNEL from '@salesforce/messageChannel/SelectedUserChannel__c';
+import SELECTED_USER_CHANNEL from '@salesforce/messageChannel/UserChannel__c';
 
 export default class dashboardContributionChart extends LightningElement {
     @track chartData;
@@ -195,8 +195,10 @@ export default class dashboardContributionChart extends LightningElement {
                                 maxRotation: 0,
                                 autoSkip: true,
                                 callback: (value) => {
-                                    return new Date(this.year, 0, 1 + (value - 1) * 7)
-                                        .toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                                    // Use UTC-based date for tick label (start of that week)
+                                    const ts = Date.UTC(this.year, 0, 1) + (value - 1) * 7 * 86400000;
+                                    const d = new Date(ts);
+                                    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
                                 },
                                 font: { size: 11 }
                             },
@@ -212,48 +214,91 @@ export default class dashboardContributionChart extends LightningElement {
     /**
      * @description Prepares data for the matrix chart visualization
      * @returns {Array} Formatted data points for the chart
+     *
+     * NOTE: This function was adjusted to use UTC-based parsing and iteration so local timezone
+     * doesn't shift dates. It preserves how chartData is consumed (no change to incoming structure).
      */
     prepareGraphData() {
         const { dayItems } = this.chartData;
 
-        // Filter data for current year
-        const dataItems = dayItems.filter(item => {
-            const itemYear = new Date(item.day).getFullYear();
-            return itemYear === this.year;
-        });
+        // Helper arrays & functions for consistent UTC formatting/parsing
+        const shortDayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        const shortMonthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        const pad = (n) => (n < 10 ? '0' + n : String(n));
 
-        const dateToDuration = {};
-        dataItems.forEach(item => {
-            dateToDuration[item.day] = item.duration;
-        });
-
-        // Setup date range
-        const startDate = new Date(this.year, 0, 1);
-        const endDate = new Date(this.year, 11, 31);
-        let firstMonday = null;
-
-        /**
-         * @description Calculates week number based on Monday
-         */
-        const getMondayBasedWeekNumber = (date) => {
-            const jan1 = new Date(date.getFullYear(), 0, 1);
-            const jan1Day = jan1.getDay();
-
-            if (!firstMonday) {
-                firstMonday = jan1Day === 1 ? jan1 : new Date(jan1.getTime() + ((8 - jan1Day) % 7) * 86400000);
+        // Try to parse incoming day string like "Mon Jan 01 2024" into a UTC Date (midnight UTC)
+        const parseDayStringToUTC = (str) => {
+            if (!str || typeof str !== 'string') {
+                const fallback = new Date(str);
+                return new Date(Date.UTC(fallback.getUTCFullYear(), fallback.getUTCMonth(), fallback.getUTCDate()));
             }
-
-            return Math.floor((date - firstMonday) / 604800000) + 1;
+            const parts = str.trim().split(/\s+/); // expect [DayName, Month, DD, YYYY]
+            if (parts.length === 4) {
+                const monthIndex = shortMonthNames.indexOf(parts[1]);
+                const dayNum = parseInt(parts[2], 10);
+                const yearNum = parseInt(parts[3], 10);
+                if (monthIndex >= 0 && !isNaN(dayNum) && !isNaN(yearNum)) {
+                    return new Date(Date.UTC(yearNum, monthIndex, dayNum));
+                }
+            }
+            // fallback to Date parsing then normalize to UTC midnight
+            const dt = new Date(str);
+            return new Date(Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate()));
         };
 
-        // Generate data points
+        const formatDateKeyUTC = (dateObj) => {
+            const d = dateObj instanceof Date ? dateObj : new Date(dateObj);
+            return `${shortDayNames[d.getUTCDay()]} ${shortMonthNames[d.getUTCMonth()]} ${pad(d.getUTCDate())} ${d.getUTCFullYear()}`;
+        };
+
+        // Filter data for current year using UTC-aware parsing
+        const dataItems = dayItems.filter(item => {
+            const parsed = parseDayStringToUTC(item.day);
+            return parsed.getUTCFullYear() === this.year;
+        });
+
+        // Build a map keyed by UTC-formatted day string (matching sharedData's format)
+        const dateToDuration = {};
+        dataItems.forEach(item => {
+            const parsed = parseDayStringToUTC(item.day);
+            const key = formatDateKeyUTC(parsed);
+            dateToDuration[key] = item.duration;
+        });
+
+        // Setup UTC date range for the year
+        const startTs = Date.UTC(this.year, 0, 1);
+        const endTs = Date.UTC(this.year, 11, 31);
+
+        // firstMonday calculation (UTC)
+        let firstMondayTs = null;
+        const computeFirstMonday = () => {
+            if (firstMondayTs !== null) return firstMondayTs;
+            const jan1Ts = Date.UTC(this.year, 0, 1);
+            const jan1Day = new Date(jan1Ts).getUTCDay(); // 0 (Sun) - 6 (Sat)
+            if (jan1Day === 1) {
+                firstMondayTs = jan1Ts;
+            } else {
+                const daysUntilNextMonday = (8 - jan1Day) % 7;
+                firstMondayTs = jan1Ts + daysUntilNextMonday * 86400000;
+            }
+            return firstMondayTs;
+        };
+
+        const getMondayBasedWeekNumber = (dateTs) => {
+            const fm = computeFirstMonday();
+            return Math.floor((dateTs - fm) / 604800000) + 1;
+        };
+
+        // Generate data points iterating by UTC midnight increments
         const graphdata = [];
-        for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-            const dateKey = d.toDateString();
+        for (let ts = startTs; ts <= endTs; ts += 86400000) {
+            const dUTC = new Date(ts);
+            const dateKey = formatDateKeyUTC(dUTC);
             const duration = dateToDuration[dateKey] || 0;
-            const weekNumber = getMondayBasedWeekNumber(new Date(d));
-            let dayOfWeek = d.getDay();
-            dayOfWeek = dayOfWeek === 0 ? 7 : dayOfWeek;
+            let dayOfWeek = dUTC.getUTCDay(); // 0 (Sun) - 6 (Sat)
+            dayOfWeek = dayOfWeek === 0 ? 7 : dayOfWeek; // convert so Monday=1 ... Sunday=7
+
+            const weekNumber = getMondayBasedWeekNumber(ts);
 
             graphdata.push({
                 x: weekNumber,
