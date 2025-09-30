@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <FlexiPage xmlns="http://soap.sforce.com/2006/04/metadata">
     <flexiPageRegions>
         <itemInstances>
@@ -25,6 +25,12 @@
                 </componentInstanceProperties>
                 <componentName>force:highlightsPanel</componentName>
                 <identifier>force_highlightsPanel</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentName>createEmployeeTimesheet</componentName>
+                <identifier>dbt_createEmployeeTimesheet</identifier>
             </componentInstance>
         </itemInstances>
         <name>header</name>
@@ -101,6 +107,16 @@
                 <identifier>RecordAddress_cField</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Employment_Type__c</fieldItem>
+                <identifier>RecordEmployment_Type__cField</identifier>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-e9cc82ed-d71f-49d2-97f4-2c7d97e866c6</name>
         <type>Facet</type>
     </flexiPageRegions>
@@ -163,6 +179,26 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.Manager__c</fieldItem>
                 <identifier>RecordManager_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Client_Manager__c</fieldItem>
+                <identifier>RecordClient_Manager_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Client_Manager_email__c</fieldItem>
+                <identifier>RecordClient_Manager_email_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -262,6 +298,10 @@
                     <value>Facet-ae3ce9c7-7f16-466e-8311-17fad155ef3c</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
+                    <name>horizontalAlignment</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
                     <name>label</name>
                     <value>Information</value>
                 </componentInstanceProperties>
@@ -274,6 +314,10 @@
                 <componentInstanceProperties>
                     <name>columns</name>
                     <value>Facet-5d90ae73-0c8b-44c3-9c40-c03e5dc32bfb</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>horizontalAlignment</name>
+                    <value>false</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>label</name>

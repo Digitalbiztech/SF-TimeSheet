@@ -1,0 +1,10 @@
+[
+    {
+        "sobject": "dbt__Timesheet__c",
+        "saveRefs": false,
+        "resolveRefs": false,
+        "files": [
+            "dbt__Timesheet__c.json"
+        ]
+    }
+]

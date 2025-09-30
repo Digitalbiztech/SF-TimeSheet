@@ -1,0 +1,13 @@
+{
+    "records":  [
+                    {
+                        "attributes":  {
+                                           "type":  "dbt__Project__c",
+                                           "referenceId":  "Project__cRef1"
+                                       },
+                        "dbt__Active__c":  true,
+                        "dbt__Billable__c":  "Yes",
+                        "Name":  "test"
+                    }
+                ]
+}

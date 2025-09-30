@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <actionCalls>
         <name>Employee_Email_Alert</name>
         <label>Employee Email Alert</label>
         <locationX>264</locationX>
-        <locationY>1692</locationY>
+        <locationY>1824</locationY>
         <actionName>emailSimple</actionName>
         <actionType>emailSimple</actionType>
         <connector>
@@ -12,30 +12,31 @@
         </connector>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
-            <name>emailBody</name>
-            <value>
-                <elementReference>Emp_Email_Body</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
             <name>emailAddresses</name>
             <value>
-                <elementReference
-        >IteratethroughEmployees.User__r.Email</elementReference>
+                <elementReference>Iterate_through_Employees.User__r.Email</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
             <name>emailSubject</name>
             <value>
-                <stringValue>Vacation Limit Exceeded</stringValue>
+                <stringValue>vaccation limit exceeded</stringValue>
             </value>
         </inputParameters>
+        <inputParameters>
+            <name>emailBody</name>
+            <value>
+                <elementReference>Emp_Email_Body</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>emailSimple</nameSegment>
+        <offset>0</offset>
     </actionCalls>
     <actionCalls>
         <name>Employee_Notification</name>
         <label>Employee Notification</label>
         <locationX>264</locationX>
-        <locationY>1932</locationY>
+        <locationY>2040</locationY>
         <actionName>customNotificationAction</actionName>
         <actionType>customNotificationAction</actionType>
         <connector>
@@ -45,14 +46,13 @@
         <inputParameters>
             <name>customNotifTypeId</name>
             <value>
-                <elementReference
-        >Get_Custom_Notification_Type.Id</elementReference>
+                <elementReference>Get_Custom_Notification.Id</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
-            <name>body</name>
+            <name>recipientIds</name>
             <value>
-                <elementReference>Emp_Email_Body</elementReference>
+                <elementReference>Emp_Id</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -62,23 +62,25 @@
             </value>
         </inputParameters>
         <inputParameters>
-            <name>recipientIds</name>
+            <name>body</name>
             <value>
-                <elementReference>Emp_Id</elementReference>
+                <elementReference>Emp_Email_Body</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
             <name>targetId</name>
             <value>
-                <elementReference>IteratethroughEmployees.Id</elementReference>
+                <elementReference>Iterate_through_Employees.Id</elementReference>
             </value>
         </inputParameters>
+        <nameSegment>customNotificationAction</nameSegment>
+        <offset>0</offset>
     </actionCalls>
     <actionCalls>
         <name>Manager_Email_Alert</name>
         <label>Manager Email Alert</label>
         <locationX>264</locationX>
-        <locationY>1812</locationY>
+        <locationY>1932</locationY>
         <actionName>emailSimple</actionName>
         <actionType>emailSimple</actionType>
         <connector>
@@ -86,48 +88,47 @@
         </connector>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
-            <name>emailBody</name>
-            <value>
-                <elementReference>Manager_Email_Body</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
             <name>emailAddresses</name>
             <value>
-                <elementReference
-        >IteratethroughEmployees.Manager__r.Email</elementReference>
+                <elementReference>Iterate_through_Employees.Manager__r.Email</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
             <name>emailSubject</name>
             <value>
-                <stringValue
-        >Vacation Limit Exceeded for {!IteratethroughEmployees.Name}</stringValue>
+                <stringValue>vaccation limit exceeded</stringValue>
             </value>
         </inputParameters>
+        <inputParameters>
+            <name>emailBody</name>
+            <value>
+                <elementReference>Manager_Email_Body</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>emailSimple</nameSegment>
+        <offset>0</offset>
     </actionCalls>
     <actionCalls>
         <name>Manager_Notification</name>
         <label>Manager Notification</label>
         <locationX>264</locationX>
-        <locationY>2052</locationY>
+        <locationY>2148</locationY>
         <actionName>customNotificationAction</actionName>
         <actionType>customNotificationAction</actionType>
         <connector>
-            <targetReference>Update_Number_of_Vacations_taken</targetReference>
+            <targetReference>Clear_Collect_Ids</targetReference>
         </connector>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
             <name>customNotifTypeId</name>
             <value>
-                <elementReference
-        >Get_Custom_Notification_Type.Id</elementReference>
+                <elementReference>Get_Custom_Notification.Id</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
-            <name>body</name>
+            <name>recipientIds</name>
             <value>
-                <elementReference>Manager_Email_Body</elementReference>
+                <elementReference>Mng_Id</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -137,251 +138,285 @@
             </value>
         </inputParameters>
         <inputParameters>
-            <name>recipientIds</name>
+            <name>body</name>
             <value>
-                <elementReference>Mng_Id</elementReference>
+                <elementReference>Manager_Email_Body</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
             <name>targetId</name>
             <value>
-                <elementReference>IteratethroughEmployees.Id</elementReference>
+                <elementReference>Iterate_through_Employees.Id</elementReference>
             </value>
         </inputParameters>
+        <nameSegment>customNotificationAction</nameSegment>
+        <offset>0</offset>
     </actionCalls>
-    <apiVersion>56.0</apiVersion>
+    <apiVersion>62.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
-        <name>Assign_Duration_Value</name>
-        <label>Assign Duration Value</label>
-        <locationX>396</locationX>
-        <locationY>2508</locationY>
+        <name>Add_Employee_to_the_collection_Update</name>
+        <label>Add Employee to the collection Update</label>
+        <locationX>264</locationX>
+        <locationY>2472</locationY>
         <assignmentItems>
-            <assignToReference>Duration_copy_var</assignToReference>
+            <assignToReference>employeesToUpdate</assignToReference>
             <operator>Add</operator>
             <value>
-                <elementReference>Duration_Var</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>Duration_Var</assignToReference>
-            <operator>Subtract</operator>
-            <value>
-                <elementReference>Duration_copy_var</elementReference>
+                <elementReference>Iterate_through_Employees</elementReference>
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Remove_Values_from_Collection</targetReference>
+            <targetReference>Store_Duration_Var_Zero</targetReference>
         </connector>
     </assignments>
     <assignments>
-        <name>Collect_Ids</name>
-        <label>Collect Ids</label>
-        <locationX>396</locationX>
-        <locationY>1452</locationY>
+        <name>Clear_Collect_Ids</name>
+        <label>Clear_Collect_Ids</label>
+        <locationX>264</locationX>
+        <locationY>2256</locationY>
         <assignmentItems>
             <assignToReference>Emp_Id</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <elementReference
-        >IteratethroughEmployees.User__c</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>Mng_Id</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <elementReference
-        >IteratethroughEmployees.Manager__c</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Check_Accrued_Vacation_Days</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>Collect_Updated_Records</name>
-        <label>Collect Updated Records</label>
-        <locationX>396</locationX>
-        <locationY>2388</locationY>
-        <assignmentItems>
-            <assignToReference>Updated_No_of_vacations</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <elementReference>IteratethroughEmployees</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Assign_Duration_Value</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>Get_Absence_Duration</name>
-        <label>Get Absence Duration</label>
-        <locationX>484</locationX>
-        <locationY>1236</locationY>
-        <assignmentItems>
-            <assignToReference>Duration_Var</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <elementReference
-        >Iterate_through_Timesheets.Duration__c</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Iterate_through_Timesheets</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>Remove_Values_from_Collection</name>
-        <label>Remove Values from Collection</label>
-        <locationX>396</locationX>
-        <locationY>2628</locationY>
-        <assignmentItems>
-            <assignToReference>Emp_Id_Copy</assignToReference>
-            <operator>Add</operator>
+            <operator>RemoveAll</operator>
             <value>
                 <elementReference>Emp_Id</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>Emp_Id</assignToReference>
+            <assignToReference>Mng_Id</assignToReference>
             <operator>RemoveAll</operator>
-            <value>
-                <elementReference>Emp_Id_Copy</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>Mng_Id_Copy</assignToReference>
-            <operator>Add</operator>
             <value>
                 <elementReference>Mng_Id</elementReference>
             </value>
         </assignmentItems>
-        <assignmentItems>
-            <assignToReference>Mng_Id</assignToReference>
-            <operator>RemoveAll</operator>
-            <value>
-                <elementReference>Mng_Id_Copy</elementReference>
-            </value>
-        </assignmentItems>
         <connector>
-            <targetReference>IteratethroughEmployees</targetReference>
+            <targetReference>Set_new_absence_hours_to_employee</targetReference>
         </connector>
     </assignments>
     <assignments>
-        <name>Update_Number_of_Vacations_taken</name>
-        <label>Update Number of Vacations taken</label>
-        <locationX>396</locationX>
-        <locationY>2268</locationY>
+        <name>Collect_Ids</name>
+        <label>Collect_Ids</label>
+        <locationX>264</locationX>
+        <locationY>1716</locationY>
         <assignmentItems>
-            <assignToReference
-      >IteratethroughEmployees.No_of_Vacations_Taken__c</assignToReference>
+            <assignToReference>Emp_Id</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>Iterate_through_Employees.User__r.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>Mng_Id</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>Iterate_through_Employees.Manager__r.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Employee_Email_Alert</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Get_Absence_Duration</name>
+        <label>Get Absence Duration</label>
+        <locationX>616</locationX>
+        <locationY>1416</locationY>
+        <assignmentItems>
+            <assignToReference>Duration_Var</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>Iterate_through_Timesheet_Line_Items.Duration__c</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Iterate_through_Timesheet_Line_Items</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Set_new_absence_hours_to_employee</name>
+        <label>Set new absence hours to employee</label>
+        <locationX>264</locationX>
+        <locationY>2364</locationY>
+        <assignmentItems>
+            <assignToReference>Iterate_through_Employees.No_of_Vacations_Taken__c</assignToReference>
             <operator>Assign</operator>
             <value>
                 <elementReference>Dur_to_Day_Conv</elementReference>
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Collect_Updated_Records</targetReference>
+            <targetReference>Add_Employee_to_the_collection_Update</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Store_Active_users_ID</name>
+        <label>Store Active users ID</label>
+        <locationX>264</locationX>
+        <locationY>684</locationY>
+        <assignmentItems>
+            <assignToReference>Active_Users_List</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>Get_user_ID_s.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Get_user_ID_s</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Store_Duration_Var_Zero</name>
+        <label>Store_Duration_Var_Zero</label>
+        <locationX>528</locationX>
+        <locationY>2664</locationY>
+        <assignmentItems>
+            <assignToReference>Duration_Var</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Zero</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Iterate_through_Employees</targetReference>
         </connector>
     </assignments>
     <collectionProcessors>
-        <name>Get_Respective_Employee_Time_Sheets</name>
+        <name>Get_Respective_Employee_Time_Sheet_Line_Items</name>
         <elementSubtype>FilterCollectionProcessor</elementSubtype>
-        <label>Get Respective Employee Time Sheets</label>
-        <locationX>396</locationX>
-        <locationY>996</locationY>
-        <assignNextValueToReference
-    >currentItem_Get_Respective_Employee_Time_Sheets</assignNextValueToReference>
-        <collectionProcessorType
-    >FilterCollectionProcessor</collectionProcessorType>
-        <collectionReference>Get_Time_Sheets</collectionReference>
+        <label>Get Respective Employee Time Sheet Line Items</label>
+        <locationX>528</locationX>
+        <locationY>1200</locationY>
+        <assignNextValueToReference>currentItem_Get_Respective_Employee_Time_Sheets</assignNextValueToReference>
+        <collectionProcessorType>FilterCollectionProcessor</collectionProcessorType>
+        <collectionReference>Get_Timesheet_Line_Items</collectionReference>
         <conditionLogic>and</conditionLogic>
         <conditions>
-            <leftValueReference
-      >currentItem_Get_Respective_Employee_Time_Sheets.Employee__c</leftValueReference>
+            <leftValueReference>currentItem_Get_Respective_Employee_Time_Sheets.Employee__c</leftValueReference>
             <operator>EqualTo</operator>
             <rightValue>
-                <elementReference>IteratethroughEmployees.Id</elementReference>
+                <elementReference>Iterate_through_Employees.Id</elementReference>
             </rightValue>
         </conditions>
         <connector>
-            <targetReference>Iterate_through_Timesheets</targetReference>
+            <targetReference>Iterate_through_Timesheet_Line_Items</targetReference>
         </connector>
     </collectionProcessors>
+    <constants>
+        <name>Zero</name>
+        <dataType>Number</dataType>
+        <value>
+            <numberValue>0.0</numberValue>
+        </value>
+    </constants>
     <decisions>
         <name>Check_Accrued_Vacation_Days</name>
         <label>Check Accrued Vacation Days</label>
-        <locationX>396</locationX>
-        <locationY>1572</locationY>
+        <locationX>528</locationX>
+        <locationY>1608</locationY>
         <defaultConnector>
-            <targetReference>Update_Number_of_Vacations_taken</targetReference>
+            <targetReference>Store_Duration_Var_Zero</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
-            <name>Exceeded</name>
+            <name>Exceeded_with_new_absence_hours</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
                 <leftValueReference>Dur_to_Day_Conv</leftValueReference>
                 <operator>GreaterThan</operator>
                 <rightValue>
-                    <elementReference
-          >Get_Metadata_Type.Accrued_Vacation_Days__c</elementReference>
+                    <elementReference>Get_Default_Values_From_Metadata_type.Accrued_Vacation_Days__c</elementReference>
                 </rightValue>
             </conditions>
             <conditions>
                 <leftValueReference>Dur_to_Day_Conv</leftValueReference>
                 <operator>NotEqualTo</operator>
                 <rightValue>
-                    <elementReference
-          >IteratethroughEmployees.No_of_Vacations_Taken__c</elementReference>
+                    <elementReference>Iterate_through_Employees.No_of_Vacations_Taken__c</elementReference>
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Employee_Email_Alert</targetReference>
+                <targetReference>Collect_Ids</targetReference>
             </connector>
-            <label>Exceeded</label>
+            <label>Exceeded with new absence hours</label>
+        </rules>
+        <rules>
+            <name>No_of_vacation_changed</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Dur_to_Day_Conv</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <elementReference>Iterate_through_Employees.No_of_Vacations_Taken__c</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <isGoTo>true</isGoTo>
+                <targetReference>Set_new_absence_hours_to_employee</targetReference>
+            </connector>
+            <label>No of vacation changed</label>
         </rules>
     </decisions>
+    <description>Fixing governor limits issue</description>
     <environments>Default</environments>
     <formulas>
         <name>Dur_to_Day_Conv</name>
         <dataType>Number</dataType>
-        <expression
-    >{!Duration_Var} / {!Get_Metadata_Type.Working_Hours_Per_Day__c}</expression>
+        <expression>{!Duration_Var} /
+            {!Get_Default_Values_From_Metadata_type.Working_Hours_Per_Day__c}</expression>
         <scale>2</scale>
     </formulas>
-    <interviewLabel
-  >Absence management STF {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>Absence management STF</label>
+    <formulas>
+        <name>Next_Year</name>
+        <dataType>Date</dataType>
+        <expression>DATE(YEAR(TODAY()) + 1, 1, 1)</expression>
+    </formulas>
+    <formulas>
+        <name>This_Year</name>
+        <dataType>Date</dataType>
+        <expression>DATE( YEAR( TODAY() ), 1, 1 )</expression>
+    </formulas>
+    <interviewLabel>Absence Management STF {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Absence Management STF</label>
     <loops>
-        <name>Iterate_through_Timesheets</name>
-        <label>Iterate through Timesheets</label>
-        <locationX>396</locationX>
-        <locationY>1116</locationY>
-        <collectionReference
-    >Get_Respective_Employee_Time_Sheets</collectionReference>
+        <name>Get_user_ID_s</name>
+        <label>Get user ID&apos;s</label>
+        <locationX>176</locationX>
+        <locationY>576</locationY>
+        <collectionReference>Get_Users</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Store_Active_users_ID</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Get_Employees</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <loops>
+        <name>Iterate_through_Employees</name>
+        <label>Iterate through Employees</label>
+        <locationX>176</locationX>
+        <locationY>1092</locationY>
+        <collectionReference>Get_Employees</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Get_Respective_Employee_Time_Sheet_Line_Items</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Update_Employees_with_No_of_vacation_days</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <loops>
+        <name>Iterate_through_Timesheet_Line_Items</name>
+        <label>Iterate through Timesheet Line Items</label>
+        <locationX>528</locationX>
+        <locationY>1308</locationY>
+        <collectionReference>Get_Respective_Employee_Time_Sheet_Line_Items</collectionReference>
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
             <targetReference>Get_Absence_Duration</targetReference>
         </nextValueConnector>
         <noMoreValuesConnector>
-            <targetReference>Collect_Ids</targetReference>
-        </noMoreValuesConnector>
-    </loops>
-    <loops>
-        <name>IteratethroughEmployees</name>
-        <label>Iterate through Employees</label>
-        <locationX>176</locationX>
-        <locationY>876</locationY>
-        <collectionReference>Get_Employees</collectionReference>
-        <iterationOrder>Asc</iterationOrder>
-        <nextValueConnector>
-            <targetReference
-      >Get_Respective_Employee_Time_Sheets</targetReference>
-        </nextValueConnector>
-        <noMoreValuesConnector>
-            <targetReference>Update_Employees</targetReference>
+            <targetReference>Check_Accrued_Vacation_Days</targetReference>
         </noMoreValuesConnector>
     </loops>
     <processMetadataValues>
@@ -404,14 +439,13 @@
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <recordLookups>
-        <name>Get_Custom_Notification_Type</name>
-        <label>Get Custom Notification Type</label>
+        <name>Get_Custom_Notification</name>
+        <label>Get Custom Notification</label>
         <locationX>176</locationX>
-        <locationY>756</locationY>
-        <assignNullValuesIfNoRecordsFound
-    >false</assignNullValuesIfNoRecordsFound>
+        <locationY>360</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>IteratethroughEmployees</targetReference>
+            <targetReference>Get_Users</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -428,38 +462,13 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
-        <name>Get_Employees</name>
-        <label>Get Employees</label>
+        <name>Get_Default_Values_From_Metadata_type</name>
+        <label>Get Default Values From Metadata type</label>
         <locationX>176</locationX>
-        <locationY>276</locationY>
-        <assignNullValuesIfNoRecordsFound
-    >false</assignNullValuesIfNoRecordsFound>
+        <locationY>252</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Get_Time_Sheets</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Active__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </filters>
-        <getFirstRecordOnly>false</getFirstRecordOnly>
-        <object>Employee__c</object>
-        <sortField>Id</sortField>
-        <sortOrder>Asc</sortOrder>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
-    <recordLookups>
-        <name>Get_Metadata_Type</name>
-        <label>Get Metadata Type</label>
-        <locationX>176</locationX>
-        <locationY>516</locationY>
-        <assignNullValuesIfNoRecordsFound
-    >false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>Get_Users</targetReference>
+            <targetReference>Get_Custom_Notification</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -476,16 +485,59 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
-        <name>Get_Time_Sheets</name>
-        <label>Get Time Sheets</label>
+        <name>Get_Employees</name>
+        <label>Get Employees</label>
         <locationX>176</locationX>
-        <locationY>396</locationY>
-        <assignNullValuesIfNoRecordsFound
-    >false</assignNullValuesIfNoRecordsFound>
+        <locationY>876</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Get_Metadata_Type</targetReference>
+            <targetReference>Get_Timesheet_Line_Items</targetReference>
         </connector>
-        <filterLogic>or</filterLogic>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Active__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Manager__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue></stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>User__c</field>
+            <operator>In</operator>
+            <value>
+                <elementReference>Active_Users_List</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Employment_Type__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Full Time</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>Employee__c</object>
+        <sortField>Id</sortField>
+        <sortOrder>Asc</sortOrder>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_Timesheet_Line_Items</name>
+        <label>Get Timesheet Line Items</label>
+        <locationX>176</locationX>
+        <locationY>984</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Iterate_through_Employees</targetReference>
+        </connector>
+        <filterLogic>(1 OR 2 OR 3) AND ( 4 AND 5)</filterLogic>
         <filters>
             <field>Absence_Category__c</field>
             <operator>EqualTo</operator>
@@ -507,6 +559,20 @@
                 <stringValue>PTO-Un Planned</stringValue>
             </value>
         </filters>
+        <filters>
+            <field>Date__c</field>
+            <operator>GreaterThanOrEqualTo</operator>
+            <value>
+                <elementReference>This_Year</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Date__c</field>
+            <operator>LessThan</operator>
+            <value>
+                <elementReference>Next_Year</elementReference>
+            </value>
+        </filters>
         <getFirstRecordOnly>false</getFirstRecordOnly>
         <object>Timesheet_Line_Item__c</object>
         <sortField>Id</sortField>
@@ -517,11 +583,10 @@
         <name>Get_Users</name>
         <label>Get Users</label>
         <locationX>176</locationX>
-        <locationY>636</locationY>
-        <assignNullValuesIfNoRecordsFound
-    >false</assignNullValuesIfNoRecordsFound>
+        <locationY>468</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Get_Custom_Notification_Type</targetReference>
+            <targetReference>Get_user_ID_s</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -533,9 +598,9 @@
         </filters>
         <filters>
             <field>ManagerId</field>
-            <operator>EqualTo</operator>
+            <operator>NotEqualTo</operator>
             <value>
-                <stringValue />
+                <stringValue></stringValue>
             </value>
         </filters>
         <getFirstRecordOnly>false</getFirstRecordOnly>
@@ -545,22 +610,22 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordUpdates>
-        <name>Update_Employees</name>
-        <label>Update Employees</label>
+        <name>Update_Employees_with_No_of_vacation_days</name>
+        <label>Update Employees with No of vacation days</label>
         <locationX>176</locationX>
-        <locationY>2844</locationY>
-        <inputReference>Updated_No_of_vacations</inputReference>
+        <locationY>2856</locationY>
+        <inputReference>employeesToUpdate</inputReference>
     </recordUpdates>
     <start>
         <locationX>50</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>Get_Employees</targetReference>
+            <targetReference>Get_Default_Values_From_Metadata_type</targetReference>
         </connector>
         <schedule>
             <frequency>Daily</frequency>
-            <startDate>2022-12-26</startDate>
-            <startTime>00:45:00.000Z</startTime>
+            <startDate>2025-01-29</startDate>
+            <startTime>00:00:00.000Z</startTime>
         </schedule>
         <triggerType>Scheduled</triggerType>
     </start>
@@ -568,34 +633,34 @@
     <textTemplates>
         <name>Emp_Email_Body</name>
         <isViewedAsPlainText>true</isViewedAsPlainText>
-        <text>Hi {!IteratethroughEmployees.Name}.
-You have exceeded your vacation limit.
-Allotted vacation leave : {!Get_Metadata_Type.Accrued_Vacation_Days__c}
-No. Of Vacation Taken : {!Dur_to_Day_Conv}
+        <text>Hi {!Iterate_through_Employees.Name}.
+            You have exceeded your vacation limit.
+            Allotted vacation leave :
+            {!Get_Default_Values_From_Metadata_type.Accrued_Vacation_Days__c}
+            No. Of Vacation Taken : {!Dur_to_Day_Conv}
 
-Thanks,
-System Admin</text>
+            Thanks,
+            System Admin</text>
     </textTemplates>
     <textTemplates>
         <name>Manager_Email_Body</name>
         <isViewedAsPlainText>true</isViewedAsPlainText>
-        <text
-    >Hi {!IteratethroughEmployees.Owner:User.Manager.FirstName} {!IteratethroughEmployees.Owner:User.Manager.LastName},
+        <text>Hi {!Iterate_through_Employees.Owner:User.Manager.FirstName}
+            {!Iterate_through_Employees.Owner:User.Manager.LastName},
+            {!Iterate_through_Employees.Name} has exceeded the vacation limit.
+            Allotted Vacation Leave :
+            {!Get_Default_Values_From_Metadata_type.Accrued_Vacation_Days__c}
+            No. of vacation taken : {!Dur_to_Day_Conv}
 
-{!IteratethroughEmployees.Name} has exceeded the vacation limit.
-Allotted Vacation Leave : {!Get_Metadata_Type.Accrued_Vacation_Days__c}
-No. of vacation taken : {!Dur_to_Day_Conv}
-
-Regards,
-System Admin</text>
+            Regards,
+            System Admin</text>
     </textTemplates>
     <variables>
-        <name>currentItem_Collecting_User_Time_sheet</name>
-        <dataType>SObject</dataType>
-        <isCollection>false</isCollection>
+        <name>Active_Users_List</name>
+        <dataType>String</dataType>
+        <isCollection>true</isCollection>
         <isInput>false</isInput>
         <isOutput>false</isOutput>
-        <objectType>Timesheet_Line_Item__c</objectType>
     </variables>
     <variables>
         <name>currentItem_Get_Respective_Employee_Time_Sheets</name>
@@ -606,60 +671,15 @@ System Admin</text>
         <objectType>Timesheet_Line_Item__c</objectType>
     </variables>
     <variables>
-        <name>currentItem_Get_Respective_Manager</name>
-        <dataType>SObject</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-        <objectType>User</objectType>
-    </variables>
-    <variables>
-        <name>currentItem_Get_Respective_user_0</name>
-        <dataType>SObject</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-        <objectType>User</objectType>
-    </variables>
-    <variables>
-        <name>currentItem_User_Collection_Under_Manager</name>
-        <dataType>SObject</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-        <objectType>User</objectType>
-    </variables>
-    <variables>
-        <name>Duration</name>
-        <dataType>Number</dataType>
-        <isCollection>true</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-        <scale>2</scale>
-    </variables>
-    <variables>
-        <name>Duration_copy_var</name>
-        <dataType>Number</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-        <scale>2</scale>
-    </variables>
-    <variables>
         <name>Duration_Var</name>
         <dataType>Number</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>false</isOutput>
         <scale>2</scale>
-    </variables>
-    <variables>
-        <name>Duration_Var_Copy</name>
-        <dataType>Number</dataType>
-        <isCollection>true</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-        <scale>2</scale>
+        <value>
+            <numberValue>0.0</numberValue>
+        </value>
     </variables>
     <variables>
         <name>Emp_Id</name>
@@ -669,11 +689,12 @@ System Admin</text>
         <isOutput>false</isOutput>
     </variables>
     <variables>
-        <name>Emp_Id_Copy</name>
-        <dataType>String</dataType>
+        <name>employeesToUpdate</name>
+        <dataType>SObject</dataType>
         <isCollection>true</isCollection>
         <isInput>false</isInput>
         <isOutput>false</isOutput>
+        <objectType>Employee__c</objectType>
     </variables>
     <variables>
         <name>Mng_Id</name>
@@ -681,20 +702,5 @@ System Admin</text>
         <isCollection>true</isCollection>
         <isInput>false</isInput>
         <isOutput>false</isOutput>
-    </variables>
-    <variables>
-        <name>Mng_Id_Copy</name>
-        <dataType>String</dataType>
-        <isCollection>true</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-    </variables>
-    <variables>
-        <name>Updated_No_of_vacations</name>
-        <dataType>SObject</dataType>
-        <isCollection>true</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-        <objectType>Employee__c</objectType>
     </variables>
 </Flow>

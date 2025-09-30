@@ -1,0 +1,13 @@
+{
+    "records":  [
+                    {
+                        "attributes":  {
+                                           "type":  "dbt__Timesheet__c",
+                                           "referenceId":  "Timesheet__cRef1"
+                                       },
+                        "dbt__End_Date__c":  "2025-08-31",
+                        "dbt__Start_Date__c":  "2025-08-25",
+                        "dbt__Employee__c":  "@Employee__cRef2"
+                    }
+                ]
+}

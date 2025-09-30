@@ -1,0 +1,10 @@
+[
+    {
+        "sobject": "dbt__Project__c",
+        "saveRefs": false,
+        "resolveRefs": false,
+        "files": [
+            "dbt__Project__c.json"
+        ]
+    }
+]
