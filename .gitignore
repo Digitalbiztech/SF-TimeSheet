@@ -43,3 +43,10 @@ $RECYCLE.BIN/
 **/__pycache__/
 **/.venv/
 **/venv/
+
+# Random files
+new.txt
+*.html
+import.ps1
+vsc_history.txt
+data/

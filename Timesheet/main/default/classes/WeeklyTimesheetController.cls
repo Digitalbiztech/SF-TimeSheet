@@ -54,6 +54,20 @@ public with sharing class WeeklyTimesheetController {
                 System.debug('after getProjects: '+projects);
                 return projects;
     }
+
+    @AuraEnabled(cacheable=true)
+    public static List<Project_Activity__c> getProjectActivities(List<Id> projectIds){
+        // system.debug('begin getProjectActivities: '+projectIds);
+        List<Project_Activity__c> activities = [SELECT id,
+                name,
+                Project__c 
+                FROM Project_Activity__c 
+                WHERE Project__c IN :projectIds
+                WITH SECURITY_ENFORCED];
+        // system.debug('after getProjectActivities: '+activities);
+
+                return activities;
+    }
     
     @AuraEnabled
     public static List<Timesheet_Line_Item__c> getWeeklyTimesheetItems(Id timesheetId){
