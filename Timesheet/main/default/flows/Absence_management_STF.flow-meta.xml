@@ -18,6 +18,12 @@
             </value>
         </inputParameters>
         <inputParameters>
+            <name>senderType</name>
+            <value>
+                <stringValue>DefaultWorkflowUser</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
             <name>emailSubject</name>
             <value>
                 <stringValue>vaccation limit exceeded</stringValue>
@@ -91,6 +97,18 @@
             <name>emailAddresses</name>
             <value>
                 <elementReference>Iterate_through_Employees.Manager__r.Email</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>senderType</name>
+            <value>
+                <stringValue>DefaultWorkflowUser</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>senderAddress</name>
+            <value>
+                <stringValue></stringValue>
             </value>
         </inputParameters>
         <inputParameters>
@@ -286,12 +304,12 @@
         <label>Get Respective Employee Time Sheet Line Items</label>
         <locationX>528</locationX>
         <locationY>1200</locationY>
-        <assignNextValueToReference>currentItem_Get_Respective_Employee_Time_Sheets</assignNextValueToReference>
+        <assignNextValueToReference>currentItem_Get_Respective_Employee_Time_Sheet_Line_Items</assignNextValueToReference>
         <collectionProcessorType>FilterCollectionProcessor</collectionProcessorType>
         <collectionReference>Get_Timesheet_Line_Items</collectionReference>
         <conditionLogic>and</conditionLogic>
         <conditions>
-            <leftValueReference>currentItem_Get_Respective_Employee_Time_Sheets.Employee__c</leftValueReference>
+            <leftValueReference>currentItem_Get_Respective_Employee_Time_Sheet_Line_Items.Employee__c</leftValueReference>
             <operator>EqualTo</operator>
             <rightValue>
                 <elementReference>Iterate_through_Employees.Id</elementReference>
@@ -356,13 +374,11 @@
             <label>No of vacation changed</label>
         </rules>
     </decisions>
-    <description>Fixing governor limits issue</description>
     <environments>Default</environments>
     <formulas>
         <name>Dur_to_Day_Conv</name>
         <dataType>Number</dataType>
-        <expression>{!Duration_Var} /
-            {!Get_Default_Values_From_Metadata_type.Working_Hours_Per_Day__c}</expression>
+        <expression>{!Duration_Var} / {!Get_Default_Values_From_Metadata_type.Working_Hours_Per_Day__c}</expression>
         <scale>2</scale>
     </formulas>
     <formulas>
@@ -375,8 +391,8 @@
         <dataType>Date</dataType>
         <expression>DATE( YEAR( TODAY() ), 1, 1 )</expression>
     </formulas>
-    <interviewLabel>Absence Management STF {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>Absence Management STF</label>
+    <interviewLabel>Absence management STF {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Absence management STF</label>
     <loops>
         <name>Get_user_ID_s</name>
         <label>Get user ID&apos;s</label>
@@ -537,26 +553,12 @@
         <connector>
             <targetReference>Iterate_through_Employees</targetReference>
         </connector>
-        <filterLogic>(1 OR 2 OR 3) AND ( 4 AND 5)</filterLogic>
+        <filterLogic>(1 AND 2 AND 3)</filterLogic>
         <filters>
             <field>Absence_Category__c</field>
-            <operator>EqualTo</operator>
+            <operator>NotEqualTo</operator>
             <value>
-                <stringValue>Sick Leave</stringValue>
-            </value>
-        </filters>
-        <filters>
-            <field>Absence_Category__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <stringValue>PTO-Planned</stringValue>
-            </value>
-        </filters>
-        <filters>
-            <field>Absence_Category__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <stringValue>PTO-Un Planned</stringValue>
+                <stringValue>Holiday</stringValue>
             </value>
         </filters>
         <filters>
@@ -634,26 +636,24 @@
         <name>Emp_Email_Body</name>
         <isViewedAsPlainText>true</isViewedAsPlainText>
         <text>Hi {!Iterate_through_Employees.Name}.
-            You have exceeded your vacation limit.
-            Allotted vacation leave :
-            {!Get_Default_Values_From_Metadata_type.Accrued_Vacation_Days__c}
-            No. Of Vacation Taken : {!Dur_to_Day_Conv}
+You have exceeded your vacation limit.
+Allotted vacation leave : {!Get_Default_Values_From_Metadata_type.Accrued_Vacation_Days__c}
+No. Of Vacation Taken : {!Dur_to_Day_Conv}
 
-            Thanks,
-            System Admin</text>
+Thanks,
+System Admin</text>
     </textTemplates>
     <textTemplates>
         <name>Manager_Email_Body</name>
         <isViewedAsPlainText>true</isViewedAsPlainText>
-        <text>Hi {!Iterate_through_Employees.Owner:User.Manager.FirstName}
-            {!Iterate_through_Employees.Owner:User.Manager.LastName},
-            {!Iterate_through_Employees.Name} has exceeded the vacation limit.
-            Allotted Vacation Leave :
-            {!Get_Default_Values_From_Metadata_type.Accrued_Vacation_Days__c}
-            No. of vacation taken : {!Dur_to_Day_Conv}
+        <text>Hi {!Iterate_through_Employees.Owner:User.Manager.FirstName} {!Iterate_through_Employees.Owner:User.Manager.LastName},
 
-            Regards,
-            System Admin</text>
+{!Iterate_through_Employees.Name} has exceeded the vacation limit.
+Allotted Vacation Leave : {!Get_Default_Values_From_Metadata_type.Accrued_Vacation_Days__c}
+No. of vacation taken : {!Dur_to_Day_Conv}
+
+Regards,
+System Admin</text>
     </textTemplates>
     <variables>
         <name>Active_Users_List</name>
@@ -663,7 +663,7 @@
         <isOutput>false</isOutput>
     </variables>
     <variables>
-        <name>currentItem_Get_Respective_Employee_Time_Sheets</name>
+        <name>currentItem_Get_Respective_Employee_Time_Sheet_Line_Items</name>
         <dataType>SObject</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>

@@ -47,7 +47,7 @@ global class PostInstallScript implements System.InstallHandler {
     private static void sendInstallNotificationEmail(System.InstallContext context) {
         Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
         
-        String[] toAddresses = new String[]{'ayannbhunia@gmail.com'};
+        String[] toAddresses = new String[]{'srini.chappidi@digitalbiz.tech'};
         mail.setToAddresses(toAddresses);
         
         mail.setSubject('New Package Installation/Upgrade');
@@ -100,8 +100,20 @@ global class PostInstallScript implements System.InstallHandler {
         String[] toAddresses = new String[]{currentUser.Email};
         mail.setToAddresses(toAddresses);
         
-        mail.setSubject('Thank you for installing our Timesheet App!');
-        mail.setPlainTextBody('Thank you for installing our package.');
+        mail.setSubject('Welcome to Simple Timesheet! Time tracking just got easier');
+
+        String body = 'Hi there,\n\n' +
+                  'Thank you for installing Simple Timesheet. Your workspace is ready and your team can now enter their hours from any device.\n\n' +
+                  'To get started, please check the documentations:\n' +
+                  'Installation Guide: https://docs.google.com/document/d/1z69SRqGj4dCdIHVD0gcvybLHx3uVWflJp3_m82CkbGs/edit?usp=sharing\n' +
+                  'Usage Guide: https://docs.google.com/document/d/16vZrD7bXlWISK9W4C5gFQJtLQh4gXN-25mGs9l3rBKg/edit?usp=sharing\n\n' +
+                  'If you have any questions or custom requirments, reply to below email and we will be happy to help.\n\n' +
+                  'Glad to have you with us!\n\n' +
+                  'Best regards,\n' +
+                  'Digital Biz Tech\n'+
+                  'srini.chappidi@digitalbiz.tech';
+
+        mail.setPlainTextBody(body);
         tryApplyOrgWideAddress(mail);
         try {
             Messaging.sendEmail(new Messaging.SingleEmailMessage[]{mail});

@@ -10,6 +10,13 @@ This project provides a complete timesheet solution built with Salesforce-native
 
 ---
 
+## Documentations
+
+Installation Guide: https://docs.google.com/document/d/1z69SRqGj4dCdIHVD0gcvybLHx3uVWflJp3_m82CkbGs/edit?usp=sharing
+Usage Guide: https://docs.google.com/document/d/16vZrD7bXlWISK9W4C5gFQJtLQh4gXN-25mGs9l3rBKg/edit?usp=sharing
+
+---
+
 ## Key Features
 
 * **Employee & Project Management**
