@@ -3,6 +3,7 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { refreshApex } from '@salesforce/apex';
 import getWeeklyTimesheetItems from '@salesforce/apex/WeeklyTimesheetController.getWeeklyTimesheetItems';
 import getProjects from '@salesforce/apex/WeeklyTimesheetController.getProjects';
+import getProjectActivities from '@salesforce/apex/WeeklyTimesheetController.getProjectActivities';
 import getTimesheet from '@salesforce/apex/WeeklyTimesheetController.getTimesheet';
 import getEmployeeTimesheetItems from '@salesforce/apex/WeeklyTimesheetController.getEmployeeTimesheetItems';
 import upsertLineItems from '@salesforce/apex/WeeklyTimesheetController.upsertLineItems';
@@ -69,9 +70,14 @@ export default class TestLineItem extends LightningElement {
     @api recordId;
     @track projectsList = [];
     @track projectOptions = [];
+    // Common Activity picklist options from field metadata
     @track activityOptions= [];
+    // Map of projectId -> array of activity option objects
+    ProjectActivityMap;
     @track absenceList = [];
     @track absenceOptions = [];
+    projectIds = [];
+    
 
     @track prevTimesheets= [];
     prevTimesheetValue;
@@ -106,6 +112,7 @@ export default class TestLineItem extends LightningElement {
     })
     wiredActivityPicklistValues({ error, data }) {
         if (data) {
+            // Store the common picklist options
             this.activityOptions = data.values.map(item => ({
                 label: item.label,
                 value: item.value
@@ -259,10 +266,53 @@ export default class TestLineItem extends LightningElement {
                     billable: proj.dbt__Project__r?.dbt__Billable__c,
                     hourly_rate: proj.dbt__Hourly_Rate__c || 0 
                 }));
+                this.projectIds = result.map(proj => proj.dbt__Project__c);
+            })
+            .then(() => {
+                getProjectActivities({ projectIds: this.projectIds })
+                    .then(result => {
+                        console.log('Project Activities:', JSON.stringify(result));
+                        // Build a map of projectId -> array of option objects
+                        this.ProjectActivityMap = new Map();
+                        result.forEach(item => {
+                            const pid = item.dbt__Project__c;
+                            const arr = this.ProjectActivityMap.get(pid) || [];
+                            arr.push({ label: item.Name, value: item.Name });
+                            this.ProjectActivityMap.set(pid, arr);
+                        });
+
+                        // After loading project activities, refresh per-row activity options
+                        if (Array.isArray(this.projectsList) && this.projectsList.length) {
+                            this.projectsList = this.projectsList.map(row => ({
+                                ...row,
+                                activityOptions: this.getActivityOptionsForProject(row.projectName)
+                            }));
+                        }
+                        console.log('ProjectActivityMap ready');
+                    })
             })
             .catch(error => {
                 console.error(error);
             });
+    }
+
+    // Merge common options with project-specific ones (deduped by value)
+    getActivityOptionsForProject(projectId) {
+        const common = Array.isArray(this.activityOptions) ? this.activityOptions : [];
+        const specific = (this.ProjectActivityMap && projectId && this.ProjectActivityMap.get(projectId)) || [];
+        // If no project-specific options, just return common
+        if (!specific.length) return common;
+        // Merge with project-specific first, then common, with de-dup by value
+        const seen = new Set();
+        const merged = [];
+        [...specific, ...common].forEach(opt => {
+            const key = opt.value;
+            if (!seen.has(key)) {
+                seen.add(key);
+                merged.push(opt);
+            }
+        });
+        return merged;
     }
 
     processTimesheetData(data,includeId) {
@@ -323,7 +373,10 @@ export default class TestLineItem extends LightningElement {
 
         });
 
-        this.projectsList = Object.values(attendanceData);
+        this.projectsList = Object.values(attendanceData).map(row => ({
+            ...row,
+            activityOptions: this.getActivityOptionsForProject(row.projectName)
+        }));
         this.absenceList = Object.values(absenceData);
 
         if(this.projectsList.length === 0) {
@@ -355,6 +408,8 @@ export default class TestLineItem extends LightningElement {
                 activityName: "",
                 billable: "",
                 hourlyRate: 0,
+                // Default to common options; per-row options update when project changes
+                activityOptions: Array.isArray(this.activityOptions) ? this.activityOptions : [],
                 dates
             };
         } else {
@@ -410,14 +465,24 @@ export default class TestLineItem extends LightningElement {
        // Apply change since it's valid
         currentRow[fieldName] = newValue;
 
-        // find the project from projectoption label same as newvalue
+        if (fieldName === 'projectName') {
+            // Update billable/hourly based on the selected project
         const selectedProject = this.projectOptions.find(option => option.value === newValue);
         if (selectedProject) {
             currentRow.billable = selectedProject.billable;
             currentRow.hourlyRate = selectedProject.hourly_rate;
         }
+            // Refresh per-row activity options for this project
+            currentRow.activityOptions = this.getActivityOptionsForProject(newValue);
+            // If current activity is not in new options, clear it
+            const stillValid = currentRow.activityOptions?.some(opt => opt.value === currentRow.activityName);
+            if (!stillValid) {
+                currentRow.activityName = '';
+            }
+        }
         
-        // calculate totals
+        // Reassign array reference to trigger reactivity and recalc totals
+        this.projectsList = [...this.projectsList];
         this.calculateTotals();
     }
 

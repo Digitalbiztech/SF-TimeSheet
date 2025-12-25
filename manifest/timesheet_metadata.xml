@@ -62,6 +62,7 @@
         <members>Employee__c.No_of_Vacations_Taken__c</members>
         <members>Employee__c.Phone_Number__c</members>
         <members>Employee__c.User__c</members>
+        <members>Project_Activity__c.Project__c</members>
         <members>Project_Charge_code__c.Charge_Code__c</members>
         <members>Project_Charge_code__c.Description__c</members>
         <members>Project_Charge_code__c.End_Date__c</members>
@@ -118,6 +119,7 @@
     <types>
         <members>Charge_Code__c</members>
         <members>Employee__c</members>
+        <members>Project_Activity__c</members>
         <members>Project_Charge_code__c</members>
         <members>Project_Employee__c</members>
         <members>Project__c</members>
