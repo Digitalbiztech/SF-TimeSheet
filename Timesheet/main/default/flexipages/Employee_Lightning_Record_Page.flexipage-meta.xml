@@ -117,6 +117,18 @@
                 <identifier>RecordEmployment_Type__cField</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldItem>Record.Accrual_Divisor__c</fieldItem>
+                <identifier>RecordAccrual_Divisor__cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldItem>Record.Total_Accrued_Hours__c</fieldItem>
+                <identifier>RecordTotal_Accrued_Hours__cField</identifier>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-e9cc82ed-d71f-49d2-97f4-2c7d97e866c6</name>
         <type>Facet</type>
     </flexiPageRegions>

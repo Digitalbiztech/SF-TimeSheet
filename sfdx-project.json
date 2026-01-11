@@ -1,16 +1,12 @@
 {
   "packageDirectories": [
     {
-      "path": "force-app",
-      "default": true
-    },
-    {
       "path": "Timesheet",
       "package": "Timesheet",
       "versionName": "ver 2.0",
-      "versionNumber": "2.6.0.NEXT",
-      "ancestorVersion": "2.5.0",
-      "default": false,
+      "versionNumber": "2.7.0.NEXT",
+      "ancestorVersion": "2.6.0",
+      "default": true,
       "versionDescription": ""
     },
     {
@@ -77,6 +73,8 @@
     "Timesheet@2.4.0-1": "04tKb0000011N8qIAE",
     "Timesheet@2.5.0-1": "04tKb0000011N9KIAU",
     "Timesheet@2.6.0-1": "04tKb0000011NA3IAM",
-    "TimesheetUnlocked@0.1.0-8": "04tKb0000011NADIA2"
+    "TimesheetUnlocked@0.1.0-8": "04tKb0000011NADIA2",
+    "Timesheet@2.7.0-9": "04tKb0000011NCJIA2",
+    "Timesheet@2.7.0-10": "04tKb0000011NCOIA2"
   }
 }
