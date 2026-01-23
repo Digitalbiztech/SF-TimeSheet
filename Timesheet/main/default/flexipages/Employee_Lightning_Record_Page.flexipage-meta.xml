@@ -129,6 +129,12 @@
                 <identifier>RecordTotal_Accrued_Hours__cField</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldItem>Record.Accrual_Start_Date__c</fieldItem>
+                <identifier>Recorddbt__Accrual_Start_Date__cField</identifier>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-e9cc82ed-d71f-49d2-97f4-2c7d97e866c6</name>
         <type>Facet</type>
     </flexiPageRegions>

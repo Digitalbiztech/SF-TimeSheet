@@ -115,22 +115,22 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Employee__c.Accrual_Divisor__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Employee__c.Accrual_Start_Date__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Employee__c.Active__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>dbt__Employee__c.Accrual_Divisor__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
         <field>Employee__c.Address__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>dbt__Employee__c.Total_Accrued_Hours__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -191,6 +191,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Employee__c.Phone_Number__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Employee__c.Total_Accrued_Hours__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -295,7 +300,7 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>dbt__Timesheet__c.Accrued_Hours__c</field>
+        <field>Timesheet__c.Accrued_Hours__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

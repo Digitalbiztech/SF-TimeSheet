@@ -51,6 +51,10 @@
                 <behavior>Edit</behavior>
                 <field>Total_Accrued_Hours__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Accrual_Start_Date__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
