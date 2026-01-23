@@ -4,7 +4,7 @@
       "path": "Timesheet",
       "package": "Timesheet",
       "versionName": "ver 2.0",
-      "versionNumber": "2.9.0.NEXT",
+      "versionNumber": "2.10.0.NEXT",
       "ancestorVersion": "2.8.0",
       "default": true,
       "versionDescription": ""
@@ -79,6 +79,7 @@
     "Timesheet@2.8.0-3": "04tKb0000011NCTIA2",
     "TimesheetUnlocked@0.1.0-10": "04tKb0000011NHPIA2",
     "Timesheet@2.9.0-1": "04tKb0000011NHUIA2",
-    "TimesheetUnlocked@0.1.0-11": "04tKb0000011NHZIA2"
+    "TimesheetUnlocked@0.1.0-11": "04tKb0000011NHZIA2",
+    "Timesheet@2.10.0-1": "04tKb0000011NHjIAM"
   }
 }
