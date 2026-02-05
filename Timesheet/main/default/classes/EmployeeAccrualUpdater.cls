@@ -9,7 +9,7 @@ public with sharing class EmployeeAccrualUpdater {
             List<dbt__Employee__c> employeesToUpdate = new List<dbt__Employee__c>();
             
             AggregateResult[] results = [
-                SELECT dbt__Employee__c, SUM(Accrued_Hours__c) totalAccrued
+                SELECT dbt__Employee__c, SUM(Accrued_Hours__c) totalAccrued, SUM(dbt__Absence_Hours__c) totalAbsence
                 FROM dbt__Timesheet__c 
                 WHERE dbt__Employee__c IN :empIds 
                 AND dbt__Status__c = 'Approved'
@@ -17,9 +17,11 @@ public with sharing class EmployeeAccrualUpdater {
             ];
 
             for (AggregateResult ar : results) {
+                Decimal absence = (Decimal)ar.get('totalAbsence');
                 employeesToUpdate.add(new dbt__Employee__c(
                     Id = (Id)ar.get('dbt__Employee__c'),
-                    Total_Accrued_Hours__c = (Decimal)ar.get('totalAccrued')
+                    Total_Accrued_Hours__c = (Decimal)ar.get('totalAccrued'),
+                    Total_Absence_Hours__c = (absence == null ? 0 : absence)
                 ));
             }
             

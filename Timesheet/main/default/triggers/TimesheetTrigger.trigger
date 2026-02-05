@@ -76,8 +76,11 @@ trigger TimesheetTrigger on dbt__Timesheet__c (before insert, before update, aft
                     
                     boolean statusChanged = (ts.dbt__Status__c != oldTs.dbt__Status__c) && 
                                             (ts.dbt__Status__c == 'Approved' || oldTs.dbt__Status__c == 'Approved');
+                    
+                    boolean absenceChanged = (ts.dbt__Absence_Hours__c != oldTs.dbt__Absence_Hours__c) &&
+                                             (ts.dbt__Status__c == 'Approved');
 
-                    if (statusChanged) {
+                    if (statusChanged || absenceChanged) {
                         isRelevantChange = true;
                     }
                 }
@@ -99,15 +102,17 @@ trigger TimesheetTrigger on dbt__Timesheet__c (before insert, before update, aft
         if (!empIdsToUpdate.isEmpty()) {
             List<dbt__Employee__c> employeesToUpdate = new List<dbt__Employee__c>();
             Map<Id, Decimal> empTotalMap = new Map<Id, Decimal>();
+            Map<Id, Decimal> empAbsenceMap = new Map<Id, Decimal>();
 
             for(Id empId : empIdsToUpdate){
                 empTotalMap.put(empId, 0);
+                empAbsenceMap.put(empId, 0);
             }
 
             // Integer currentYear = System.Today().year();
             
             AggregateResult[] results = [
-                SELECT dbt__Employee__c, SUM(Accrued_Hours__c) totalAccrued
+                SELECT dbt__Employee__c, SUM(Accrued_Hours__c) totalAccrued, SUM(dbt__Absence_Hours__c) totalAbsence
                 FROM dbt__Timesheet__c 
                 WHERE dbt__Employee__c IN :empIdsToUpdate 
                 AND dbt__Status__c = 'Approved'
@@ -117,13 +122,16 @@ trigger TimesheetTrigger on dbt__Timesheet__c (before insert, before update, aft
             for (AggregateResult ar : results) {
                 Id empId = (Id)ar.get('dbt__Employee__c');
                 Decimal total = (Decimal)ar.get('totalAccrued');
+                Decimal absence = (Decimal)ar.get('totalAbsence');
                 empTotalMap.put(empId, total);
+                empAbsenceMap.put(empId, absence == null ? 0 : absence);
             }
 
             for (Id empId : empTotalMap.keySet()) {
                 dbt__Employee__c emp = new dbt__Employee__c();
                 emp.Id = empId;
                 emp.Total_Accrued_Hours__c = empTotalMap.get(empId);
+                emp.Total_Absence_Hours__c = empAbsenceMap.get(empId);
                 employeesToUpdate.add(emp);
             }
 
