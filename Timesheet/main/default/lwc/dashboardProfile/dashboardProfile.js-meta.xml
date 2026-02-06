@@ -13,7 +13,7 @@
                 default="Name,PhoneNumber,Email,HireDate,LastWorkingDate"
                 description="Enter fields for first column (comma-separated)" />
             <property name="column2Fields" type="String" label="Column 2 Fields"
-                default="ClientManager,ClientManagerEmail,Projects"
+                default="ClientManager,ClientManagerEmail,Projects,AccruedHours,AbsenceHours,AbsenceHoursAvailable"
                 description="Enter fields for second column (comma-separated)" />
             <property name="column3Fields" type="String" label="Column 3 Fields"
                 default="TotalBillableHours,TotalNonBillableHours,TotalAbsenceHours,TotalHours,VacationsTaken"

@@ -195,6 +195,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Employee__c.Total_Absence_Hours_Available__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Employee__c.Total_Absence_Hours__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -321,6 +326,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Timesheet__c.End_Date__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Timesheet__c.Holiday_Hours__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

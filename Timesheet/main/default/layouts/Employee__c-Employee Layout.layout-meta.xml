@@ -59,6 +59,10 @@
                 <behavior>Edit</behavior>
                 <field>Total_Absence_Hours__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Readonly</behavior>
+                <field>Total_Absence_Hours_Available__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>

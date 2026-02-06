@@ -39,7 +39,7 @@ public with sharing class GetDashboardProfileDetails {
      */
     private static Employee__c getEmployeeRecord(Id userID) {
         return [
-            SELECT Id, Name, Client_Manager__r.Name, Client_Manager_email__c,Email__c,Hire_Date__c,Last_Working_Date__c,No_of_Vacations_Taken__c,Phone_Number__c,
+            SELECT Id, Name, Client_Manager__r.Name, Client_Manager_email__c,Email__c,Hire_Date__c,Last_Working_Date__c,No_of_Vacations_Taken__c,Phone_Number__c,Total_Accrued_Hours__c,Total_Absence_Hours__c,Total_Absence_Hours_Available__c,
                 (SELECT Project_Name__c FROM Project_Employees__r)
             FROM Employee__c
             WHERE User__c = :userID
@@ -86,6 +86,11 @@ public with sharing class GetDashboardProfileDetails {
         resultData.put('LastWorkingDate', emp.Last_Working_Date__c);
         resultData.put('VacationsTaken', emp.No_of_Vacations_Taken__c);
         resultData.put('PhoneNumber', emp.Phone_Number__c);
+
+        // Accrued and Absence Hours
+        resultData.put('AccruedHours', emp.Total_Accrued_Hours__c != null ? emp.Total_Accrued_Hours__c.setScale(2) : null);
+        resultData.put('AbsenceHours', emp.Total_Absence_Hours__c != null ? emp.Total_Absence_Hours__c.setScale(2) : null);
+        resultData.put('AbsenceHoursAvailable', emp.Total_Absence_Hours_Available__c != null ? emp.Total_Absence_Hours_Available__c.setScale(2) : null);
         
         // Project information
         List<String> projectNames = new List<String>();

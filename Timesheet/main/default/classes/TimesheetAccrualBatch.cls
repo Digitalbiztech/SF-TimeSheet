@@ -1,4 +1,4 @@
-public class TimesheetAccrualBatch implements Database.Batchable<sObject> {
+global class TimesheetAccrualBatch implements Database.Batchable<sObject> {
 
     public Database.QueryLocator start(Database.BatchableContext BC) {
         return Database.getQueryLocator([
@@ -90,5 +90,5 @@ public class TimesheetAccrualBatch implements Database.Batchable<sObject> {
 }
 
 
-// dbt.TimesheetAccrualBatch batch = new dbt.TimesheetAccrualBatch();
+// TimesheetAccrualBatch batch = new TimesheetAccrualBatch();
 // Database.executeBatch(batch, 200);
