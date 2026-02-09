@@ -5,6 +5,7 @@
 
 import { LightningElement, api, track, wire } from 'lwc';
 import getEmployeeDetails from '@salesforce/apex/GetDashboardProfileDetails.getEmployeeDetails';
+import getProfileConfig from '@salesforce/apex/GetDashboardProfileDetails.getProfileConfig';
 import USER_ID from '@salesforce/user/Id';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
@@ -13,11 +14,20 @@ import { subscribe, MessageContext } from 'lightning/messageService';
 import SELECTED_USER_CHANNEL from '@salesforce/messageChannel/UserChannel__c';
 
 export default class dashboardProfile extends LightningElement {
-    // Public properties for component configuration
-    @api showNullFields;     // Controls visibility of null field values
-    @api column1Fields;      // Comma-separated list of fields for first column
-    @api column2Fields;      // Comma-separated list of fields for second column
-    @api column3Fields;      // Comma-separated list of fields for third column
+    // Property for App Builder help text
+    @api configHelp;
+
+    // Legacy properties required for package compatibility (Not used in logic)
+    @api showNullFields;
+    @api column1Fields;
+    @api column2Fields;
+    @api column3Fields;
+
+    // Internal Configuration properties from Custom Metadata
+    _showNullFields;     // Controls visibility of null field values
+    _column1Fields;      // Comma-separated list of fields for first column
+    _column2Fields;      // Comma-separated list of fields for second column
+    _column3Fields;      // Comma-separated list of fields for third column
     
     // Private properties for data storage
     column1Data = [];        // Processed data for first column
@@ -31,6 +41,20 @@ export default class dashboardProfile extends LightningElement {
 
     subscription = null;
     selectedUserId = USER_ID; // Initialize with current user's ID
+
+    // Fetch configuration from Custom Metadata
+    @wire(getProfileConfig)
+    wiredConfig({ error, data }) {
+        if (data) {
+            this._column1Fields = data.dbt__Column_1_Fields__c;
+            this._column2Fields = data.dbt__Column_2_Fields__c;
+            this._column3Fields = data.dbt__Column_3_Fields__c;
+            this._showNullFields = data.dbt__Show_Null_Fields__c;
+            this.processFieldOrder();
+        } else if (error) {
+            console.error('Error loading profile config', error);
+        }
+    }
 
     /**
      * @description Lifecycle hook when component is inserted into the DOM
@@ -92,14 +116,14 @@ export default class dashboardProfile extends LightningElement {
      */
     processFieldOrder() {
         if (this.employeeData) {
-            if (this.column1Fields) {
-                this.column1Data = this.processColumnFields(this.column1Fields);
+            if (this._column1Fields) {
+                this.column1Data = this.processColumnFields(this._column1Fields);
             }
-            if (this.column2Fields) {
-                this.column2Data = this.processColumnFields(this.column2Fields);
+            if (this._column2Fields) {
+                this.column2Data = this.processColumnFields(this._column2Fields);
             }
-            if (this.column3Fields) {
-                this.column3Data = this.processColumnFields(this.column3Fields);
+            if (this._column3Fields) {
+                this.column3Data = this.processColumnFields(this._column3Fields);
             }
         }
     }
@@ -113,7 +137,7 @@ export default class dashboardProfile extends LightningElement {
         let fields = fieldString.split(',').map(field => field.trim());
         
         // Filter out null fields if showNullFields is false
-        if (!this.showNullFields) {
+        if (!this._showNullFields) {
             fields = fields.filter(field => this.employeeData[field] != null);
         }
         

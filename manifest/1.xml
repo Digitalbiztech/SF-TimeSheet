@@ -82,6 +82,10 @@
         <members>Timesheet_Default_Value__mdt.Maximum_Working_Hrs_Per_Day__c</members>
         <members>Timesheet_Default_Value__mdt.Working_Days_per_Week__c</members>
         <members>Timesheet_Default_Value__mdt.Working_Hours_Per_Day__c</members>
+        <members>Dashboard_Profile_Config__mdt.Column_1_Fields__c</members>
+        <members>Dashboard_Profile_Config__mdt.Column_2_Fields__c</members>
+        <members>Dashboard_Profile_Config__mdt.Column_3_Fields__c</members>
+        <members>Dashboard_Profile_Config__mdt.Show_Null_Fields__c</members>
         <members>Timesheet_Line_Item__c.Absence_Category__c</members>
         <members>Timesheet_Line_Item__c.Activity__c</members>
         <members>Timesheet_Line_Item__c.Billable_Amount__c</members>
@@ -112,6 +116,7 @@
     </types>
     <types>
         <members>Timesheet_Default_Value.Default_Values</members>
+        <members>Dashboard_Profile_Config.Default_Value</members>
         <name>CustomMetadata</name>
     </types>
     <types>
@@ -126,6 +131,7 @@
         <members>Project_Employee__c</members>
         <members>Project__c</members>
         <members>Timesheet_Default_Value__mdt</members>
+        <members>Dashboard_Profile_Config__mdt</members>
         <members>Timesheet_Line_Item__c</members>
         <members>Timesheet__c</members>
         <name>CustomObject</name>
@@ -184,6 +190,7 @@
         <members>Project_Employee__c-Project Employee Layout</members>
         <members>Project__c-Project Layout</members>
         <members>Timesheet_Default_Value__mdt-TimeSheet Value Layout</members>
+        <members>Dashboard_Profile_Config__mdt-Dashboard Profile Config Layout</members>
         <members>Timesheet_Line_Item__c-Timesheet Line Item Layout</members>
         <members>Timesheet__c-Timesheet Layout</members>
         <name>Layout</name>

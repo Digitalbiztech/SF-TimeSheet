@@ -33,6 +33,21 @@ public with sharing class GetDashboardProfileDetails {
     }
     
     /**
+     * @description Retrieves dashboard profile configuration from Custom Metadata
+     * @return Dashboard_Profile_Config__mdt The configuration record
+     */
+    @AuraEnabled(cacheable=true)
+    public static Dashboard_Profile_Config__mdt getProfileConfig() {
+        return [
+            SELECT Column_1_Fields__c, Column_2_Fields__c, Column_3_Fields__c, Show_Null_Fields__c
+            FROM Dashboard_Profile_Config__mdt
+            WHERE DeveloperName = 'Default_Value'
+            WITH SECURITY_ENFORCED
+            LIMIT 1
+        ];
+    }
+    
+    /**
      * @description Retrieves employee record with related project information
      * @param userID The ID of the user
      * @return Employee__c Employee record with related data
@@ -88,9 +103,9 @@ public with sharing class GetDashboardProfileDetails {
         resultData.put('PhoneNumber', emp.Phone_Number__c);
 
         // Accrued and Absence Hours
-        resultData.put('AccruedHours', emp.Total_Accrued_Hours__c != null ? emp.Total_Accrued_Hours__c.setScale(2) : null);
-        resultData.put('AbsenceHours', emp.Total_Absence_Hours__c != null ? emp.Total_Absence_Hours__c.setScale(2) : null);
-        resultData.put('AbsenceHoursAvailable', emp.Total_Absence_Hours_Available__c != null ? emp.Total_Absence_Hours_Available__c.setScale(2) : null);
+        resultData.put('ApprovedAccruedHours', emp.Total_Accrued_Hours__c != null ? emp.Total_Accrued_Hours__c.setScale(2) : null);
+        resultData.put('ApprovedAbsenceHours', emp.Total_Absence_Hours__c != null ? emp.Total_Absence_Hours__c.setScale(2) : null);
+        resultData.put('ApprovedAbsenceHoursAvailable', emp.Total_Absence_Hours_Available__c != null ? emp.Total_Absence_Hours_Available__c.setScale(2) : null);
         
         // Project information
         List<String> projectNames = new List<String>();
