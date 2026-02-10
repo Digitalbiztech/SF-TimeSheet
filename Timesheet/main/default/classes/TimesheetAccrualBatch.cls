@@ -22,6 +22,7 @@ global class TimesheetAccrualBatch implements Database.Batchable<sObject> {
 
         Map<Id, Decimal> empDivisorMap = new Map<Id, Decimal>();
         Map<Id, Date> empAccrualStartMap = new Map<Id, Date>();
+        Date minAccrualDate;
         
         if (!empIdsForDivisor.isEmpty()) {
             for (dbt__Employee__c emp : [
@@ -31,18 +32,26 @@ global class TimesheetAccrualBatch implements Database.Batchable<sObject> {
             ]) {
                 empDivisorMap.put(emp.Id, emp.Accrual_Divisor__c);
                 empAccrualStartMap.put(emp.Id, emp.dbt__Accrual_Start_Date__c);
+                if (emp.dbt__Accrual_Start_Date__c != null) {
+                    if (minAccrualDate == null || emp.dbt__Accrual_Start_Date__c < minAccrualDate) {
+                        minAccrualDate = emp.dbt__Accrual_Start_Date__c;
+                    }
+                }
             }
         }
 
         Map<Id, Decimal> timesheetToBillableHours = new Map<Id, Decimal>();
         
-        if (!timesheetIds.isEmpty()) {
+        if (!timesheetIds.isEmpty() && minAccrualDate != null) {
             List<dbt__Timesheet_Line_Item__c> lineItems = [
                 SELECT dbt__Timesheet__c, dbt__Duration__c, dbt__Date__c, dbt__Employee__c
                 FROM dbt__Timesheet_Line_Item__c
                 WHERE dbt__Timesheet__c IN :timesheetIds
                 AND dbt__Billable__c = 'Yes'
                 AND dbt__Type__c = 'Attendance'
+                AND dbt__Date__c >= :minAccrualDate
+                AND dbt__Employee__c != NULL
+                AND dbt__Timesheet__r.dbt__Employee__r.dbt__Accrual_Start_Date__c != NULL
             ];
 
             for (dbt__Timesheet_Line_Item__c li : lineItems) {
@@ -90,5 +99,5 @@ global class TimesheetAccrualBatch implements Database.Batchable<sObject> {
 }
 
 
-// TimesheetAccrualBatch batch = new TimesheetAccrualBatch();
+// dbt.TimesheetAccrualBatch batch = new dbt.TimesheetAccrualBatch();
 // Database.executeBatch(batch, 200);

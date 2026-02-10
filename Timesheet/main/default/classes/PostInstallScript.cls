@@ -8,7 +8,7 @@ global class PostInstallScript implements System.InstallHandler {
 
         // 3. Update old Employee records to save Employment Type as 'Full Time'
         if (context.isUpgrade()) {
-            updateOldEmployeeRecords();
+            updateEmployeeRecords();
         }
     }
 
@@ -122,21 +122,34 @@ global class PostInstallScript implements System.InstallHandler {
         }
     }
 
-    private static void updateOldEmployeeRecords() {
-        List<Employee__c> oldEmployees = [
-                select id  
-                from Employee__c 
-                where Employment_Type__c = '' 
+    private static void updateEmployeeRecords() {
+        List<Employee__c> employeesToUpdate = [
+                SELECT Id, Employment_Type__c, Total_Accrued_Hours__c, Total_Absence_Hours__c 
+                FROM Employee__c 
+                WHERE Employment_Type__c = '' 
+                OR Total_Accrued_Hours__c = NULL 
+                OR Total_Absence_Hours__c = NULL 
                 WITH SECURITY_ENFORCED
             ];
-        for (Employee__c emp : oldEmployees) {
-            emp.Employment_Type__c = 'Full Time';
+        
+        for (Employee__c emp : employeesToUpdate) {
+            if (String.isBlank(emp.Employment_Type__c)) {
+                emp.Employment_Type__c = 'Full Time';
+            }
+            if (emp.Total_Accrued_Hours__c == null) {
+                emp.Total_Accrued_Hours__c = 0;
+            }
+            if (emp.Total_Absence_Hours__c == null) {
+                emp.Total_Absence_Hours__c = 0;
+            }
         }
 
-        try {
-            update oldEmployees;
-        } catch (Exception e) {
-            System.debug('updateOldEmployeeRecords failed: ' + e.getMessage());
+        if (!employeesToUpdate.isEmpty()) {
+            try {
+                update employeesToUpdate;
+            } catch (Exception e) {
+                System.debug('updateEmployeeRecords failed: ' + e.getMessage());
+            }
         }
     }
 }
