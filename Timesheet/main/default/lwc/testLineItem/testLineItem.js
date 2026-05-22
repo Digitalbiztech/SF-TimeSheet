@@ -487,36 +487,7 @@ export default class TestLineItem extends LightningElement {
     }
 
     handleKeyDown(event) {
-        if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
-            event.preventDefault();
-            
-            const rowIndex = event.target.dataset.rowIndex;
-            const dayIndex = event.target.dataset.dayIndex;
-            const dataFor = event.target.getAttribute('data-for');
-            let currentValue = parseFloat(event.target.value) || 0;
-            
-            if (event.key === 'ArrowUp') {
-                currentValue += 0.5;
-            } else if (event.key === 'ArrowDown') {
-                currentValue -= 0.5;
-            }
-
-            if (currentValue < 0) currentValue = 0;
-            if (currentValue > 24) currentValue = 24;
-            
-            event.target.value = currentValue;
-
-            // Create a synthetic event to pass to handleDurationChange
-            const syntheticEvent = {
-                target: {
-                    dataset: { rowIndex, dayIndex },
-                    getAttribute: (attr) => attr === 'data-for' ? dataFor : null,
-                    value: currentValue
-                }
-            };
-            
-            this.handleDurationChange(syntheticEvent);
-        }
+        // Feature temporarily disabled.
     }
 
     handleDurationChange(event) {
