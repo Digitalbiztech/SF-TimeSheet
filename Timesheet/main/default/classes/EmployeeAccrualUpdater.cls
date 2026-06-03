@@ -14,15 +14,19 @@ global with sharing class EmployeeAccrualUpdater {
 
         if(!empIds.isEmpty()) {
             Map<Id, Date> empAccrualStartMap = new Map<Id, Date>();
+            Map<Id, Decimal> empExtraAccruedMap = new Map<Id, Decimal>();
+            Map<Id, Decimal> empExtraAbsenceMap = new Map<Id, Decimal>();
             Date minAccrualDate;
             
             for (dbt__Employee__c emp : [
-                SELECT Id, dbt__Accrual_Start_Date__c 
+                SELECT Id, dbt__Accrual_Start_Date__c, Extra_Accrued_Hours__c, Extra_Absence_Hours__c
                 FROM dbt__Employee__c 
                 WHERE Id IN :empIds
                 AND dbt__Accrual_Start_Date__c != NULL
             ]) {
                 empAccrualStartMap.put(emp.Id, emp.dbt__Accrual_Start_Date__c);
+                empExtraAccruedMap.put(emp.Id, emp.Extra_Accrued_Hours__c != null ? emp.Extra_Accrued_Hours__c : 0);
+                empExtraAbsenceMap.put(emp.Id, emp.Extra_Absence_Hours__c != null ? emp.Extra_Absence_Hours__c : 0);
                 if (minAccrualDate == null || emp.dbt__Accrual_Start_Date__c < minAccrualDate) {
                     minAccrualDate = emp.dbt__Accrual_Start_Date__c;
                 }
@@ -33,8 +37,8 @@ global with sharing class EmployeeAccrualUpdater {
                 Map<Id, Decimal> empTotalAbsenceMap = new Map<Id, Decimal>();
 
                 for(Id empId : empAccrualStartMap.keySet()){
-                    empTotalAccruedMap.put(empId, 0);
-                    empTotalAbsenceMap.put(empId, 0);
+                    empTotalAccruedMap.put(empId, empExtraAccruedMap.get(empId));
+                    empTotalAbsenceMap.put(empId, empExtraAbsenceMap.get(empId));
                 }
 
                 for (dbt__Timesheet__c ts : [
