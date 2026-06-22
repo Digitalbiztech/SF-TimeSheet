@@ -1,16 +1,12 @@
 {
   "packageDirectories": [
     {
-      "path": "force-app",
-      "default": true
-    },
-    {
       "path": "Timesheet",
       "package": "Timesheet",
       "versionName": "ver 2.0",
-      "versionNumber": "2.5.0.NEXT",
-      "ancestorVersion": "2.3.0",
-      "default": false,
+      "versionNumber": "2.19.0.NEXT",
+      "ancestorVersion": "2.18.0",
+      "default": true,
       "versionDescription": ""
     },
     {
@@ -75,6 +71,25 @@
     "TimesheetUnlocked@0.1.0-7": "04tKb0000011N45IAE",
     "Timesheet@2.3.0-1": "04tKb0000011N4KIAU",
     "Timesheet@2.4.0-1": "04tKb0000011N8qIAE",
-    "Timesheet@2.5.0-1": "04tKb0000011N9KIAU"
+    "Timesheet@2.5.0-1": "04tKb0000011N9KIAU",
+    "Timesheet@2.6.0-1": "04tKb0000011NA3IAM",
+    "TimesheetUnlocked@0.1.0-8": "04tKb0000011NADIA2",
+    "Timesheet@2.7.0-9": "04tKb0000011NCJIA2",
+    "Timesheet@2.7.0-10": "04tKb0000011NCOIA2",
+    "Timesheet@2.8.0-3": "04tKb0000011NCTIA2",
+    "TimesheetUnlocked@0.1.0-10": "04tKb0000011NHPIA2",
+    "Timesheet@2.9.0-1": "04tKb0000011NHUIA2",
+    "TimesheetUnlocked@0.1.0-11": "04tKb0000011NHZIA2",
+    "Timesheet@2.10.0-1": "04tKb0000011NHjIAM",
+    "Timesheet@2.11.0-1": "04tKb0000011NIIIA2",
+    "Timesheet@2.12.0-1": "04tKb0000011NIcIAM",
+    "Timesheet@2.13.0-1": "04tKb0000011NIhIAM",
+    "Timesheet@2.14.0-1": "04tKb0000011NImIAM",
+    "TimesheetUnlocked@0.1.0-12": "04tKb0000011NIrIAM",
+    "Timesheet@2.15.0-1": "04tKb0000011NIwIAM",
+    "Timesheet@2.16.0-1": "04tKb000000tBfdIAE",
+    "Timesheet@2.17.0-1": "04tKb000000tBfiIAE",
+    "Timesheet@2.18.0-1": "04tKb000000tBfnIAE",
+    "Timesheet@2.19.0-1": "04tKb000000tBggIAE"
   }
 }

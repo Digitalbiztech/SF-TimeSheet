@@ -87,8 +87,8 @@
                                         <div class="slds-grid slds-grid_vertical">
                                             <div class="slds-col">
                                                 <lightning-input type="number" title="Duration" value={day.dur}
-                                                    step="0.5" min="0" max="24" data-for="project"
-                                                    data-row-index={index} data-day-index={dayIndex} onchange={handleDurationChange}>
+                                                    step="0.01" min="0" max="24" data-for="project"
+                                                    data-row-index={index} data-day-index={dayIndex} onchange={handleDurationChange} onkeydown={handleKeyDown}>
                                                 </lightning-input>
                                             </div>
                                             <div class="slds-col">
@@ -131,8 +131,8 @@
                                     <td key={day.name}>
                                         <div class="slds-grid slds-grid_vertical">
                                             <div class="slds-col">
-                                                <lightning-input type="number" title="Duration" value={day.dur} step="0.5" min="0" max="24" data-for="absence"
-                                                    data-row-index={index} data-day-index={dayIndex} onchange={handleDurationChange}>
+                                                <lightning-input type="number" title="Duration" value={day.dur} step="0.01" min="0" max="24" data-for="absence"
+                                                    data-row-index={index} data-day-index={dayIndex} onchange={handleDurationChange} onkeydown={handleKeyDown}>
                                                 </lightning-input>
                                             </div>
                                             <div class="slds-col">

@@ -486,11 +486,28 @@ export default class TestLineItem extends LightningElement {
         this.calculateTotals();
     }
 
+    handleKeyDown(event) {
+        // Feature temporarily disabled.
+    }
+
     handleDurationChange(event) {
         const rowIndex = event.target.dataset.rowIndex;
         const dayIndex = event.target.dataset.dayIndex;
-        const value = parseFloat(event.target.value) || 0;
         const dataFor = event.target.getAttribute('data-for'); // "project" or "absence"
+        
+        let rawStr = String(event.target.value);
+        let wasTruncated = false;
+
+        if (rawStr.includes('.')) {
+            let parts = rawStr.split('.');
+            if (parts[1].length > 2) {
+                parts[1] = parts[1].substring(0, 2);
+                rawStr = parts.join('.');
+                wasTruncated = true;
+            }
+        }
+
+        let value = parseFloat(rawStr) || 0;
         
         let list;
         let CalculateList;
@@ -508,15 +525,23 @@ export default class TestLineItem extends LightningElement {
             return;
         }
 
-        CalculateList[dayIndex] += (value - list[rowIndex].dates[dayIndex].dur);
-        this.grandTotals[dayIndex] += (value - list[rowIndex].dates[dayIndex].dur);
+        let prevDur = parseFloat(list[rowIndex].dates[dayIndex].dur) || 0;
+
+        CalculateList[dayIndex] = parseFloat((CalculateList[dayIndex] + (value - prevDur)).toFixed(2));
+        this.grandTotals[dayIndex] = parseFloat((this.grandTotals[dayIndex] + (value - prevDur)).toFixed(2));
 
         if (dataFor === 'project') {
-            this.billableAmounts[dayIndex] = this.billableAmounts[dayIndex] + (value - list[rowIndex].dates[dayIndex].dur) * parseFloat(list[rowIndex].hourlyRate) || 0;
+            this.billableAmounts[dayIndex] = parseFloat((this.billableAmounts[dayIndex] + (value - prevDur) * parseFloat(list[rowIndex].hourlyRate)).toFixed(2)) || 0;
         }
 
         list[rowIndex].dates[dayIndex].dur = value;
         list[rowIndex].dates[dayIndex].isdisable = (value === 0);
+        
+        if (wasTruncated) {
+            try {
+                event.target.value = rawStr;
+            } catch(e) {}
+        }
     }
 
     handleDescriptionChange(event) {
@@ -707,10 +732,10 @@ export default class TestLineItem extends LightningElement {
 
                 project.dates.forEach((day, index) => {
                     const duration = parseFloat(day.dur) || 0;
-                    this.projectsTotals[index] += duration;
+                    this.projectsTotals[index] = parseFloat((this.projectsTotals[index] + duration).toFixed(2));
                     
                     if (project.billable === "Yes") {
-                        this.billableAmounts[index] += duration * parseFloat(project.hourlyRate) || 0;
+                        this.billableAmounts[index] = parseFloat((this.billableAmounts[index] + duration * parseFloat(project.hourlyRate || 0)).toFixed(2));
                     }
                 });
             });
@@ -722,13 +747,13 @@ export default class TestLineItem extends LightningElement {
         this.absenceList.forEach(absence => {
             absence.dates.forEach((day, index) => {
                 const duration = parseFloat(day.dur) || 0;
-                this.absenceTotals[index] += duration;
+                this.absenceTotals[index] = parseFloat((this.absenceTotals[index] + duration).toFixed(2));
             });
         });
 
         // Calculate Grand totals
         this.projectsTotals.forEach((total, index) => {
-            this.grandTotals[index] = total + this.absenceTotals[index];
+            this.grandTotals[index] = parseFloat((total + this.absenceTotals[index]).toFixed(2));
         });
     }
 
