@@ -33,13 +33,28 @@ public with sharing class GetDashboardProfileDetails {
     }
     
     /**
+     * @description Retrieves dashboard profile configuration from Custom Metadata
+     * @return Dashboard_Profile_Config__mdt The configuration record
+     */
+    @AuraEnabled(cacheable=true)
+    public static Dashboard_Profile_Config__mdt getProfileConfig() {
+        return [
+            SELECT Column_1_Fields__c, Column_2_Fields__c, Column_3_Fields__c, Show_Null_Fields__c
+            FROM Dashboard_Profile_Config__mdt
+            WHERE DeveloperName = 'Default_Value'
+            WITH SECURITY_ENFORCED
+            LIMIT 1
+        ];
+    }
+    
+    /**
      * @description Retrieves employee record with related project information
      * @param userID The ID of the user
      * @return Employee__c Employee record with related data
      */
     private static Employee__c getEmployeeRecord(Id userID) {
         return [
-            SELECT Id, Name, Client_Manager__r.Name, Client_Manager_email__c,Email__c,Hire_Date__c,Last_Working_Date__c,No_of_Vacations_Taken__c,Phone_Number__c,
+            SELECT Id, Name, Client_Manager__r.Name, Client_Manager_email__c,Email__c,Hire_Date__c,Last_Working_Date__c,No_of_Vacations_Taken__c,Phone_Number__c,Total_Accrued_Hours__c,Total_Absence_Hours__c,Total_Absence_Hours_Available__c,
                 (SELECT Project_Name__c FROM Project_Employees__r)
             FROM Employee__c
             WHERE User__c = :userID
@@ -84,8 +99,13 @@ public with sharing class GetDashboardProfileDetails {
         resultData.put('Email', emp.Email__c);
         resultData.put('HireDate', emp.Hire_Date__c);
         resultData.put('LastWorkingDate', emp.Last_Working_Date__c);
-        resultData.put('VacationsTaken', emp.No_of_Vacations_Taken__c);
+        resultData.put('ThisYearVacationsTaken', emp.No_of_Vacations_Taken__c);
         resultData.put('PhoneNumber', emp.Phone_Number__c);
+
+        // Accrued and Absence Hours
+        resultData.put('ApprovedAccruedHours', emp.Total_Accrued_Hours__c != null ? emp.Total_Accrued_Hours__c.setScale(2) : null);
+        resultData.put('ApprovedAbsenceHours', emp.Total_Absence_Hours__c != null ? emp.Total_Absence_Hours__c.setScale(2) : null);
+        resultData.put('ApprovedAbsenceHoursAvailable', emp.Total_Absence_Hours_Available__c != null ? emp.Total_Absence_Hours_Available__c.setScale(2) : null);
         
         // Project information
         List<String> projectNames = new List<String>();
@@ -105,9 +125,9 @@ public with sharing class GetDashboardProfileDetails {
      * @param hours AggregateResult containing timesheet summary
      */
     private static void populateTimesheetSummary(Map<String, Object> resultData, AggregateResult hours) {
-        resultData.put('TotalBillableHours', (Decimal) hours.get('TotalBillableHours'));
-        resultData.put('TotalNonBillableHours', (Decimal) hours.get('TotalNonBillableHours'));
-        resultData.put('TotalAbsenceHours', (Decimal) hours.get('TotalAbsenceHours'));
-        resultData.put('TotalHours', (Decimal) hours.get('TotalHours'));
+        resultData.put('ThisYearBillableHours', (Decimal) hours.get('TotalBillableHours'));
+        resultData.put('ThisYearNonBillableHours', (Decimal) hours.get('TotalNonBillableHours'));
+        resultData.put('ThisYearAbsenceHours', (Decimal) hours.get('TotalAbsenceHours'));
+        resultData.put('ThisYearTotalHours', (Decimal) hours.get('TotalHours'));
     }
 }
