@@ -106,7 +106,7 @@ export default class dashboardProfile extends LightningElement {
                 this.processFieldOrder();
             })
             .catch((error) => {
-                this.showToast('Error', "Error fetching employee details", 'error');
+                this.showToast('Info', "No Employee record is for the current User.", 'info');
                 console.log('Error fetching employee details',error);
             });
     }
