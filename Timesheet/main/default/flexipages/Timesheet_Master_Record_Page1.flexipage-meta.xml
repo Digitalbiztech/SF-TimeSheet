@@ -158,6 +158,26 @@
             <componentInstance>
                 <componentName>timesheetLineItemEntry</componentName>
                 <identifier>dbt_timesheetLineItemEntry</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!$Client.formFactor}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Large</rightValue>
+                    </criteria>
+                </visibilityRule>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentName>timesheetMobileEntry</componentName>
+                <identifier>dbt_timesheetMobileEntry</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!$Client.formFactor}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Small</rightValue>
+                    </criteria>
+                </visibilityRule>
             </componentInstance>
         </itemInstances>
         <name>Facet-ba444d48-5339-40e9-8dd8-d374f3827106</name>

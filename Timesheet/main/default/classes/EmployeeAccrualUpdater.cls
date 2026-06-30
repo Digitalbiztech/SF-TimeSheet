@@ -1,5 +1,11 @@
-public with sharing class EmployeeAccrualUpdater {
-    public static void updateEmployeeAccruals() {
+global with sharing class EmployeeAccrualUpdater {
+    global EmployeeAccrualUpdater() {}
+
+    global static void EmployeeAccrualUpdater() {
+        updateEmployeeAccruals();
+    }
+
+    global static void updateEmployeeAccruals() {
         Set<Id> empIds = new Set<Id>();
         for(Timesheet__c ts : [
             SELECT Employee__c 

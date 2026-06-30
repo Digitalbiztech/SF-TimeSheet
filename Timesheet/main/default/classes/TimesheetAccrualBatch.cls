@@ -1,6 +1,6 @@
-public with sharing class TimesheetAccrualBatch implements Database.Batchable<sObject> {
+global with sharing class TimesheetAccrualBatch implements Database.Batchable<sObject> {
 
-    public Database.QueryLocator start(Database.BatchableContext BC) {
+    global Database.QueryLocator start(Database.BatchableContext BC) {
         return Database.getQueryLocator([
             SELECT Id, Status__c, Employee__c, Accrued_Hours__c 
             FROM Timesheet__c 
@@ -11,7 +11,7 @@ public with sharing class TimesheetAccrualBatch implements Database.Batchable<sO
         ]);
     }
 
-    public void execute(Database.BatchableContext BC, List<Timesheet__c> scope) {
+    global void execute(Database.BatchableContext BC, List<Timesheet__c> scope) {
         List<Timesheet__c> timesheetsToUpdate = new List<Timesheet__c>();
         Map<Id, Decimal> oldAccruals = new Map<Id, Decimal>();
         for (Timesheet__c ts : scope) {
@@ -32,7 +32,7 @@ public with sharing class TimesheetAccrualBatch implements Database.Batchable<sO
         }
     }
 
-    public void finish(Database.BatchableContext BC) {
-        EmployeeAccrualUpdater.updateEmployeeAccruals();
+    global void finish(Database.BatchableContext BC) {
+        EmployeeAccrualUpdater.EmployeeAccrualUpdater();
     }
 }
