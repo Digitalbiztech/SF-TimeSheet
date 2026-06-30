@@ -1,5 +1,5 @@
 @IsTest
-private class PostInstallScriptTest {
+private class TimesheetPostInstallScriptTest {
     // Utility: create a standard user to act as installer
     private static User createInstallerUser() {
             Profile p = [
@@ -107,7 +107,7 @@ private class PostInstallScriptTest {
             System.InstallContext ctx = new FakeInstallContext_Install(installer.Id);
 
             Test.startTest();
-            new PostInstallScript().onInstall(ctx);
+            new TimesheetPostInstallScript().onInstall(ctx);
             Test.stopTest();
 
             // Nothing to assert specifically for emails; ensure no unhandled exception and no Employee__c changes.
@@ -135,7 +135,7 @@ private class PostInstallScriptTest {
             System.InstallContext ctx = new FakeInstallContext_Install(installer.Id);
 
             Test.startTest();
-            new PostInstallScript().onInstall(ctx);
+            new TimesheetPostInstallScript().onInstall(ctx);
             Test.stopTest();
 
             System.assert(true, 'Fresh install with OWEA path executed without exception.');
@@ -162,7 +162,7 @@ private class PostInstallScriptTest {
             insert new List<Employee__c>{ e1, e2 };
 
             Test.startTest();
-            new PostInstallScript().onInstall(ctx);
+            new TimesheetPostInstallScript().onInstall(ctx);
             Test.stopTest();
 
             // Verify only blank Employment_Type__c is updated to 'Full Time'
@@ -203,7 +203,7 @@ private class PostInstallScriptTest {
             insert new List<Employee__c>{ e1, e2 };
 
             Test.startTest();
-            new PostInstallScript().onInstall(ctx);
+            new TimesheetPostInstallScript().onInstall(ctx);
             Test.stopTest();
 
             // Verify updates

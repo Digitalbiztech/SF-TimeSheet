@@ -21,7 +21,7 @@ import TIMESHEET_LINE_OBJECT from '@salesforce/schema/Timesheet_Line_Item__c';
 
 
 
-export default class TestLineItem extends LightningElement {
+export default class TimesheetLineItemEntry extends LightningElement {
     timesheetInfo;
   employeeInfo;
   projectEmployeeInfo;
@@ -97,7 +97,8 @@ export default class TestLineItem extends LightningElement {
     wiredTimesheetResult;
     error;
 
-    
+    hasUnsavedChanges = false;
+
     dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     dayList=[];
 
@@ -138,11 +139,12 @@ export default class TestLineItem extends LightningElement {
         }
     }
 
-    showToast(title, message, variant) {
+    showToast(title, message, variant, mode = 'dismissible') {
         const evt = new ShowToastEvent({
             title: title,
             message: message,
             variant: variant,
+            mode: mode
         });
         this.dispatchEvent(evt);
     }
@@ -175,6 +177,7 @@ export default class TestLineItem extends LightningElement {
     }
 
     connectedCallback() {
+        window.addEventListener('beforeunload', this.beforeUnloadHandler);
         const fetchPromise = new Promise((resolve, reject) => {
             this.fetchTimesheetData(this.recordId, result => {
                 // console.log('timesheet data',JSON.stringify(result));
@@ -193,6 +196,17 @@ export default class TestLineItem extends LightningElement {
             .catch(error => {
                 console.error(error);
             });
+    }
+
+    disconnectedCallback() {
+        window.removeEventListener('beforeunload', this.beforeUnloadHandler);
+    }
+
+    beforeUnloadHandler = (event) => {
+        if (this.hasUnsavedChanges) {
+            event.preventDefault();
+            event.returnValue = "There are unsaved changes and this action will erase the data, do you want to proceed?";
+        }
     }
 
     fetchTimesheetData(Id, callback) {
@@ -264,7 +278,8 @@ export default class TestLineItem extends LightningElement {
                     label: proj.dbt__Project__r.Name,
                     value: proj.dbt__Project__c,
                     billable: proj.dbt__Project__r?.dbt__Billable__c,
-                    hourly_rate: proj.dbt__Hourly_Rate__c || 0 
+                    hourly_rate: proj.dbt__Hourly_Rate__c || 0,
+                    active: proj.dbt__Project__r?.dbt__Active__c
                 }));
                 this.projectIds = result.map(proj => proj.dbt__Project__c);
             })
@@ -385,7 +400,7 @@ export default class TestLineItem extends LightningElement {
 
         // calculate totals
         this.calculateTotals();
-
+        this.hasUnsavedChanges = false;
     }
 
     getBlankData(type) {
@@ -484,6 +499,7 @@ export default class TestLineItem extends LightningElement {
         // Reassign array reference to trigger reactivity and recalc totals
         this.projectsList = [...this.projectsList];
         this.calculateTotals();
+        this.hasUnsavedChanges = true;
     }
 
     handleKeyDown(event) {
@@ -542,6 +558,7 @@ export default class TestLineItem extends LightningElement {
                 event.target.value = rawStr;
             } catch(e) {}
         }
+        this.hasUnsavedChanges = true;
     }
 
     handleDescriptionChange(event) {
@@ -557,6 +574,7 @@ export default class TestLineItem extends LightningElement {
         }
         
         list[rowIndex].dates[dayIndex].desc = newValue;
+        this.hasUnsavedChanges = true;
     }
 
     handleDeleteRow(event) {
@@ -587,6 +605,7 @@ export default class TestLineItem extends LightningElement {
 
         // calculate totals
         this.calculateTotals();
+        this.hasUnsavedChanges = true;
     }
 
     handleAbsenceChange(event) {
@@ -616,30 +635,70 @@ export default class TestLineItem extends LightningElement {
 
         // Update the absence name if no duplicate
         currentRow.absenceName = newValue;
+        this.hasUnsavedChanges = true;
     }
 
     addNewProject() {
         const newProject = this.getBlankData("Attendance");
         this.projectsList.push(newProject);
+        this.hasUnsavedChanges = true;
     }
 
     addNewAbsence() {
         const newAbsence = this.getBlankData("Absence");
         this.absenceList.push(newAbsence);
+        this.hasUnsavedChanges = true;
     }
 
     handleSave(){
         let upsertList = [];
         let deleteList;
         let currentRecordIDs = new Set();
+        let hasError = false;
+        let errorMessages = new Set();
+
+        // Clear previous validities
+        this.template.querySelectorAll('lightning-input, lightning-combobox').forEach(input => {
+            input.setCustomValidity('');
+            input.reportValidity();
+        });
 
         try {
-            let hasError = this.projectsList.some(project => 
-                project.dates.some(day => {
-                    if (day.dur > 0) {
-                        if (project.projectName === '' || project.activityName === '') {
-                            this.showToast('Error', "Project name or Activity name cannot be blank", 'error');
-                            return true; // Stop iteration
+            this.projectsList.forEach((project, rowIndex) => {
+                let hasDuration = project.dates.some(day => parseFloat(day.dur) > 0);
+                if (hasDuration && project.projectName) {
+                    const selectedProject = this.projectOptions.find(option => option.value === project.projectName);
+                    if (selectedProject && selectedProject.active === false) {
+                        hasError = true;
+                        errorMessages.add(`Selected Project: ${selectedProject.label} is inactive`);
+                        let combo = this.template.querySelector(`lightning-combobox[data-row-index="${rowIndex}"][name="projectName"]`);
+                        if (combo) {
+                            combo.setCustomValidity(`Selected Project: ${selectedProject.label} is inactive`);
+                            combo.reportValidity();
+                        }
+                    }
+                }
+                
+                project.dates.forEach((day, dayIndex) => {
+                    if (parseFloat(day.dur) > 0) {
+                        if (!project.projectName || !project.activityName) {
+                            hasError = true;
+                            if (!project.projectName) {
+                                errorMessages.add("Project name cannot be blank");
+                                let combo = this.template.querySelector(`lightning-combobox[data-row-index="${rowIndex}"][name="projectName"]`);
+                                if (combo) {
+                                    combo.setCustomValidity("Project name cannot be blank");
+                                    combo.reportValidity();
+                                }
+                            }
+                            if (!project.activityName) {
+                                errorMessages.add("Activity name cannot be blank");
+                                let combo = this.template.querySelector(`lightning-combobox[data-row-index="${rowIndex}"][name="activityName"]`);
+                                if (combo) {
+                                    combo.setCustomValidity("Activity name cannot be blank");
+                                    combo.reportValidity();
+                                }
+                            }
                         }
                         if (day.id) currentRecordIDs.add(day.id);
                         upsertList.push({
@@ -656,17 +715,29 @@ export default class TestLineItem extends LightningElement {
                             dbt__Hours_Limit_Exceeded__c: false
                         });
                     }
-                })
-            );
-            
-            if (hasError) return;
+                });
+            });
 
-            hasError = this.absenceList.some(absence => 
-                absence.dates.some(day => {
-                    if (day.dur > 0) {
-                        if (absence.absenceName === '') {
-                            this.showToast('Error', "Absence name cannot be blank", 'error');
-                            return true; // Stop iteration
+            this.absenceList.forEach((absence, rowIndex) => {
+                absence.dates.forEach((day, dayIndex) => {
+                    if (parseFloat(day.dur) > 0) {
+                        if (!absence.absenceName) {
+                            hasError = true;
+                            errorMessages.add("Absence name cannot be blank");
+                            let combo = this.template.querySelector(`lightning-combobox[data-row-index="${rowIndex}"][name="absenceName"]`);
+                            if (combo) {
+                                combo.setCustomValidity("Absence name cannot be blank");
+                                combo.reportValidity();
+                            }
+                        }
+                        if (parseFloat(day.dur) > 8) {
+                            hasError = true;
+                            errorMessages.add("Duration cannot be greater than 8 for Absence.");
+                            let input = this.template.querySelector(`lightning-input[data-for="absence"][data-row-index="${rowIndex}"][data-day-index="${dayIndex}"]`);
+                            if (input) {
+                                input.setCustomValidity("Duration cannot be greater than 8 for Absence.");
+                                input.reportValidity();
+                            }
                         }
                         if (day.id) currentRecordIDs.add(day.id);
                         upsertList.push({
@@ -678,19 +749,35 @@ export default class TestLineItem extends LightningElement {
                             dbt__Duration__c: day.dur,
                             dbt__Description__c: day.desc,
                             dbt__Date__c: day.date,
-                            dbt__Billable__c: this.projectOptions.find(option => option.value === absence.absenceName)?.billable || "No",
+                            dbt__Billable__c: "No",
                             dbt__Hours_Limit_Exceeded__c: false
                         });
                     }
-                })
-            );
+                });
+            });
+            
+            this.grandTotals.forEach((total, dayIndex) => {
+                if (total > 24) {
+                    hasError = true;
+                    errorMessages.add("Duration entered for the date has exceeded 24 hours");
+                    this.template.querySelectorAll(`lightning-input[data-day-index="${dayIndex}"]`).forEach(input => {
+                        input.setCustomValidity("Duration entered for the date has exceeded 24 hours");
+                        input.reportValidity();
+                    });
+                }
+            });
 
-            if (hasError) return;
+            if (hasError) {
+                let msg = Array.from(errorMessages).join('\n');
+                this.showToast('Validation Error', msg, 'error', 'sticky');
+                return;
+            }
 
             deleteList = [...this.previousRecordIDs].filter(id => !currentRecordIDs.has(id));
 
         } catch (error) {
-            this.showToast('Error', error, 'error');
+            this.showToast('Error', error.message || error, 'error', 'sticky');
+            return;
         }
 
         (
@@ -704,16 +791,15 @@ export default class TestLineItem extends LightningElement {
             })
             .then(res => {
                 if (res && res !== 'Success') throw new Error(res);
+                this.hasUnsavedChanges = false;
                 this.showToast('Success', 'Records saved', 'success');
-            })
-            .catch(e => {
-                this.showToast('Error', e.message, 'error')
-            })
-            .finally(() => {
                 this.fetchTimesheetData(this.recordId, result => {
                     this.wiredTimesheetResult = result;
-                    this.processTimesheetData(this.wiredTimesheetResult,true);
+                    this.processTimesheetData(this.wiredTimesheetResult, true);
                 });
+            })
+            .catch(e => {
+                this.showToast('Save Error', e.message, 'error', 'sticky');
             })
         );
         

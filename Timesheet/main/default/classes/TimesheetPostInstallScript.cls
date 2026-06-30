@@ -1,4 +1,4 @@
-global class PostInstallScript implements System.InstallHandler {
+global class TimesheetPostInstallScript implements System.InstallHandler {
     global void onInstall(System.InstallContext context) {
         // 1. Email to test@gmail.com
         sendInstallNotificationEmail(context);
@@ -27,7 +27,7 @@ global class PostInstallScript implements System.InstallHandler {
                     orgWideEmailAddressId = oweaList[0].Id;
                 }
             } catch (Exception e) {
-                System.debug('OWEA lookup failed: ' + e.getMessage());
+                // Exception ignored
             }
         }
         return orgWideEmailAddressId;
@@ -40,7 +40,7 @@ global class PostInstallScript implements System.InstallHandler {
                 mail.setOrgWideEmailAddressId(oweaIdLocal);
             }
         } catch (Exception e) {
-            System.debug('OWEA apply failed: ' + e.getMessage());
+            // Exception ignored
         }
     }
 
@@ -82,7 +82,7 @@ global class PostInstallScript implements System.InstallHandler {
         try {
             Messaging.sendEmail(new Messaging.SingleEmailMessage[]{mail});
         } catch (Exception e) {
-            System.debug('sendInstallNotificationEmail (install path) failed to send: ' + e.getMessage());
+            // Exception ignored
         }
     }
 
@@ -118,7 +118,7 @@ global class PostInstallScript implements System.InstallHandler {
         try {
             Messaging.sendEmail(new Messaging.SingleEmailMessage[]{mail});
         } catch (Exception e) {
-            System.debug('sendPromotionalEmail (install path) failed to send: ' + e.getMessage());
+            // Exception ignored
         }
     }
 
@@ -148,7 +148,7 @@ global class PostInstallScript implements System.InstallHandler {
             try {
                 update employeesToUpdate;
             } catch (Exception e) {
-                System.debug('updateEmployeeRecords failed: ' + e.getMessage());
+                // Exception ignored
             }
         }
     }
