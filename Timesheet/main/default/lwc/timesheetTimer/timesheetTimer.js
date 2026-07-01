@@ -3,6 +3,7 @@ import getTimerInitData from '@salesforce/apex/TimesheetTimerController.getTimer
 import startTimer from '@salesforce/apex/TimesheetTimerController.startTimer';
 import stopTimer from '@salesforce/apex/TimesheetTimerController.stopTimer';
 import discardTimer from '@salesforce/apex/TimesheetTimerController.discardTimer';
+import updateTimerDescription from '@salesforce/apex/TimesheetTimerController.updateTimerDescription';
 import { getPicklistValues, getObjectInfo } from 'lightning/uiObjectInfoApi';
 import TIMESHEET_LINE_ITEM_OBJECT from '@salesforce/schema/Timesheet_Line_Item__c';
 import ACTIVITY_CATEGORY_FIELD from '@salesforce/schema/Timesheet_Line_Item__c.Activity__c';
@@ -20,6 +21,7 @@ export default class TimesheetTimer extends LightningElement {
     @track selectedActivity = '';
     @track projectOptions = [];
     @track activityOptions = [];
+    @track description = '';
     
     activeProjectName = '';
     activeActivityName = '';
@@ -96,6 +98,7 @@ export default class TimesheetTimer extends LightningElement {
                     this.activeActivityName = this.getFieldValue(result.activeTimer, 'Activity__c');
                     this.selectedProject = this.getFieldValue(result.activeTimer, 'Project__c');
                     this.selectedActivity = this.getFieldValue(result.activeTimer, 'Activity__c');
+                    this.description = this.getFieldValue(result.activeTimer, 'Description__c') || '';
                     this.startTime = new Date(this.getFieldValue(result.activeTimer, 'Start_Time__c')).getTime();
                     let duration = this.getFieldValue(result.activeTimer, 'Duration__c');
                     this.existingDuration = duration ? duration : 0;
@@ -129,6 +132,17 @@ export default class TimesheetTimer extends LightningElement {
         this.selectedActivity = event.detail.value;
     }
 
+    handleDescriptionChange(event) {
+        this.description = event.target.value;
+    }
+
+    handleDescriptionBlur() {
+        if (this.activeLineItemId) {
+            updateTimerDescription({ lineItemId: this.activeLineItemId, description: this.description })
+                .catch(err => console.error('Failed to update description:', err));
+        }
+    }
+
     handleStart() {
         this.isLoading = true;
         startTimer({ 
@@ -142,6 +156,7 @@ export default class TimesheetTimer extends LightningElement {
             this.activeActivityName = this.getFieldValue(result, 'Activity__c');
             this.selectedProject = this.getFieldValue(result, 'Project__c');
             this.selectedActivity = this.getFieldValue(result, 'Activity__c');
+            this.description = this.getFieldValue(result, 'Description__c') || '';
             this.startTime = new Date(this.getFieldValue(result, 'Start_Time__c')).getTime();
             let duration = this.getFieldValue(result, 'Duration__c');
             this.existingDuration = duration ? duration : 0;
@@ -171,6 +186,9 @@ export default class TimesheetTimer extends LightningElement {
         this.isPendingSave = false;
         this.stopTimeMs = null;
         this.startClock();
+        
+        // Also fire update just in case they didn't blur
+        this.handleDescriptionBlur();
     }
 
     get saveDisabled() {
@@ -188,14 +206,30 @@ export default class TimesheetTimer extends LightningElement {
         stopTimer({ 
             lineItemId: this.activeLineItemId, 
             stopTimeMs: this.stopTimeMs,
-            totalPauseMs: this.totalPauseMs || 0
+            totalPauseMs: this.totalPauseMs || 0,
+            description: this.description
         })
         .then(() => {
             this.showToast('Success', 'Time logged successfully!', 'success');
             this.resetState();
         })
         .catch(error => {
-            this.showToast('Error', error.body?.message || 'Failed to save timer', 'error');
+            let errorMsg = error.body?.message || 'Failed to save timer';
+            try {
+                let errorObj = JSON.parse(errorMsg);
+                if (errorObj.isCustomError) {
+                    let formattedItems = errorObj.failedItems.map(item => 
+                        `${item.date} - ${item.project} - ${item.activity}: ${item.duration} hrs`
+                    ).join('\n');
+                    errorMsg = `${errorObj.message}\n\nPlease create the following items manually:\n${formattedItems}`;
+                    
+                    this.showToast('Save Failed', errorMsg, 'error', 'sticky');
+                } else {
+                    this.showToast('Error', errorMsg, 'error');
+                }
+            } catch (e) {
+                this.showToast('Error', errorMsg, 'error');
+            }
             this.isLoading = false;
         });
     }
@@ -217,6 +251,7 @@ export default class TimesheetTimer extends LightningElement {
         this.activeLineItemId = null;
         this.selectedProject = '';
         this.selectedActivity = '';
+        this.description = '';
         this.formattedTime = '00:00:00';
         this.existingDuration = 0;
         this.stopTimeMs = null;
@@ -263,9 +298,9 @@ export default class TimesheetTimer extends LightningElement {
         return val < 10 ? '0' + val : val;
     }
 
-    showToast(title, message, variant) {
+    showToast(title, message, variant, mode = 'dismissible') {
         this.dispatchEvent(
-            new ShowToastEvent({ title, message, variant })
+            new ShowToastEvent({ title, message, variant, mode })
         );
     }
 }
