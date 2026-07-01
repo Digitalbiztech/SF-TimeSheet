@@ -119,19 +119,6 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
-                <componentName>timesheetTimer</componentName>
-                <identifier>timesheetTimer_mobile</identifier>
-                <visibilityRule>
-                    <criteria>
-                        <leftValue>{!$Client.formFactor}</leftValue>
-                        <operator>EQUAL</operator>
-                        <rightValue>Small</rightValue>
-                    </criteria>
-                </visibilityRule>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
                 <componentInstanceProperties>
                     <name>accordionSections</name>
                     <value>Facet-8eb95255-c52a-440a-b069-80c3a7f5408d</value>

@@ -11,7 +11,7 @@
                 <componentInstanceProperties>
                     <name>height</name>
                     <type>decorator</type>
-                    <value>360</value>
+                    <value>450</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>icon</name>
