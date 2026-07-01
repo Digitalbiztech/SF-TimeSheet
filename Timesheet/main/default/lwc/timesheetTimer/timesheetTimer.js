@@ -4,6 +4,7 @@ import startTimer from '@salesforce/apex/TimesheetTimerController.startTimer';
 import stopTimer from '@salesforce/apex/TimesheetTimerController.stopTimer';
 import discardTimer from '@salesforce/apex/TimesheetTimerController.discardTimer';
 import updateTimerDescription from '@salesforce/apex/TimesheetTimerController.updateTimerDescription';
+import updateTimerState from '@salesforce/apex/TimesheetTimerController.updateTimerState';
 import { getPicklistValues, getObjectInfo } from 'lightning/uiObjectInfoApi';
 import TIMESHEET_LINE_ITEM_OBJECT from '@salesforce/schema/Timesheet_Line_Item__c';
 import ACTIVITY_CATEGORY_FIELD from '@salesforce/schema/Timesheet_Line_Item__c.Activity__c';
@@ -102,7 +103,22 @@ export default class TimesheetTimer extends LightningElement {
                     this.startTime = new Date(this.getFieldValue(result.activeTimer, 'Start_Time__c')).getTime();
                     let duration = this.getFieldValue(result.activeTimer, 'Duration__c');
                     this.existingDuration = duration ? duration : 0;
-                    this.startClock();
+                    
+                    let stateStr = this.getFieldValue(result.activeTimer, 'Created_From_Timer__c');
+                    let state = {};
+                    if (stateStr) {
+                        try { state = JSON.parse(stateStr); } catch (e) {}
+                    }
+                    this.totalPauseMs = state.totalPauseMs || 0;
+                    this.startTime += this.totalPauseMs;
+                    
+                    if (state.status === 'Paused') {
+                        this.stopTimeMs = state.stopTimeMs;
+                        this.isPendingSave = true;
+                        this.updateTimeDisplay();
+                    } else {
+                        this.startClock();
+                    }
                 }
                 this.isLoading = false;
             })
@@ -118,6 +134,14 @@ export default class TimesheetTimer extends LightningElement {
     
     get inputsDisabled() {
         return this.isPendingSave;
+    }
+
+    get showPicklists() {
+        return !this.isRunning && !this.isPendingSave;
+    }
+
+    get showTaskInfo() {
+        return this.isRunning || this.isPendingSave;
     }
 
     get timerClass() {
@@ -173,6 +197,11 @@ export default class TimesheetTimer extends LightningElement {
         this.stopClock();
         this.stopTimeMs = new Date().getTime();
         this.isPendingSave = true;
+        
+        updateTimerState({ 
+            lineItemId: this.activeLineItemId, 
+            stateJson: JSON.stringify({ status: 'Paused', stopTimeMs: this.stopTimeMs, totalPauseMs: this.totalPauseMs || 0 })
+        }).catch(e => console.error(e));
     }
     
     handleContinue() {
@@ -186,6 +215,12 @@ export default class TimesheetTimer extends LightningElement {
         this.isPendingSave = false;
         this.stopTimeMs = null;
         this.startClock();
+        
+        // Update state in backend
+        updateTimerState({ 
+            lineItemId: this.activeLineItemId, 
+            stateJson: JSON.stringify({ status: 'Running', totalPauseMs: this.totalPauseMs })
+        }).catch(e => console.error(e));
         
         // Also fire update just in case they didn't blur
         this.handleDescriptionBlur();
@@ -276,7 +311,7 @@ export default class TimesheetTimer extends LightningElement {
     }
 
     updateTimeDisplay() {
-        const now = new Date().getTime();
+        const now = (this.isPendingSave && this.stopTimeMs) ? this.stopTimeMs : new Date().getTime();
         let diff = Math.max(0, now - this.startTime);
         
         // Add existing duration (in hours) to the difference

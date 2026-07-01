@@ -1,8 +1,24 @@
-:host .slds-box.slds-theme_default {
+:host {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.timer-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
     background-color: #ffffff;
-    border-radius: 4px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    padding: 1rem;
+}
+
+.timer-container lightning-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    --sds-c-card-shadow: none;
+    --sds-c-card-color-border: transparent;
+    --sds-c-card-radius-border: 0;
 }
 
 .time-display {

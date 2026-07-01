@@ -18,7 +18,7 @@ public with sharing class TimesheetTimerController {
             
             // Get Active Timer directly by User Id
             List<Timesheet_Line_Item__c> activeTimers = [
-                SELECT Id, Start_Time__c, Project__c, Project__r.Name, Activity__c, Duration__c, Employee__c, Description__c 
+                SELECT Id, Start_Time__c, Project__c, Project__r.Name, Activity__c, Duration__c, Employee__c, Description__c, Created_From_Timer__c 
                 FROM Timesheet_Line_Item__c 
                 WHERE Employee__r.User__c = :userId 
                 AND Start_Time__c != NULL 
@@ -331,6 +331,17 @@ public with sharing class TimesheetTimerController {
     public static void updateTimerDescription(Id lineItemId, String description) {
         try {
             Timesheet_Line_Item__c item = new Timesheet_Line_Item__c(Id = lineItemId, Description__c = description);
+            SObjectAccessDecision decision = Security.stripInaccessible(AccessType.UPDATABLE, new List<Timesheet_Line_Item__c>{item});
+            update decision.getRecords();
+        } catch (Exception e) {
+            throw new AuraHandledException(e.getMessage());
+        }
+    }
+    
+    @AuraEnabled
+    public static void updateTimerState(Id lineItemId, String stateJson) {
+        try {
+            Timesheet_Line_Item__c item = new Timesheet_Line_Item__c(Id = lineItemId, Created_From_Timer__c = stateJson);
             SObjectAccessDecision decision = Security.stripInaccessible(AccessType.UPDATABLE, new List<Timesheet_Line_Item__c>{item});
             update decision.getRecords();
         } catch (Exception e) {
