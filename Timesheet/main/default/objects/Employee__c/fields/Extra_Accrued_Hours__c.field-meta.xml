@@ -12,4 +12,5 @@
     <trackTrending>false</trackTrending>
     <type>Number</type>
     <unique>false</unique>
+    <inlineHelpText>When extra accrued hours are added manually for an employee, they are included in the employee's Total Accrued Hours when new timesheets are approved.</inlineHelpText>
 </CustomField>

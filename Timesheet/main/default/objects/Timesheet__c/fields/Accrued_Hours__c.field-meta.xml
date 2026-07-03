@@ -10,4 +10,5 @@
     <trackTrending>false</trackTrending>
     <type>Number</type>
     <unique>false</unique>
+    <inlineHelpText>For approved timesheets, accrued hours are calculated as Billable Hours divided by the employee's Accrual Divisor after the Accrual Start Date.</inlineHelpText>
 </CustomField>
