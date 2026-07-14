@@ -18,7 +18,7 @@ public with sharing class TimesheetTimerController {
             
             // Get Active Timer directly by User Id
             List<Timesheet_Line_Item__c> activeTimers = [
-                SELECT Id, Start_Time__c, Project__c, Project__r.Name, Activity__c, Duration__c, Employee__c, Description__c, Created_From_Timer__c 
+                SELECT Id, Start_Time__c, Date__c, Project__c, Project__r.Name, Activity__c, Duration__c, Employee__c, Description__c, Created_From_Timer__c 
                 FROM Timesheet_Line_Item__c 
                 WHERE Employee__r.User__c = :userId 
                 AND Start_Time__c != NULL 
@@ -28,7 +28,20 @@ public with sharing class TimesheetTimerController {
             ];
             
             if (!activeTimers.isEmpty()) {
-                result.put('activeTimer', activeTimers[0]);
+                Timesheet_Line_Item__c activeT = activeTimers[0];
+                Boolean isActiveProject = false;
+                for (Project_Employee__c pe : projects) {
+                    if (pe.Project__c == activeT.Project__c) {
+                        isActiveProject = true;
+                        break;
+                    }
+                }
+                
+                if (!isActiveProject) {
+                    discardTimer(activeT.Id);
+                } else {
+                    result.put('activeTimer', activeT);
+                }
             }
             
             // Get Employee ID for the UI
@@ -136,6 +149,13 @@ public with sharing class TimesheetTimerController {
             }
             
             Timesheet_Line_Item__c item = items[0];
+            
+            // Check if project is still active
+            List<Project__c> projList = [SELECT Id, Active__c FROM Project__c WHERE Id = :item.Project__c WITH SECURITY_ENFORCED LIMIT 1];
+            if (!projList.isEmpty() && projList[0].Active__c == false) {
+                discardTimer(lineItemId);
+                throw new AuraHandledException('The project is no longer active. Timer changes have been discarded.');
+            }
             
             // Adjust start time forward by the total paused milliseconds
             Long adjustedStartMs = item.Start_Time__c.getTime();
@@ -306,11 +326,9 @@ public with sharing class TimesheetTimerController {
                 Map<String, Object> state = (Map<String, Object>)JSON.deserializeUntyped(stateStr);
                 String status = (String)state.get('status');
                 
-                if (status == 'New') {
-                    if (Schema.sObjectType.Timesheet_Line_Item__c.isDeletable()) {
-                        delete item;
-                    }
-                } else if (status == 'Resumed') {
+                if (status == 'Saved') return;
+                
+                if (state.containsKey('oldStart') || state.containsKey('oldEnd')) {
                     Long oldStart = (Long)state.get('oldStart');
                     Long oldEnd = (Long)state.get('oldEnd');
                     
@@ -320,6 +338,10 @@ public with sharing class TimesheetTimerController {
                     
                     SObjectAccessDecision decision = Security.stripInaccessible(AccessType.UPDATABLE, new List<Timesheet_Line_Item__c>{item});
                     update decision.getRecords();
+                } else {
+                    if (Schema.sObjectType.Timesheet_Line_Item__c.isDeletable()) {
+                        delete item;
+                    }
                 }
             }
         } catch (Exception e) {

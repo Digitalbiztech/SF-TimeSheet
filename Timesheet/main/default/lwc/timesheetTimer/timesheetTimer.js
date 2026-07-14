@@ -100,6 +100,7 @@ export default class TimesheetTimer extends LightningElement {
                     this.selectedProject = this.getFieldValue(result.activeTimer, 'Project__c');
                     this.selectedActivity = this.getFieldValue(result.activeTimer, 'Activity__c');
                     this.description = this.getFieldValue(result.activeTimer, 'Description__c') || '';
+                    this.timerDate = this.getFieldValue(result.activeTimer, 'Date__c');
                     this.startTime = new Date(this.getFieldValue(result.activeTimer, 'Start_Time__c')).getTime();
                     let duration = this.getFieldValue(result.activeTimer, 'Duration__c');
                     this.existingDuration = duration ? duration : 0;
@@ -109,6 +110,7 @@ export default class TimesheetTimer extends LightningElement {
                     if (stateStr) {
                         try { state = JSON.parse(stateStr); } catch (e) {}
                     }
+                    this.timerState = state;
                     this.totalPauseMs = state.totalPauseMs || 0;
                     this.startTime += this.totalPauseMs;
                     
@@ -181,9 +183,17 @@ export default class TimesheetTimer extends LightningElement {
             this.selectedProject = this.getFieldValue(result, 'Project__c');
             this.selectedActivity = this.getFieldValue(result, 'Activity__c');
             this.description = this.getFieldValue(result, 'Description__c') || '';
+            this.timerDate = this.getFieldValue(result, 'Date__c');
             this.startTime = new Date(this.getFieldValue(result, 'Start_Time__c')).getTime();
             let duration = this.getFieldValue(result, 'Duration__c');
             this.existingDuration = duration ? duration : 0;
+            
+            let stateStr = this.getFieldValue(result, 'Created_From_Timer__c');
+            let state = {};
+            if (stateStr) {
+                try { state = JSON.parse(stateStr); } catch (e) {}
+            }
+            this.timerState = state;
             this.startClock();
             this.isLoading = false;
         })
@@ -198,9 +208,11 @@ export default class TimesheetTimer extends LightningElement {
         this.stopTimeMs = new Date().getTime();
         this.isPendingSave = true;
         
+        this.timerState = { ...this.timerState, status: 'Paused', stopTimeMs: this.stopTimeMs, totalPauseMs: this.totalPauseMs || 0 };
+        
         updateTimerState({ 
             lineItemId: this.activeLineItemId, 
-            stateJson: JSON.stringify({ status: 'Paused', stopTimeMs: this.stopTimeMs, totalPauseMs: this.totalPauseMs || 0 })
+            stateJson: JSON.stringify(this.timerState)
         }).catch(e => console.error(e));
     }
     
@@ -217,13 +229,27 @@ export default class TimesheetTimer extends LightningElement {
         this.startClock();
         
         // Update state in backend
+        this.timerState = { ...this.timerState, status: 'Running', totalPauseMs: this.totalPauseMs };
         updateTimerState({ 
             lineItemId: this.activeLineItemId, 
-            stateJson: JSON.stringify({ status: 'Running', totalPauseMs: this.totalPauseMs })
+            stateJson: JSON.stringify(this.timerState)
         }).catch(e => console.error(e));
         
         // Also fire update just in case they didn't blur
         this.handleDescriptionBlur();
+    }
+
+    get continueDisabled() {
+        if (!this.timerDate) return false;
+        let parts = this.timerDate.split('-');
+        let tDate = new Date(parts[0], parts[1] - 1, parts[2]);
+        let today = new Date();
+        if (tDate.getFullYear() !== today.getFullYear() ||
+            tDate.getMonth() !== today.getMonth() ||
+            tDate.getDate() !== today.getDate()) {
+            return true;
+        }
+        return false;
     }
 
     get saveDisabled() {

@@ -50,7 +50,7 @@ private class TimesheetTimerControllerTest {
         System.assertNotEquals(null, activeTimer.Start_Time__c, 'Start time should be set');
         
         // Stop timer
-        TimesheetTimerController.stopTimer(activeTimer.Id, Datetime.now().getTime());
+        TimesheetTimerController.stopTimer(activeTimer.Id, Datetime.now().getTime(), 0, 'Test description');
         Test.stopTest();
         
         Timesheet_Line_Item__c updatedTimer = [SELECT Id, Start_Time__c, End_Time__c, Duration__c FROM Timesheet_Line_Item__c WHERE Id = :activeTimer.Id];
