@@ -138,6 +138,10 @@ export default class TimesheetTimer extends LightningElement {
         return this.isPendingSave;
     }
 
+    get hasNoProjects() {
+        return !this.isLoading && (!this.projectOptions || this.projectOptions.length === 0) && !this.activeLineItemId;
+    }
+
     get showPicklists() {
         return !this.isRunning && !this.isPendingSave;
     }

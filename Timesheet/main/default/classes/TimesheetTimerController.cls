@@ -310,7 +310,7 @@ public with sharing class TimesheetTimerController {
     public static void discardTimer(Id lineItemId) {
         try {
             List<Timesheet_Line_Item__c> items = [
-                SELECT Id, Created_From_Timer__c 
+                SELECT Id, Created_From_Timer__c, Start_Time__c, Duration__c
                 FROM Timesheet_Line_Item__c 
                 WHERE Id = :lineItemId 
                 WITH SECURITY_ENFORCED 
@@ -339,8 +339,14 @@ public with sharing class TimesheetTimerController {
                     SObjectAccessDecision decision = Security.stripInaccessible(AccessType.UPDATABLE, new List<Timesheet_Line_Item__c>{item});
                     update decision.getRecords();
                 } else {
-                    if (Schema.sObjectType.Timesheet_Line_Item__c.isDeletable()) {
+                    if ((item.Duration__c == null || item.Duration__c == 0) && Schema.sObjectType.Timesheet_Line_Item__c.isDeletable()) {
                         delete item;
+                    } else {
+                        // Restore existing item normally (close without adding duration)
+                        item.End_Time__c = item.Start_Time__c != null ? item.Start_Time__c : Datetime.now();
+                        item.Created_From_Timer__c = '{"status": "Saved"}';
+                        SObjectAccessDecision decision = Security.stripInaccessible(AccessType.UPDATABLE, new List<Timesheet_Line_Item__c>{item});
+                        update decision.getRecords();
                     }
                 }
             }
