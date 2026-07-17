@@ -42,6 +42,18 @@ export default class dashboardProfile extends LightningElement {
     subscription = null;
     selectedUserId = USER_ID; // Initialize with current user's ID
 
+    // Map for field help texts
+    fieldHelpTexts = {
+        'TotalAccruedHours': 'Approved accrued hours from Employee record',
+        'TotalAbsenceHours': 'Approved absence hours from Employee record',
+        'TotalAbsenceHoursAvailable': 'Available absence hours from Employee record',
+        'AllBillableHours': 'Billable hours from every timesheets for the current year',
+        'AllNonBillableHours': 'Non-billable hours from every timesheets for the current year',
+        'AllAbsenceHours': 'Absence hours from every timesheets for the current year',
+        'AllHours': 'Total Hours from every timesheets for the current year',
+        'VacationsTaken': 'Number of vacations from Employee record'
+    };
+
     // Fetch configuration from Custom Metadata
     @wire(getProfileConfig)
     wiredConfig({ error, data }) {
@@ -144,7 +156,8 @@ export default class dashboardProfile extends LightningElement {
         // Transform field names into label-value pairs
         return fields.map(field => ({
             label: field.replace(/([A-Z])/g, ' $1').trim(), // Add spaces before capital letters
-            value: this.employeeData[field] ?? 'N/A'
+            value: this.employeeData[field] ?? 'N/A',
+            helpText: this.fieldHelpTexts[field]
         }));
     }
 }
@@ -153,5 +166,5 @@ export default class dashboardProfile extends LightningElement {
  * Field configuration examples:
  * Name,PhoneNumber,Email,HireDate,LastWorkingDate
  * ClientManager,ClientManagerEmail,Projects
- * TotalBillableHours,TotalNonBillableHours,TotalAbsenceHours,TotalHours,VacationsTaken
+ * AllBillableHours,AllNonBillableHours,AllAbsenceHours,AllHours,VacationsTaken
  */

@@ -8,11 +8,11 @@
     </values>
     <values>
         <field>Column_2_Fields__c</field>
-        <value xsi:type="xsd:string">ClientManager,ClientManagerEmail,Projects,ApprovedAccruedHours,ApprovedAbsenceHours,ApprovedAbsenceHoursAvailable</value>
+        <value xsi:type="xsd:string">ClientManager,ClientManagerEmail,Projects,TotalAccruedHours,TotalAbsenceHours,TotalAbsenceHoursAvailable</value>
     </values>
     <values>
         <field>Column_3_Fields__c</field>
-        <value xsi:type="xsd:string">TotalBillableHours,TotalNonBillableHours,TotalAbsenceHours,TotalHours,VacationsTaken</value>
+        <value xsi:type="xsd:string">AllBillableHours,AllNonBillableHours,AllAbsenceHours,AllHours,VacationsTaken</value>
     </values>
     <values>
         <field>Show_Null_Fields__c</field>

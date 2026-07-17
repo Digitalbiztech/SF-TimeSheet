@@ -103,9 +103,9 @@ public with sharing class GetDashboardProfileDetails {
         resultData.put('PhoneNumber', emp.Phone_Number__c);
 
         // Accrued and Absence Hours
-        resultData.put('ApprovedAccruedHours', emp.Total_Accrued_Hours__c != null ? emp.Total_Accrued_Hours__c.setScale(2) : null);
-        resultData.put('ApprovedAbsenceHours', emp.Total_Absence_Hours__c != null ? emp.Total_Absence_Hours__c.setScale(2) : null);
-        resultData.put('ApprovedAbsenceHoursAvailable', emp.Total_Absence_Hours_Available__c != null ? emp.Total_Absence_Hours_Available__c.setScale(2) : null);
+        resultData.put('TotalAccruedHours', emp.Total_Accrued_Hours__c != null ? emp.Total_Accrued_Hours__c.setScale(2) : null);
+        resultData.put('TotalAbsenceHours', emp.Total_Absence_Hours__c != null ? emp.Total_Absence_Hours__c.setScale(2) : null);
+        resultData.put('TotalAbsenceHoursAvailable', emp.Total_Absence_Hours_Available__c != null ? emp.Total_Absence_Hours_Available__c.setScale(2) : null);
         
         // Project information
         List<String> projectNames = new List<String>();
@@ -125,9 +125,9 @@ public with sharing class GetDashboardProfileDetails {
      * @param hours AggregateResult containing timesheet summary
      */
     private static void populateTimesheetSummary(Map<String, Object> resultData, AggregateResult hours) {
-        resultData.put('TotalBillableHours', (Decimal) hours.get('TotalBillableHours'));
-        resultData.put('TotalNonBillableHours', (Decimal) hours.get('TotalNonBillableHours'));
-        resultData.put('TotalAbsenceHours', (Decimal) hours.get('TotalAbsenceHours'));
-        resultData.put('TotalHours', (Decimal) hours.get('TotalHours'));
+        resultData.put('AllBillableHours', (Decimal) hours.get('TotalBillableHours'));
+        resultData.put('AllNonBillableHours', (Decimal) hours.get('TotalNonBillableHours'));
+        resultData.put('AllAbsenceHours', (Decimal) hours.get('TotalAbsenceHours'));
+        resultData.put('AllHours', (Decimal) hours.get('TotalHours'));
     }
 }

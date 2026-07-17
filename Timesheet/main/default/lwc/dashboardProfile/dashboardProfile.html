@@ -5,7 +5,12 @@
                 <div class="slds-col">
                     <template for:each={column1Data} for:item="field">
                         <div key={field.label} class="field-row">
-                            <span class="field-label">{field.label}:</span>
+                            <span class="field-label">
+                                {field.label}:
+                                <template if:true={field.helpText}>
+                                    <lightning-helptext content={field.helpText} class="slds-m-left_xx-small"></lightning-helptext>
+                                </template>
+                            </span>
                             <span class="field-value">{field.value}</span>
                         </div>
                     </template>
@@ -21,7 +26,12 @@
                 <div class="slds-col">
                     <template for:each={column2Data} for:item="field">
                         <div key={field.label} class="field-row">
-                            <span class="field-label">{field.label}:</span>
+                            <span class="field-label">
+                                {field.label}:
+                                <template if:true={field.helpText}>
+                                    <lightning-helptext content={field.helpText} class="slds-m-left_xx-small"></lightning-helptext>
+                                </template>
+                            </span>
                             <span class="field-value">{field.value}</span>
                         </div>
                     </template>
@@ -37,7 +47,12 @@
                 <div class="slds-col">
                     <template for:each={column3Data} for:item="field">
                         <div key={field.label} class="field-row">
-                            <span class="field-label">{field.label}:</span>
+                            <span class="field-label">
+                                {field.label}:
+                                <template if:true={field.helpText}>
+                                    <lightning-helptext content={field.helpText} class="slds-m-left_xx-small"></lightning-helptext>
+                                </template>
+                            </span>
                             <span class="field-value">{field.value}</span>
                         </div>
                     </template>
