@@ -12,5 +12,5 @@
     <trackTrending>false</trackTrending>
     <type>Number</type>
     <unique>false</unique>
-    <inlineHelpText>Displays the employee's available absence balance. Calculated as Total Accrued Hours minus Total Absence Hours.</inlineHelpText>
+    <inlineHelpText>Shows the employee's remaining absence balance, calculated by subtracting Total Absence Hours from Total Accrued Hours.</inlineHelpText>
 </CustomField>

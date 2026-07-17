@@ -12,5 +12,5 @@
     <trackTrending>false</trackTrending>
     <type>Number</type>
     <unique>false</unique>
-    <inlineHelpText>Displays the cumulative accrued hours from all Approved timesheets. Any Extra Accrued Hours entered are also included when newly approved timesheets are processed.</inlineHelpText>
+    <inlineHelpText>Shows the sum of accrued hours from all approved timesheets, including manually added Extra Accrued Hours, updated when any timesheet is approved.</inlineHelpText>
 </CustomField>

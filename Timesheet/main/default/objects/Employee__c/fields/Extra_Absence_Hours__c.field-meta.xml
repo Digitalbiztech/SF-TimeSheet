@@ -12,5 +12,5 @@
     <trackTrending>false</trackTrending>
     <type>Number</type>
     <unique>false</unique>
-    <inlineHelpText>When extra absence hours are added manually for an employee, they are included in the employee's Total Absence Hours when new timesheets are approved.</inlineHelpText>
+    <inlineHelpText>Manually added extra absence hours are included in the employee's Total Absence Hours upon the approval of any timesheet.</inlineHelpText>
 </CustomField>

@@ -12,5 +12,5 @@
     <trackTrending>false</trackTrending>
     <type>Number</type>
     <unique>false</unique>
-    <inlineHelpText>Displays the cumulative absence hours from all Approved timesheets. Any Extra Absence Hours entered are also included when newly approved timesheets are processed.</inlineHelpText>
+    <inlineHelpText>Shows the sum of absence hours from all approved timesheets, including manually added Extra Absence Hours, updated when any timesheet is approved.</inlineHelpText>
 </CustomField>
