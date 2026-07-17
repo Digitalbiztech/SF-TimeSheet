@@ -51,7 +51,7 @@ export default class dashboardProfile extends LightningElement {
         'AllNonBillableHours': 'Non-billable hours from every timesheets for the current year',
         'AllAbsenceHours': 'Absence hours from every timesheets for the current year',
         'AllHours': 'Total Hours from every timesheets for the current year',
-        'VacationsTaken': 'Number of vacations from Employee record'
+        'VacationsTaken': 'Number of vacations taken for the current year excluding Holidays'
     };
 
     // Fetch configuration from Custom Metadata
