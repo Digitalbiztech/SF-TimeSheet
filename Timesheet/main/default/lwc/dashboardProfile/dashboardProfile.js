@@ -6,6 +6,7 @@
 import { LightningElement, api, track, wire } from 'lwc';
 import getEmployeeDetails from '@salesforce/apex/GetDashboardProfileDetails.getEmployeeDetails';
 import getProfileConfig from '@salesforce/apex/GetDashboardProfileDetails.getProfileConfig';
+import updateDashboardProfileConfigAsync from '@salesforce/apex/GetDashboardProfileDetails.updateDashboardProfileConfigAsync';
 import USER_ID from '@salesforce/user/Id';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
@@ -34,6 +35,7 @@ export default class dashboardProfile extends LightningElement {
     column2Data = [];        // Processed data for second column
     column3Data = [];        // Processed data for third column
     employeeData;            // Raw employee data
+    isMismatch = false;      // Controls visibility of the update labels button
 
     // Lightning Message Service configuration
     @wire(MessageContext)
@@ -44,8 +46,8 @@ export default class dashboardProfile extends LightningElement {
 
     // Map for field help texts
     fieldHelpTexts = {
-        'TotalAccruedHours': 'Approved accrued hours from Employee record',
-        'TotalAbsenceHours': 'Approved absence hours from Employee record',
+        'TotalEmpAccruedHours': 'Approved accrued hours from Employee record',
+        'TotalEmpAbsenceHours': 'Approved absence hours from Employee record',
         'TotalAbsenceHoursAvailable': 'Available absence hours from Employee record',
         'AllBillableHours': 'Billable hours from every timesheets for the current year',
         'AllNonBillableHours': 'Non-billable hours from every timesheets for the current year',
@@ -62,10 +64,41 @@ export default class dashboardProfile extends LightningElement {
             this._column2Fields = data.dbt__Column_2_Fields__c;
             this._column3Fields = data.dbt__Column_3_Fields__c;
             this._showNullFields = data.dbt__Show_Null_Fields__c;
+            this.checkMismatch();
             this.processFieldOrder();
         } else if (error) {
             console.error('Error loading profile config', error);
         }
+    }
+
+    checkMismatch() {
+        const replacements = {
+            'ApprovedAccruedHours': 'TotalEmpAccruedHours',
+            'ApprovedAbsenceHours': 'TotalEmpAbsenceHours',
+            'ApprovedAbsenceHoursAvailable': 'TotalAbsenceHoursAvailable',
+            'TotalBillableHours': 'AllBillableHours',
+            'TotalNonBillableHours': 'AllNonBillableHours',
+            'TotalAbsenceHours': 'AllAbsenceHours',
+            'TotalHours': 'AllHours'
+        };
+
+        const replaceExactValues = (originalStr) => {
+            if (!originalStr) return originalStr;
+            let parts = originalStr.split(',');
+            for (let i = 0; i < parts.length; i++) {
+                let trimmedPart = parts[i].trim();
+                if (replacements[trimmedPart]) {
+                    parts[i] = replacements[trimmedPart];
+                }
+            }
+            return parts.join(',');
+        };
+
+        let col1New = replaceExactValues(this._column1Fields);
+        let col2New = replaceExactValues(this._column2Fields);
+        let col3New = replaceExactValues(this._column3Fields);
+
+        this.isMismatch = (this._column1Fields !== col1New) || (this._column2Fields !== col2New) || (this._column3Fields !== col3New);
     }
 
     /**
@@ -159,6 +192,18 @@ export default class dashboardProfile extends LightningElement {
             value: this.employeeData[field] ?? 'N/A',
             helpText: this.fieldHelpTexts[field]
         }));
+    }
+
+    handleUpdateLabels() {
+        updateDashboardProfileConfigAsync()
+            .then(() => {
+                this.showToast('Success', 'Labels update initiated successfully', 'success');
+                this.isMismatch = false;
+            })
+            .catch(error => {
+                this.showToast('Error', 'Error updating labels', 'error');
+                console.error('Error updating labels', error);
+            });
     }
 }
 
