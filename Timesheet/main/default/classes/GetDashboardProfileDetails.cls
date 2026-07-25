@@ -134,7 +134,7 @@ public with sharing class GetDashboardProfileDetails {
     @AuraEnabled
     public static void updateDashboardProfileConfigAsync() {
         List<Dashboard_Profile_Config__mdt> configs = [
-            SELECT Id, DeveloperName, Column_1_Fields__c, Column_2_Fields__c, Column_3_Fields__c 
+            SELECT Id, DeveloperName 
             FROM Dashboard_Profile_Config__mdt 
             WHERE DeveloperName = 'Default_Value'
         ];
@@ -143,42 +143,28 @@ public with sharing class GetDashboardProfileDetails {
             return;
         }
         
-        Dashboard_Profile_Config__mdt config = configs[0];
+        String col1 = 'Name,PhoneNumber,Email,HireDate,LastWorkingDate';
+        String col2 = 'ClientManager,ClientManagerEmail,Projects,TotalEmpAccruedHours,TotalEmpAbsenceHours,TotalAbsenceHoursAvailable';
+        String col3 = 'AllBillableHours,AllNonBillableHours,AllAbsenceHours,AllHours,VacationsTaken';
         
-        Map<String, String> replacements = new Map<String, String>{
-            'ApprovedAccruedHours' => 'TotalEmpAccruedHours',
-            'ApprovedAbsenceHours' => 'TotalEmpAbsenceHours',
-            'ApprovedAbsenceHoursAvailable' => 'TotalAbsenceHoursAvailable',
-            'TotalBillableHours' => 'AllBillableHours',
-            'TotalNonBillableHours' => 'AllNonBillableHours',
-            'TotalAbsenceHours' => 'AllAbsenceHours',
-            'TotalHours' => 'AllHours'
-        };
-        
-        String col1 = config.Column_1_Fields__c;
-        String col2 = config.Column_2_Fields__c;
-        String col3 = config.Column_3_Fields__c;
-        
-        col1 = replaceExactValues(col1, replacements);
-        col2 = replaceExactValues(col2, replacements);
-        col3 = replaceExactValues(col3, replacements);
+        String namespace = 'dbt__';
         
         Metadata.CustomMetadata customMetadata = new Metadata.CustomMetadata();
-        customMetadata.fullName = 'Dashboard_Profile_Config.Default_Value';
+        customMetadata.fullName = namespace + 'Dashboard_Profile_Config.Default_Value';
         customMetadata.label = 'Default Value';
         
         Metadata.CustomMetadataValue customField1 = new Metadata.CustomMetadataValue();
-        customField1.field = 'Column_1_Fields__c';
+        customField1.field = namespace + 'Column_1_Fields__c';
         customField1.value = col1;
         customMetadata.values.add(customField1);
         
         Metadata.CustomMetadataValue customField2 = new Metadata.CustomMetadataValue();
-        customField2.field = 'Column_2_Fields__c';
+        customField2.field = namespace + 'Column_2_Fields__c';
         customField2.value = col2;
         customMetadata.values.add(customField2);
         
         Metadata.CustomMetadataValue customField3 = new Metadata.CustomMetadataValue();
-        customField3.field = 'Column_3_Fields__c';
+        customField3.field = namespace + 'Column_3_Fields__c';
         customField3.value = col3;
         customMetadata.values.add(customField3);
         
@@ -186,21 +172,23 @@ public with sharing class GetDashboardProfileDetails {
         mdContainer.addMetadata(customMetadata);
         
         if (!Test.isRunningTest()) {
-            Id jobId = Metadata.Operations.enqueueDeployment(mdContainer, null);
+            Metadata.Operations.enqueueDeployment(mdContainer, null);
         }
     }
 
-    private static String replaceExactValues(String originalStr, Map<String, String> replacements) {
-        if (String.isBlank(originalStr)) {
-            return originalStr;
-        }
-        List<String> parts = originalStr.split(',');
-        for (Integer i = 0; i < parts.size(); i++) {
-            String trimmedPart = parts[i].trim();
-            if (replacements.containsKey(trimmedPart)) {
-                parts[i] = replacements.get(trimmedPart);
-            }
-        }
-        return String.join(parts, ',');
+    /**
+     * @description Checks if the current user has the Timesheet_HR_Admin permission set
+     * @return Boolean True if the user has the permission set, false otherwise
+     */
+    @AuraEnabled(cacheable=true)
+    public static Boolean hasHrAdminPermission() {
+        List<PermissionSetAssignment> assignments = [
+            SELECT Id 
+            FROM PermissionSetAssignment 
+            WHERE AssigneeId = :UserInfo.getUserId() 
+            AND PermissionSet.Name = 'Timesheet_HR_Admin'
+            WITH SECURITY_ENFORCED
+        ];
+        return !assignments.isEmpty();
     }
 }

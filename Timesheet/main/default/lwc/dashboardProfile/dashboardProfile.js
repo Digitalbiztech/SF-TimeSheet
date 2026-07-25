@@ -7,6 +7,7 @@ import { LightningElement, api, track, wire } from 'lwc';
 import getEmployeeDetails from '@salesforce/apex/GetDashboardProfileDetails.getEmployeeDetails';
 import getProfileConfig from '@salesforce/apex/GetDashboardProfileDetails.getProfileConfig';
 import updateDashboardProfileConfigAsync from '@salesforce/apex/GetDashboardProfileDetails.updateDashboardProfileConfigAsync';
+import hasHrAdminPermission from '@salesforce/apex/GetDashboardProfileDetails.hasHrAdminPermission';
 import USER_ID from '@salesforce/user/Id';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
@@ -43,6 +44,20 @@ export default class dashboardProfile extends LightningElement {
 
     subscription = null;
     selectedUserId = USER_ID; // Initialize with current user's ID
+    hasAdminPermission = false;
+
+    @wire(hasHrAdminPermission)
+    wiredAdminPermission({ error, data }) {
+        if (data) {
+            this.hasAdminPermission = data;
+        } else if (error) {
+            console.error('Error checking admin permission', error);
+        }
+    }
+
+    get showResetButton() {
+        return this.isMismatch && this.hasAdminPermission;
+    }
 
     // Map for field help texts
     fieldHelpTexts = {
@@ -72,33 +87,25 @@ export default class dashboardProfile extends LightningElement {
     }
 
     checkMismatch() {
-        const replacements = {
-            'ApprovedAccruedHours': 'TotalEmpAccruedHours',
-            'ApprovedAbsenceHours': 'TotalEmpAbsenceHours',
-            'ApprovedAbsenceHoursAvailable': 'TotalAbsenceHoursAvailable',
-            'TotalBillableHours': 'AllBillableHours',
-            'TotalNonBillableHours': 'AllNonBillableHours',
-            'TotalAbsenceHours': 'AllAbsenceHours',
-            'TotalHours': 'AllHours'
-        };
+        const validWords = [
+            'Name', 'PhoneNumber', 'Email', 'HireDate', 'LastWorkingDate',
+            'ClientManager', 'ClientManagerEmail', 'Projects',
+            'TotalEmpAccruedHours', 'TotalEmpAbsenceHours', 'TotalAbsenceHoursAvailable',
+            'AllBillableHours', 'AllNonBillableHours', 'AllAbsenceHours', 'AllHours', 'VacationsTaken'
+        ];
 
-        const replaceExactValues = (originalStr) => {
-            if (!originalStr) return originalStr;
-            let parts = originalStr.split(',');
-            for (let i = 0; i < parts.length; i++) {
-                let trimmedPart = parts[i].trim();
-                if (replacements[trimmedPart]) {
-                    parts[i] = replacements[trimmedPart];
-                }
-            }
-            return parts.join(',');
-        };
+        let currentWords = [];
+        if (this._column1Fields) {
+            currentWords = currentWords.concat(this._column1Fields.split(',').map(w => w.trim()).filter(w => w));
+        }
+        if (this._column2Fields) {
+            currentWords = currentWords.concat(this._column2Fields.split(',').map(w => w.trim()).filter(w => w));
+        }
+        if (this._column3Fields) {
+            currentWords = currentWords.concat(this._column3Fields.split(',').map(w => w.trim()).filter(w => w));
+        }
 
-        let col1New = replaceExactValues(this._column1Fields);
-        let col2New = replaceExactValues(this._column2Fields);
-        let col3New = replaceExactValues(this._column3Fields);
-
-        this.isMismatch = (this._column1Fields !== col1New) || (this._column2Fields !== col2New) || (this._column3Fields !== col3New);
+        this.isMismatch = currentWords.some(word => !validWords.includes(word));
     }
 
     /**

@@ -61,9 +61,9 @@
         </div>
         
         <!-- Button to update out-of-date custom metadata labels -->
-        <template if:true={isMismatch}>
+        <template if:true={showResetButton}>
             <div class="slds-align_absolute-center slds-m-top_medium">
-                <lightning-button label="Update the Labels" onclick={handleUpdateLabels} variant="brand"></lightning-button>
+                <lightning-button label="Reset to Default!" onclick={handleUpdateLabels} variant="brand"></lightning-button>
             </div>
         </template>
     </div>
