@@ -150,7 +150,7 @@ public with sharing class GetDashboardProfileDetails {
         String namespace = 'dbt__';
         
         Metadata.CustomMetadata customMetadata = new Metadata.CustomMetadata();
-        customMetadata.fullName = namespace + 'Dashboard_Profile_Config.Default_Value';
+        customMetadata.fullName = namespace + 'Dashboard_Profile_Config.' + namespace + 'Default_Value';
         customMetadata.label = 'Default Value';
         
         Metadata.CustomMetadataValue customField1 = new Metadata.CustomMetadataValue();
