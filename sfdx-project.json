@@ -16,6 +16,14 @@
       "default": false,
       "package": "TimesheetUnlocked",
       "versionDescription": ""
+    },
+    {
+      "versionName": "ver 0.1",
+      "versionNumber": "0.1.0.NEXT",
+      "path": "Timesheet",
+      "default": false,
+      "package": "TimeSheetTest",
+      "versionDescription": ""
     }
   ],
   "name": "SF-TimeSheet",
@@ -91,13 +99,17 @@
     "Timesheet@2.17.0-1": "04tKb000000tBfiIAE",
     "Timesheet@2.18.0-1": "04tKb000000tBfnIAE",
     "Timesheet@2.19.0-1": "04tKb000000tBggIAE",
+    "Timesheet@2.20.0-1": "04tKb000000tBmaIAE",
     "Timesheet@2.20.0-2": "04tKb000000tBn9IAE",
     "Timesheet@2.21.0-1": "04tKb000000tBnEIAU",
     "Timesheet@2.22.0-1": "04tKb000000tBnJIAU",
+    "TimesheetUnlocked@0.1.0-16": "04tKb000000tBmfIAE",
     "TimesheetUnlocked@0.1.0-18": "04tKb000000tBniIAE",
     "Timesheet@2.23.0-1": "04tKb000000tBnnIAE",
     "Timesheet@2.24.0-1": "04tKb000000tBnsIAE",
     "Timesheet@2.25.0-2": "04tbm000000ZHsPAAW",
-    "Timesheet@2.26.0-1": "04tbm000000ZIuvAAG"
+    "Timesheet@2.26.0-1": "04tbm000000ZIuvAAG",
+    "TimeSheetTest": "0HoKb000000wk3lKAA",
+    "TimeSheetTest@0.1.0-1": "04tKb000000tBmVIAU"
   }
 }

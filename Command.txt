@@ -1,6 +1,8 @@
 # To create package version run this
 # Before this change package version and ansector version
-sfdx force:package:version:create --package Timesheet --installation-key-bypass -v pbo --json --code-coverage --post-install-script PostInstallScript --wait 30
+sfdx force:package:version:create --package Timesheet --installation-key-bypass -v pbo --json --code-coverage --post-install-script TimesheetPostInstallScript --wait 30
+
+Without validation: sfdx force:package:version:create --package Timesheet --installation-key-bypass -v pbo --json --post-install-script TimesheetPostInstallScript --wait 30 --skipvalidation
 
 sfdx force:package:version:create --package TimesheetUnlocked --installation-key-bypass -v pbo --json --wait 30
 
@@ -18,3 +20,6 @@ sfdx force:user:permset:assign -n Timesheet_HR_Admin -u testorg
 
 # To delete scratch org run this
 sf org delete scratch --target-org testorg --no-prompt
+
+# To deploy only current changes to scratch org:
+.\Deploy-Delta.ps1

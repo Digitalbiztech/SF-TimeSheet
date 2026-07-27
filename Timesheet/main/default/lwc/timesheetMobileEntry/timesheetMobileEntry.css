@@ -1,0 +1,229 @@
+.mobile-container {
+    background: #f8f9fa;
+    min-height: 500px;
+    font-family: 'Inter', sans-serif;
+    position: relative;
+    padding-bottom: 80px; /* space for fab */
+}
+.mobile-header {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    padding: 20px;
+    color: white;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.timesheet-title {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+.total-hours {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+.hours-label {
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+.hours-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+.date-navigator {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: white;
+    margin: 15px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+.current-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.day-name {
+    font-weight: 700;
+    color: #1a1f36;
+    font-size: 1.1rem;
+}
+.date-val {
+    font-size: 0.85rem;
+    color: #697386;
+}
+.nav-btn {
+    background: none;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    color: #2a5298;
+}
+.line-items-list {
+    padding: 0 15px;
+}
+.item-card {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    border-left: 4px solid #2a5298;
+}
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+.project-title {
+    font-weight: 600;
+    color: #1a1f36;
+    font-size: 1.05rem;
+}
+.duration-badge {
+    background: #e8f0fe;
+    color: #1967d2;
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+.card-body {
+    margin-bottom: 12px;
+}
+.activity-text {
+    color: #3c4043;
+    font-size: 0.95rem;
+    margin: 0 0 4px 0;
+}
+.desc-text {
+    color: #80868b;
+    font-size: 0.85rem;
+    margin: 0;
+    font-style: italic;
+}
+.card-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 1px solid #f1f3f4;
+    padding-top: 10px;
+}
+.action-btn {
+    background: none;
+    border: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+.edit-btn {
+    color: #1a73e8;
+}
+.del-btn {
+    color: #d93025;
+}
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #80868b;
+}
+.empty-icon {
+    margin-bottom: 15px;
+    --sds-c-icon-color-foreground-default: #dadce0;
+}
+.fab-btn {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #fbbc04;
+    border: none;
+    box-shadow: 0 4px 15px rgba(251, 188, 4, 0.4);
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    transition: transform 0.2s;
+}
+.fab-btn:active {
+    transform: scale(0.95);
+}
+.form-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: white;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+}
+.form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+.form-header h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+.close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+.form-body {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+.form-actions {
+    padding: 15px 20px;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+}
+.btn-cancel, .btn-save {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+}
+.btn-cancel {
+    background: #f1f3f4;
+    color: #3c4043;
+}
+.btn-save {
+    background: #1a73e8;
+    color: white;
+}
+.btn-save:disabled {
+    background: #aecbfa;
+}
+.spinner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255,255,255,0.7);
+    z-index: 50;
+}

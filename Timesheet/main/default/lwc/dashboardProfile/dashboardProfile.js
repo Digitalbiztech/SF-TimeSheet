@@ -12,7 +12,7 @@ import USER_ID from '@salesforce/user/Id';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
 // LMS imports for handling user selection across components
-import { subscribe, MessageContext } from 'lightning/messageService';
+import { subscribe, unsubscribe, MessageContext } from 'lightning/messageService';
 import SELECTED_USER_CHANNEL from '@salesforce/messageChannel/UserChannel__c';
 
 export default class dashboardProfile extends LightningElement {
@@ -116,6 +116,16 @@ export default class dashboardProfile extends LightningElement {
         this.fetchEmployeeDetails();
     }
 
+    /**
+     * @description Lifecycle hook when component is removed from DOM
+     */
+    disconnectedCallback() {
+        if (this.subscription) {
+            unsubscribe(this.subscription);
+            this.subscription = null;
+        }
+    }
+
     showToast(title, message, variant) {
         const evt = new ShowToastEvent({
             title: title,
@@ -158,7 +168,7 @@ export default class dashboardProfile extends LightningElement {
                 this.processFieldOrder();
             })
             .catch((error) => {
-                this.showToast('Error', "Error fetching employee details", 'error');
+                this.showToast('Info', "No Employee record is for the current User.", 'info');
                 console.log('Error fetching employee details',error);
             });
     }

@@ -1,0 +1,272 @@
+/* weeklyTimesheetView.css */
+:host .slds-box.slds-theme_default {
+/* Outer container styling (optional) */
+background-color: #ffffff;
+border-radius: 4px;
+box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+padding: 1rem;
+}
+
+:host .slds-table tbody tr {
+    height: 50px;
+    /* Set your desired row height */
+}
+
+/* Make the table fill the available width and fix column sizing */
+:host .slds-table {
+    width: 100%;
+    table-layout: fixed; /* Ensures columns remain equal widths */
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+:host .slds-table thead th {
+    text-transform: uppercase;
+    font-weight: 600;
+    color: #ffffff;
+    background-color: #113c73; /* Darker than #1B5299 */
+    text-align: center;
+    padding: 0.75rem;
+}
+
+/* Header row styling */
+:host .slds-table thead {
+    --slds-g-color-neutral-base-95: #113c73;
+}
+
+
+
+/* Force Monday-Sunday columns to the same width.
+Example:
+- 20% for the first column (Activity Name),
+- 7 columns for Monday→Sunday at 10% each = 70%,
+- last column (Action) = 10%.
+Adjust if you prefer different widths. */
+:host .slds-table thead th:nth-child(1) {
+width: 20%;
+}
+:host .slds-table thead th:nth-child(n+2):nth-child(-n+8) {
+width: 10%; /* Monday to Sunday */
+}
+:host .slds-table thead th:last-child {
+width: 10%; /* Action column */
+}
+
+/* Table cell styling */
+:host .slds-table tbody td {
+    background-color: #ffffff;
+    padding: 0.75rem;
+    vertical-align: middle;
+    text-align: center; /* Center-align table cells by default */
+}
+
+
+
+/* Subtle row striping (optional) */
+:host .slds-table tbody tr:nth-child(even) td {
+background-color: #f7fafc;
+}
+/* Hover highlight (optional) */
+:host .slds-table tbody tr:hover td {
+    background-color: #eef3f8;
+}
+
+/* Section headers (Total, Projects, Absence) rows */
+:host tr.slds-theme_shade td {
+    background-color: #1b5299 !important;
+    color: White;
+    font-weight: 600;
+    text-align: center;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+:host tr.project-absence-header td {
+    background-color: #1f8eae !important; /* Lighter than #1b5299 */
+}
+
+:host .slds-table tbody tr.slds-theme_shade:hover td {
+    box-shadow: none !important;
+    border: none !important;
+}
+
+/* White lines between the top 4 rows */
+:host .slds-table tbody tr.slds-theme_shade:nth-child(1) td,
+:host .slds-table tbody tr.slds-theme_shade:nth-child(2) td {
+    border-bottom: 2px solid white !important;
+}
+
+/* Ensure hover state doesn't override the white border */
+:host .slds-table tbody tr.slds-theme_shade:nth-child(1):hover td,
+:host .slds-table tbody tr.slds-theme_shade:nth-child(2):hover td {
+    border-bottom: 2px solid white !important;
+}
+
+:host td.slds-theme_shade{
+    background-color: #767ca15e !important;
+}
+
+/* Center the numeric inputs */
+:host lightning-input[type="number"] .slds-form-element__control input {
+    text-align: center;
+}
+
+/* Style the description text areas. 
+   USER: You can manually edit the height and min-width values below to adjust the size of the description box. */
+:host lightning-textarea[title="Description"] .slds-form-element__control textarea {
+    height: 80px !important;
+    min-width: 180px !important;
+    padding: 0px !important;
+    resize: vertical; /* Allow vertical resizing by user if desired */
+}
+
+/* Spacing for buttons at the bottom */
+:host .slds-p-top_medium {
+    margin-top: 1rem;
+    border-top: 1px solid #d8dde6;
+    padding-top: 1rem;
+}
+
+.duration_hours
+{
+    height: 40px !important;
+    text-align: center;
+    --slds-g-color-neutral-base-95: red;
+}
+
+.slds-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    /* 3px is 50% wider than the 2px lines below */
+    border-bottom: 3px solid white !important;
+}
+
+/* Note Button Styles */
+.note-button {
+    background: linear-gradient(130deg, #dfe9ec 0%, #aac7da 100%) !important;
+    border: 1px solid #d8dde6;
+    border-radius: 4px;
+    color: #0176d3; /* Standard link/brand color */
+    cursor: pointer;
+    font-size: 0.8125rem;
+    padding: 2px 8px;
+    transition: all 0.2s ease;
+    width: 100%;
+    margin-top: 4px;
+}
+
+.note-button:hover:not(:disabled) {
+    background-color: #f3f2f2;
+}
+
+.note-button:disabled {
+    color: #c9c7c5;
+    border-color: #e5e5e5;
+    cursor: not-allowed;
+    background-color: #f9f9f9;
+    background: transparent !important;
+}
+
+.note-has-text {
+    color: #2e844a; /* Green success color */
+    font-weight: 600;
+    border-color: #2e844a;
+}
+
+.note-has-text:disabled {
+    color: #c9c7c5;
+    border-color: #e5e5e5;
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Custom Error Styling */
+:host .custom-error {
+    --slds-c-input-color-border: #ea001e;
+    --slds-c-input-color-border-focus: #ea001e;
+    --sds-c-input-color-border: #ea001e;
+}
+
+:host button.custom-error {
+    border: 2px solid #ea001e !important;
+    border-radius: 4px;
+    padding: 1px;
+}
+
+:host .custom-error-wrapper {
+    border: 2px solid #ea001e !important;
+    border-radius: 4px;
+    padding: 2px;
+}
+
+:host .custom-note-textarea {
+    --slds-c-textarea-sizing-min-height: 120px;
+    --sds-c-textarea-sizing-min-height: 120px;
+}
+
+:host .note-has-text {
+    background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%) !important;
+    color: #004d40 !important;
+    border-color: #80cbc4 !important;
+}
+
+:host .duration-empty {
+    --slds-c-input-color-border: #d8dde6;
+    --sds-c-input-color-border: #d8dde6;
+    --slds-c-input-text-color: #b0adab;
+    --sds-c-input-text-color: #b0adab;
+}
+
+/* Spin animation */
+@keyframes spin-circle {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+:host .animate-spin {
+    animation: spin-circle 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Shake / Trash Can animation */
+@keyframes shake-trash {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(-15deg); }
+    50% { transform: rotate(0deg); }
+    75% { transform: rotate(15deg); }
+    100% { transform: rotate(0deg); }
+}
+
+:host .animate-shake {
+    animation: shake-trash 0.4s ease-in-out !important;
+}
+
+/* Magic Scanner Line */
+:host .magic-scanner-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -20px;
+    width: 6px;
+    background: linear-gradient(to right, rgba(11, 191, 230, 0) 0%, rgba(11, 191, 230, 1) 50%, rgba(11, 191, 230, 0) 100%);
+    box-shadow: 0 0 15px rgba(11, 191, 230, 0.8), 0 0 30px rgba(11, 191, 230, 0.4);
+    z-index: 10;
+    pointer-events: none;
+    animation: scanner-sweep 0.7s cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
+}
+
+@keyframes scanner-sweep {
+    0% { left: -20px; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { left: 100%; opacity: 0; }
+}
