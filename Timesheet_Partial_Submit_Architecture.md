@@ -34,26 +34,31 @@ Per `StatusLogic.md`, the state machine is defined as follows:
 ## 2. State Transition Diagram
 
 ```mermaid
-stateDiagram-v2
-    [*] --> New : Timesheet Created\n[LI: New]
-
-    New --> Partial : Employee: Partial Submit\n[LI: Partial Submitted]
-    New --> Submitted : Employee: Submit (Full)\n[LI: Submitted (all)]
-
-    Partial --> Partial : Manager: Partial Approve [LI: Partial Approved]\nManager: Partial Reject [LI: New, if other LIs remain non-New]
-    Partial --> New : Manager: Partial Reject [ALL LIs become New]
-    Partial --> Submitted : Employee: Submit (Full)\n[LI: Submitted, except Partial Approved]
-    Partial --> New : Sys Admin override
-
-    Submitted --> Approved : Manager: Approve (Full)\n[LI: Approved all]
-    Submitted --> New : Manager: Reject (Full)\n[LI: New all, except Partial Approved]
-    Submitted --> Partial : Sys Admin override\n[LI: Partial Submitted, except Partial Approved]
-
-    Approved --> New : Sys Admin override [LI: New all]
-    Approved --> Partial : Sys Admin override [LI: Partial Submitted all]
-    Approved --> Submitted : Sys Admin override [LI: Submitted all]
-
-    Approved --> [*]
+stateDiagram
+  direction TB
+  classDef Pine stroke-width:1px,stroke-dasharray:none,stroke:#254336,fill:#27654A,color:#FFFFFF;
+  [*] --> New:Timesheet Created<br>[LI: New]
+  New --> Employee
+  Employee --> Partial:Employee: Partial Submit<br>[LI: Partial Submitted]
+  Employee --> Submitted:Employee: Submit (Full)<br>[LI: Submitted (all)]
+  Partial --> Manager
+  Partial --> Employee
+  Partial --> Admin
+  Manager --> Partial:Manager: Partial Approve<br>[LI: Partial Approved]<br>...<br>Manager: Partial Reject<br>[LI: New, if other LIs remain non-New]
+  Manager --> New:Manager: Partial Reject<br>[ALL LIs become New]
+  Employee --> Submitted:Employee: Submit (Full)<br>[LI: Submitted, except Partial Approved]
+  Admin--> New:Admin override<br>[LI: New all]
+  Submitted --> Manager
+  Submitted --> Admin
+  Manager --> Approved:Manager: Approve (Full)<br>[LI: Approved all]
+  Manager --> New:Manager: Reject (Full)<br>[LI: New all, except Partial Approved]
+  Admin --> Partial:Admin override<br>[LI: Partial Submitted, except Partial Approved]
+  Approved --> Admin
+  Admin --> Partial:Admin override<br>[LI: Partial Submitted all]
+  Admin --> Submitted:Admin override<br>[LI: Submitted all]
+  Admin --> Approved:Admin override<br>[LI: Approved all]
+  Approved --> [*]
+  class New,Partial,Submitted,Approved Pine
 ```
 
 ---
