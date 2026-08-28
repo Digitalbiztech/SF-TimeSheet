@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Timesheet Partial Submit — State Machine & Transition Rules</title>
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-surface: #1e293b;
+      --bg-surface-elevated: #243248;
+      --bg-surface-hover: #2d3e58;
+      --border-color: #334155;
+      --border-subtle: #1e293b;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.25);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+      --color-employee: #10b981;
+      --color-employee-bg: rgba(16, 185, 129, 0.15);
+      --color-employee-border: rgba(16, 185, 129, 0.35);
+      --color-manager: #3b82f6;
+      --color-manager-bg: rgba(59, 130, 246, 0.15);
+      --color-manager-border: rgba(59, 130, 246, 0.35);
+      --color-sysadmin: #f59e0b;
+      --color-sysadmin-bg: rgba(245, 158, 11, 0.15);
+      --color-sysadmin-border: rgba(245, 158, 11, 0.35);
+      --color-highlight: #ec4899;
+      --color-highlight-bg: rgba(236, 72, 153, 0.18);
+      --color-node-new: #64748b;
+      --color-node-partial: #8b5cf6;
+      --color-node-submitted: #0284c7;
+      --color-node-approved: #10b981;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.5;
+      font-size: 14px;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top App Header */
+    .app-header {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-color);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      gap: 16px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .app-logo-badge {
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      color: #fff;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .app-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .app-subtitle {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .header-badges {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .meta-tag {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 20px;
+      background: var(--bg-surface-elevated);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .meta-tag.status-ok {
+      color: #10b981;
+      border-color: rgba(16, 185, 129, 0.3);
+      background: var(--color-employee-bg);
+    }
+
+    /* Main Workspace Layout (2 Panes Side-by-Side) */
+    .workspace-container {
+      display: grid;
+      grid-template-columns: 1.18fr 0.82fr;
+      flex: 1;
+      overflow: hidden;
+      padding: 12px;
+      gap: 12px;
+    }
+
+    /* Left Pane: Filter Bar, SVG Diagram, Invariants */
+    .left-pane {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .left-pane::-webkit-scrollbar,
+    .right-pane .steps-container::-webkit-scrollbar {
+      width: 6px;
+    }
+    .left-pane::-webkit-scrollbar-track,
+    .right-pane .steps-container::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .left-pane::-webkit-scrollbar-thumb,
+    .right-pane .steps-container::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 3px;
+    }
+    .left-pane::-webkit-scrollbar-thumb:hover,
+    .right-pane .steps-container::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
+    }
+
+    /* Filter Toolbar Card */
+    .filter-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .actor-checkboxes {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .actor-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 20px;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+      border: 1px solid transparent;
+    }
+    .actor-chip.employee {
+      background: var(--color-employee-bg);
+      color: #34d399;
+      border-color: var(--color-employee-border);
+    }
+    .actor-chip.manager {
+      background: var(--color-manager-bg);
+      color: #60a5fa;
+      border-color: var(--color-manager-border);
+    }
+    .actor-chip.sysadmin {
+      background: var(--color-sysadmin-bg);
+      color: #fbbf24;
+      border-color: var(--color-sysadmin-border);
+    }
+    .actor-chip input {
+      accent-color: currentColor;
+      cursor: pointer;
+    }
+    .actor-chip:hover {
+      filter: brightness(1.15);
+    }
+
+    .state-selectors {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+      font-size: 12px;
+    }
+
+    .selector-group {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .selector-group label {
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    select.filter-select {
+      background: var(--bg-surface-elevated);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 4px 8px;
+      font-size: 12px;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+    select.filter-select:focus {
+      border-color: #3b82f6;
+    }
+
+    .btn-reset {
+      background: var(--bg-surface-elevated);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+    .btn-reset:hover {
+      background: var(--bg-surface-hover);
+      color: var(--text-primary);
+      border-color: var(--text-muted);
+    }
+
+    /* Diagram Card */
+    .diagram-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px 14px 8px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+    }
+
+    .diagram-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .diagram-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .diagram-hint {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .svg-wrapper {
+      width: 100%;
+      position: relative;
+      user-select: none;
+    }
+
+    svg#stateSvg {
+      width: 100%;
+      height: auto;
+      display: block;
+      overflow: visible;
+    }
+
+    /* SVG Node Styling */
+    .node-group {
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+    .node-group:hover rect {
+      filter: brightness(1.2);
+    }
+    .node-box {
+      stroke-width: 1.5;
+      transition: all 0.2s ease;
+    }
+    .node-box-new { fill: #1e293b; stroke: #64748b; }
+    .node-box-partial { fill: #2e1065; stroke: #a855f7; }
+    .node-box-submitted { fill: #082f49; stroke: #0ea5e9; }
+    .node-box-approved { fill: #064e3b; stroke: #10b981; }
+
+    .node-title {
+      font-size: 14px;
+      font-weight: 700;
+      fill: #ffffff;
+      pointer-events: none;
+    }
+    .node-subtitle {
+      font-size: 10px;
+      font-weight: 500;
+      fill: #94a3b8;
+      pointer-events: none;
+    }
+
+    /* SVG Path Transitions */
+    .flow-edge {
+      fill: none;
+      cursor: pointer;
+      transition: opacity 0.2s ease, stroke-width 0.2s ease, stroke 0.2s ease;
+    }
+    .flow-edge:hover,
+    .flow-edge.active-edge {
+      stroke-width: 3.5 !important;
+      filter: drop-shadow(0 0 6px currentColor);
+      opacity: 1 !important;
+    }
+    .flow-edge.dimmed {
+      opacity: 0.08 !important;
+    }
+
+    /* SVG Diagram Legend */
+    .diagram-legend {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 4px;
+      padding-top: 6px;
+      border-top: 1px solid var(--border-color);
+      font-size: 11px;
+      color: var(--text-secondary);
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: var(--radius-sm);
+      transition: background 0.15s ease;
+    }
+    .legend-item:hover {
+      background: var(--bg-surface-elevated);
+      color: var(--text-primary);
+    }
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    /* Invariants & Golden Rules Card */
+    .invariants-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .invariants-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .invariants-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .inv-item {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 6px 8px;
+    }
+    .inv-header {
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 2px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .inv-item.new .inv-header { color: #94a3b8; }
+    .inv-item.partial .inv-header { color: #c084fc; }
+    .inv-item.submitted .inv-header { color: #38bdf8; }
+    .inv-item.approved .inv-header { color: #34d399; }
+    .inv-body {
+      font-size: 10.5px;
+      color: var(--text-secondary);
+      line-height: 1.35;
+    }
+
+    /* Right Pane: Steps & Rules List */
+    .right-pane {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .right-header {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: var(--bg-surface);
+      flex-shrink: 0;
+    }
+
+    .right-header-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .count-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: var(--bg-surface-elevated);
+      color: #38bdf8;
+      border: 1px solid var(--border-color);
+    }
+
+    .search-box {
+      position: relative;
+      flex: 1;
+      max-width: 170px;
+    }
+    .search-box input {
+      width: 100%;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 4px 8px 4px 24px;
+      font-size: 11px;
+      color: var(--text-primary);
+      outline: none;
+    }
+    .search-box input:focus {
+      border-color: #3b82f6;
+    }
+    .search-icon {
+      position: absolute;
+      left: 7px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 10px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .steps-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* Transition Step Card */
+    .step-card {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      transition: all 0.15s ease;
+      cursor: pointer;
+      position: relative;
+    }
+    .step-card:hover {
+      background: var(--bg-surface-hover);
+      border-color: var(--text-muted);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+    }
+    .step-card.active-card {
+      border-color: var(--color-highlight);
+      background: rgba(236, 72, 153, 0.08);
+      box-shadow: 0 0 0 1px var(--color-highlight);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .card-actor-op {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      font-size: 12.5px;
+    }
+    .actor-indicator {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .actor-indicator.employee { background: var(--color-employee); }
+    .actor-indicator.manager { background: var(--color-manager); }
+    .actor-indicator.sysadmin { background: var(--color-sysadmin); }
+
+    .transition-pill {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+    .transition-pill .arrow-symbol {
+      color: #38bdf8;
+      font-size: 10px;
+    }
+
+    .card-details {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      font-size: 11.5px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .detail-row {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+    .detail-label {
+      font-weight: 600;
+      color: var(--text-muted);
+      min-width: 80px;
+      flex-shrink: 0;
+      font-size: 11px;
+    }
+    .detail-val {
+      color: var(--text-primary);
+    }
+    .detail-val .highlight-tag {
+      background: rgba(236, 72, 153, 0.15);
+      color: #f472b6;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .detail-val .status-val {
+      font-weight: 600;
+      color: #38bdf8;
+    }
+    .detail-val .note-tag {
+      font-size: 10.5px;
+      color: #fbbf24;
+      font-style: italic;
+    }
+
+    .card-rule-tag {
+      margin-top: 5px;
+      padding-top: 5px;
+      border-top: 1px dashed var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 10.5px;
+      color: var(--text-muted);
+    }
+    .rule-id {
+      color: #a855f7;
+      font-weight: 600;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1024px) {
+      body {
+        height: auto;
+        overflow-y: auto;
+      }
+      .workspace-container {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+      .right-pane {
+        height: 600px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Main 2-Pane Side-by-Side Content -->
+  <main class="workspace-container">
+    
+    <!-- Left Pane: Filters, SVG Diagram, Invariants -->
+    <section class="left-pane">
+      
+      <!-- Filter Bar -->
+      <div class="filter-card">
+        <div class="actor-checkboxes">
+          <label class="actor-chip employee">
+            <input type="checkbox" id="chk-employee" checked onchange="applyFilters()">
+            <span>Employee</span>
+          </label>
+          <label class="actor-chip manager">
+            <input type="checkbox" id="chk-manager" checked onchange="applyFilters()">
+            <span>Manager</span>
+          </label>
+          <label class="actor-chip sysadmin">
+            <input type="checkbox" id="chk-sysadmin" checked onchange="applyFilters()">
+            <span>Sys Admin</span>
+          </label>
+        </div>
+
+        <div class="state-selectors">
+          <div class="selector-group">
+            <label for="fromSelect">From:</label>
+            <select id="fromSelect" class="filter-select" onchange="applyFilters()">
+              <option value="any">Any State</option>
+              <option value="New">New</option>
+              <option value="Partial">Partial</option>
+              <option value="Submitted">Submitted</option>
+              <option value="Approved">Approved</option>
+            </select>
+          </div>
+
+          <div class="selector-group">
+            <label for="toSelect">To:</label>
+            <select id="toSelect" class="filter-select" onchange="applyFilters()">
+              <option value="any">Any State</option>
+              <option value="New">New</option>
+              <option value="Partial">Partial</option>
+              <option value="Submitted">Submitted</option>
+              <option value="Approved">Approved</option>
+            </select>
+          </div>
+
+          <button class="btn-reset" onclick="resetFilters()">Reset</button>
+        </div>
+      </div>
+
+      <!-- State Machine SVG Diagram -->
+      <div class="diagram-card">
+        <div class="diagram-header">
+          <div class="diagram-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            Interactive Transition Diagram
+          </div>
+          <div class="diagram-hint">Hover edge or node to inspect rules</div>
+        </div>
+
+        <div class="svg-wrapper">
+          <svg id="stateSvg" viewBox="0 0 740 380" role="img">
+            <title>Timesheet status transitions state diagram</title>
+            <desc>State diagram showing New, Partial, Submitted and Approved statuses connected by actor-driven transitions</desc>
+            
+            <defs>
+              <!-- Arrow Markers for each Actor -->
+              <marker id="arrow-employee" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M2 1L8 5L2 9" fill="none" stroke="#10b981" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </marker>
+              <marker id="arrow-manager" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M2 1L8 5L2 9" fill="none" stroke="#3b82f6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </marker>
+              <marker id="arrow-sysadmin" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M2 1L8 5L2 9" fill="none" stroke="#f59e0b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </marker>
+              <marker id="arrow-highlight" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M2 1L8 5L2 9" fill="none" stroke="#ec4899" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+              </marker>
+            </defs>
+
+            <!-- Dynamic Paths Layer -->
+            <g id="edgeLayer"></g>
+
+            <!-- State 1: New (x=40..170, center=105, y=175..235, center=205) -->
+            <g class="node-group" onclick="filterByState('New')">
+              <rect class="node-box node-box-new" x="40" y="175" width="130" height="60" rx="10"/>
+              <text class="node-title" x="105" y="202" text-anchor="middle" dominant-baseline="central">New</text>
+              <text class="node-subtitle" x="105" y="222" text-anchor="middle" dominant-baseline="central">ALL LIs = New</text>
+            </g>
+
+            <!-- State 2: Partial (x=210..340, center=275, y=175..235, center=205) -->
+            <g class="node-group" onclick="filterByState('Partial')">
+              <rect class="node-box node-box-partial" x="210" y="175" width="130" height="60" rx="10"/>
+              <text class="node-title" x="275" y="202" text-anchor="middle" dominant-baseline="central">Partial</text>
+              <text class="node-subtitle" x="275" y="222" text-anchor="middle" dominant-baseline="central">Partial Sub/Appr</text>
+            </g>
+
+            <!-- State 3: Submitted (x=380..510, center=445, y=175..235, center=205) -->
+            <g class="node-group" onclick="filterByState('Submitted')">
+              <rect class="node-box node-box-submitted" x="380" y="175" width="130" height="60" rx="10"/>
+              <text class="node-title" x="445" y="202" text-anchor="middle" dominant-baseline="central">Submitted</text>
+              <text class="node-subtitle" x="445" y="222" text-anchor="middle" dominant-baseline="central">Full Submission</text>
+            </g>
+
+            <!-- State 4: Approved (x=550..680, center=615, y=175..235, center=205) -->
+            <g class="node-group" onclick="filterByState('Approved')">
+              <rect class="node-box node-box-approved" x="550" y="175" width="130" height="60" rx="10"/>
+              <text class="node-title" x="615" y="202" text-anchor="middle" dominant-baseline="central">Approved</text>
+              <text class="node-subtitle" x="615" y="222" text-anchor="middle" dominant-baseline="central">ALL LIs = Approved</text>
+            </g>
+          </svg>
+        </div>
+
+        <!-- Legend -->
+        <div class="diagram-legend">
+          <div class="legend-item" onclick="quickFilterActor('employee')">
+            <span class="legend-dot" style="background:#10b981;"></span>
+            <span>Employee (3 flows)</span>
+          </div>
+          <div class="legend-item" onclick="quickFilterActor('manager')">
+            <span class="legend-dot" style="background:#3b82f6;"></span>
+            <span>Manager (5 flows)</span>
+          </div>
+          <div class="legend-item" onclick="quickFilterActor('sysadmin')">
+            <span class="legend-dot" style="background:#f59e0b;"></span>
+            <span>Sys Admin Overrides (6 flows)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Golden Rules / Invariants Reference -->
+      <div class="invariants-card">
+        <div class="invariants-title">
+          <span>Golden Rules & System Invariants (Source of Truth)</span>
+          <span style="font-size:10px;color:var(--text-muted);text-transform:none;">StatusLogic.md</span>
+        </div>
+        <div class="invariants-grid">
+          <div class="inv-item new">
+            <div class="inv-header">● New</div>
+            <div class="inv-body">ALL line items = <b>New</b>. Editable by employee.</div>
+          </div>
+          <div class="inv-item partial">
+            <div class="inv-header">● Partial</div>
+            <div class="inv-body">Mix of <b>Partial Submitted</b> and/or <b>Partial Approved</b>. Accrual-eligible for approved LIs.</div>
+          </div>
+          <div class="inv-item submitted">
+            <div class="inv-header">● Submitted</div>
+            <div class="inv-body">ALL = <b>Submitted</b>, except <b>Partial Approved</b> (retains status). Locked.</div>
+          </div>
+          <div class="inv-item approved">
+            <div class="inv-header">● Approved</div>
+            <div class="inv-body">ALL line items = <b>Approved</b>. Full accruals calculated.</div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Right Pane: Steps & Rules List (Minimizes Scrolling) -->
+    <section class="right-pane">
+      <div class="right-header">
+        <div class="right-header-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          Transition Steps & Rules
+          <span class="count-badge" id="matchCount">14 / 14</span>
+        </div>
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchInput" placeholder="Search rules..." oninput="applyFilters()">
+        </div>
+      </div>
+
+      <!-- Scrollable Steps List -->
+      <div id="detailList" class="steps-container"></div>
+    </section>
+
+  </main>
+
+  <script>
+    // 14 Complete State Transitions from Timesheet_Partial_Submit_Architecture.md & StatusLogic.md
+    const EDGES = [
+      {
+        id: 'e1',
+        from: 'New',
+        to: 'Partial',
+        actor: 'employee',
+        op: 'Partial Submit',
+        pre: 'Timesheet = New',
+        ts: 'Partial',
+        li: 'Selected LIs → Partial Submitted',
+        rule: 'R-1, R-2',
+        note: 'Gated by Allow_Partial_Submit__c. Selected LIs locked for editing.',
+        g: { x1: 120, y1: 175, cx: 195, cy: 125, x2: 260, y2: 175 }
+      },
+      {
+        id: 'e2',
+        from: 'New',
+        to: 'Submitted',
+        actor: 'employee',
+        op: 'Submit (Full)',
+        pre: 'Timesheet = New',
+        ts: 'Submitted',
+        li: 'ALL LIs → Submitted',
+        rule: 'R-3, R-4',
+        note: 'All line items submitted together. Timesheet & LIs locked.',
+        g: { x1: 90, y1: 175, cx: 275, cy: 60, x2: 430, y2: 175 }
+      },
+      {
+        id: 'e3',
+        from: 'Partial',
+        to: 'Submitted',
+        actor: 'employee',
+        op: 'Submit (Full)',
+        pre: 'Timesheet = Partial',
+        ts: 'Submitted',
+        li: 'All LIs → Submitted (except Partial Approved)',
+        rule: 'R-3, R-4',
+        note: 'Partial Approved line items retain their status and remain accrual-eligible.',
+        g: { x1: 290, y1: 175, cx: 360, cy: 125, x2: 430, y2: 175 }
+      },
+      {
+        id: 'e4',
+        from: 'Partial',
+        to: 'Partial',
+        actor: 'manager',
+        op: 'Partial Approve',
+        pre: 'Timesheet = Partial',
+        ts: 'Partial (unchanged)',
+        li: 'Selected LIs → Partial Approved',
+        rule: 'R-5',
+        note: 'Approved line items become eligible for accruals and are locked.',
+        g: { x1: 255, y1: 175, cx: 275, cy: 90, x2: 295, y2: 175 }
+      },
+      {
+        id: 'e5',
+        from: 'Partial',
+        to: 'New',
+        actor: 'manager',
+        op: 'Partial Reject (All LIs New)',
+        pre: 'Timesheet = Partial',
+        ts: 'New (Automatic Rollup)',
+        li: 'Selected LIs → New (Rejection_Notes__c saved)',
+        rule: 'R-6, R-7',
+        note: 'Rollup: If rejection causes 100% of LIs to be New, Timesheet automatically reverts to New.',
+        g: { x1: 260, y1: 235, cx: 190, cy: 275, x2: 135, y2: 235 }
+      },
+      {
+        id: 'e6',
+        from: 'Partial',
+        to: 'Partial',
+        actor: 'manager',
+        op: 'Partial Reject (Some LIs remain)',
+        pre: 'Timesheet = Partial',
+        ts: 'Partial (Remains Partial)',
+        li: 'Selected LIs → New (Rejection_Notes__c saved)',
+        rule: 'R-6, R-8',
+        note: 'Rollup: Timesheet stays Partial because other LIs remain Partial Submitted or Partial Approved.',
+        g: { x1: 260, y1: 235, cx: 275, cy: 290, x2: 290, y2: 235 }
+      },
+      {
+        id: 'e7',
+        from: 'Submitted',
+        to: 'Approved',
+        actor: 'manager',
+        op: 'Approve (Full)',
+        pre: 'Timesheet = Submitted',
+        ts: 'Approved',
+        li: 'ALL LIs → Approved',
+        rule: 'R-9',
+        note: 'Full timesheet and all child line items approved and accrual-eligible.',
+        g: { x1: 460, y1: 175, cx: 530, cy: 125, x2: 600, y2: 175 }
+      },
+      {
+        id: 'e8',
+        from: 'Submitted',
+        to: 'New',
+        actor: 'manager',
+        op: 'Reject (Full)',
+        pre: 'Timesheet = Submitted',
+        ts: 'New',
+        li: 'All LIs → New (except Partial Approved)',
+        rule: 'R-10',
+        note: 'Reverts unapproved items to New for editing. Any Partial Approved items keep their status.',
+        g: { x1: 430, y1: 235, cx: 275, cy: 320, x2: 120, y2: 235 }
+      },
+      {
+        id: 'e9',
+        from: 'Partial',
+        to: 'New',
+        actor: 'sysadmin',
+        op: 'Override: Partial → New',
+        pre: 'Timesheet = Partial',
+        ts: 'New',
+        li: 'ALL LIs → New (No exception)',
+        rule: 'R-11',
+        note: 'Admin override trigger cascade forcefully resets all line items to New.',
+        g: { x1: 275, y1: 235, cx: 195, cy: 345, x2: 105, y2: 235 }
+      },
+      {
+        id: 'e10',
+        from: 'Submitted',
+        to: 'New',
+        actor: 'sysadmin',
+        op: 'Override: Submitted → New',
+        pre: 'Timesheet = Submitted',
+        ts: 'New',
+        li: 'All LIs → New (except Partial Approved)',
+        rule: 'R-12',
+        note: 'Admin override cascade preserves Partial Approved line items.',
+        g: { x1: 445, y1: 235, cx: 275, cy: 375, x2: 90, y2: 235 }
+      },
+      {
+        id: 'e11',
+        from: 'Approved',
+        to: 'New',
+        actor: 'sysadmin',
+        op: 'Override: Approved → New',
+        pre: 'Timesheet = Approved',
+        ts: 'New',
+        li: 'ALL LIs → New (No exception)',
+        rule: 'R-13',
+        note: 'Admin override cascade forcefully resets all line items back to New.',
+        g: { x1: 615, y1: 235, cx: 350, cy: 420, x2: 75, y2: 235 }
+      },
+      {
+        id: 'e12',
+        from: 'Approved',
+        to: 'Submitted',
+        actor: 'sysadmin',
+        op: 'Override: Approved → Submitted',
+        pre: 'Timesheet = Approved',
+        ts: 'Submitted',
+        li: 'ALL LIs → Submitted (No exception)',
+        rule: 'R-14',
+        note: 'Admin override moves timesheet back to Submitted status and sets all LIs to Submitted.',
+        g: { x1: 595, y1: 235, cx: 530, cy: 275, x2: 465, y2: 235 }
+      },
+      {
+        id: 'e13',
+        from: 'Submitted',
+        to: 'Partial',
+        actor: 'sysadmin',
+        op: 'Override: Submitted → Partial',
+        pre: 'Timesheet = Submitted',
+        ts: 'Partial',
+        li: 'All LIs → Partial Submitted (except Partial Approved)',
+        rule: 'R-15',
+        note: 'Admin override moves timesheet to Partial, preserving Partial Approved line items.',
+        g: { x1: 430, y1: 235, cx: 360, cy: 275, x2: 295, y2: 235 }
+      },
+      {
+        id: 'e14',
+        from: 'Approved',
+        to: 'Partial',
+        actor: 'sysadmin',
+        op: 'Override: Approved → Partial',
+        pre: 'Timesheet = Approved',
+        ts: 'Partial',
+        li: 'ALL LIs → Partial Submitted (No exception)',
+        rule: 'R-16',
+        note: 'Admin override forcefully moves all line items to Partial Submitted.',
+        g: { x1: 615, y1: 235, cx: 445, cy: 340, x2: 280, y2: 235 }
+      }
+    ];
+
+    const COLOR = {
+      employee: '#10b981',
+      manager: '#3b82f6',
+      sysadmin: '#f59e0b'
+    };
+
+    const ACTOR_LABEL = {
+      employee: 'Employee',
+      manager: 'Manager',
+      sysadmin: 'Sys Admin'
+    };
+
+    // Render SVG Path elements
+    const layer = document.getElementById('edgeLayer');
+    EDGES.forEach(e => {
+      const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      const d = `M ${e.g.x1} ${e.g.y1} Q ${e.g.cx} ${e.g.cy} ${e.g.x2} ${e.g.y2}`;
+      p.setAttribute('d', d);
+      p.setAttribute('class', 'flow-edge');
+      p.setAttribute('stroke', COLOR[e.actor]);
+      p.setAttribute('stroke-width', '2');
+      p.setAttribute('marker-end', `url(#arrow-${e.actor})`);
+      p.setAttribute('id', e.id);
+      p.setAttribute('data-actor', e.actor);
+      p.setAttribute('data-from', e.from);
+      p.setAttribute('data-to', e.to);
+
+      // Interactive hover
+      p.addEventListener('mouseenter', () => highlightTransition(e.id));
+      p.addEventListener('mouseleave', () => unhighlightTransition(e.id));
+      p.addEventListener('click', () => selectTransition(e.id));
+
+      layer.appendChild(p);
+    });
+
+    let selectedEdgeId = null;
+
+    function highlightTransition(edgeId) {
+      const edge = document.getElementById(edgeId);
+      if (!edge) return;
+
+      // Dim all others
+      EDGES.forEach(other => {
+        const otherEl = document.getElementById(other.id);
+        if (other.id === edgeId) {
+          otherEl.classList.add('active-edge');
+          otherEl.classList.remove('dimmed');
+          otherEl.setAttribute('marker-end', 'url(#arrow-highlight)');
+        } else {
+          otherEl.classList.add('dimmed');
+          otherEl.classList.remove('active-edge');
+          otherEl.setAttribute('marker-end', `url(#arrow-${other.actor})`);
+        }
+      });
+
+      // Highlight card in right pane
+      const card = document.getElementById(`card-${edgeId}`);
+      if (card) {
+        card.classList.add('active-card');
+        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+
+    function unhighlightTransition(edgeId) {
+      if (selectedEdgeId) {
+        highlightTransition(selectedEdgeId);
+        return;
+      }
+      EDGES.forEach(e => {
+        const el = document.getElementById(e.id);
+        el.classList.remove('active-edge', 'dimmed');
+        el.setAttribute('marker-end', `url(#arrow-${e.actor})`);
+      });
+      const card = document.getElementById(`card-${edgeId}`);
+      if (card) card.classList.remove('active-card');
+    }
+
+    function selectTransition(edgeId) {
+      if (selectedEdgeId === edgeId) {
+        selectedEdgeId = null;
+        unhighlightTransition(edgeId);
+      } else {
+        selectedEdgeId = edgeId;
+        highlightTransition(edgeId);
+      }
+    }
+
+    function applyFilters() {
+      const showEmployee = document.getElementById('chk-employee').checked;
+      const showManager = document.getElementById('chk-manager').checked;
+      const showSysadmin = document.getElementById('chk-sysadmin').checked;
+      const fromVal = document.getElementById('fromSelect').value;
+      const toVal = document.getElementById('toSelect').value;
+      const searchVal = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+      const activeActors = { employee: showEmployee, manager: showManager, sysadmin: showSysadmin };
+
+      const matched = [];
+      EDGES.forEach(e => {
+        const actorOk = activeActors[e.actor];
+        const fromOk = fromVal === 'any' || e.from === fromVal;
+        const toOk = toVal === 'any' || e.to === toVal;
+        
+        let searchOk = true;
+        if (searchVal) {
+          const haystack = `${e.actor} ${e.op} ${e.from} ${e.to} ${e.pre} ${e.ts} ${e.li} ${e.rule} ${e.note}`.toLowerCase();
+          searchOk = haystack.includes(searchVal);
+        }
+
+        const isMatch = actorOk && fromOk && toOk && searchOk;
+        const path = document.getElementById(e.id);
+        
+        if (isMatch) {
+          path.style.display = '';
+          path.classList.remove('dimmed');
+          matched.push(e);
+        } else {
+          path.style.display = 'none';
+        }
+      });
+
+      document.getElementById('matchCount').textContent = `${matched.length} / ${EDGES.length}`;
+
+      const list = document.getElementById('detailList');
+      list.innerHTML = '';
+
+      if (matched.length === 0) {
+        list.innerHTML = `
+          <div style="text-align:center;padding:30px 15px;color:var(--text-muted);font-size:12.5px;">
+            <div style="font-size:24px;margin-bottom:8px;">🔍</div>
+            No status transitions match the current filter selection.<br>
+            <button class="btn-reset" style="margin-top:10px;" onclick="resetFilters()">Reset All Filters</button>
+          </div>`;
+        return;
+      }
+
+      matched.forEach(e => {
+        const card = document.createElement('div');
+        card.className = 'step-card';
+        card.id = `card-${e.id}`;
+        
+        // Format line item result with special highlights for exceptions
+        let formattedLi = e.li;
+        if (formattedLi.includes('except Partial Approved')) {
+          formattedLi = formattedLi.replace('except Partial Approved', '<span class="highlight-tag">except Partial Approved</span>');
+        }
+
+        card.innerHTML = `
+          <div class="card-top">
+            <div class="card-actor-op">
+              <span class="actor-indicator ${e.actor}"></span>
+              <span>${ACTOR_LABEL[e.actor]} — ${e.op}</span>
+            </div>
+            <span class="transition-pill">${e.from} <span class="arrow-symbol">➔</span> ${e.to}</span>
+          </div>
+          <div class="card-details">
+            <div class="detail-row">
+              <span class="detail-label">Pre-condition:</span>
+              <span class="detail-val">${e.pre}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Timesheet:</span>
+              <span class="detail-val"><span class="status-val">${e.ts}</span></span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Line Items:</span>
+              <span class="detail-val">${formattedLi}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Rule / Logic:</span>
+              <span class="detail-val note-tag">${e.note}</span>
+            </div>
+          </div>
+          <div class="card-rule-tag">
+            <span>StatusLogic Rule</span>
+            <span class="rule-id">${e.rule}</span>
+          </div>`;
+
+        card.addEventListener('mouseenter', () => highlightTransition(e.id));
+        card.addEventListener('mouseleave', () => unhighlightTransition(e.id));
+        card.addEventListener('click', () => selectTransition(e.id));
+
+        list.appendChild(card);
+      });
+    }
+
+    function resetFilters() {
+      document.getElementById('chk-employee').checked = true;
+      document.getElementById('chk-manager').checked = true;
+      document.getElementById('chk-sysadmin').checked = true;
+      document.getElementById('fromSelect').value = 'any';
+      document.getElementById('toSelect').value = 'any';
+      document.getElementById('searchInput').value = '';
+      selectedEdgeId = null;
+      applyFilters();
+    }
+
+    function filterByState(stateName) {
+      const fromSel = document.getElementById('fromSelect');
+      if (fromSel.value === stateName) {
+        fromSel.value = 'any';
+      } else {
+        fromSel.value = stateName;
+      }
+      applyFilters();
+    }
+
+    function quickFilterActor(actorName) {
+      document.getElementById('chk-employee').checked = (actorName === 'employee');
+      document.getElementById('chk-manager').checked = (actorName === 'manager');
+      document.getElementById('chk-sysadmin').checked = (actorName === 'sysadmin');
+      applyFilters();
+    }
+
+    // Initial render
+    applyFilters();
+  </script>
+</body>
+</html>

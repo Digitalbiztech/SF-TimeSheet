@@ -553,7 +553,7 @@
         <connector>
             <targetReference>Iterate_through_Employees</targetReference>
         </connector>
-        <filterLogic>(1 AND 2 AND 3)</filterLogic>
+        <filterLogic>and</filterLogic>
         <filters>
             <field>Absence_Category__c</field>
             <operator>NotEqualTo</operator>
@@ -573,6 +573,13 @@
             <operator>LessThan</operator>
             <value>
                 <elementReference>Next_Year</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Type__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Absence</stringValue>
             </value>
         </filters>
         <getFirstRecordOnly>false</getFirstRecordOnly>

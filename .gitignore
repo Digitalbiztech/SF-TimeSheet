@@ -46,7 +46,6 @@ $RECYCLE.BIN/
 
 # Random files
 new.txt
-*.html
 import.ps1
 vsc_history.txt
 data/

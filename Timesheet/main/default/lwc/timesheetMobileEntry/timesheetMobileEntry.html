@@ -1,0 +1,145 @@
+<template>
+    <div class="mobile-container">
+        <!-- Header / Summary -->
+        <div class="mobile-header">
+            <div class="header-content">
+                <h1 class="timesheet-title">{timesheetName}</h1>
+                <div class="total-hours">
+                    <span class="hours-label">Total Hours</span>
+                    <span class="hours-value">{totalHours}h</span>
+                </div>
+            </div>
+        </div>
+
+        <template if:false={isFormOpen}>
+            <!-- Date Navigator -->
+            <div class="date-navigator">
+                <button class="nav-btn" onclick={previousDay}>
+                    <lightning-icon icon-name="utility:chevronleft" size="small"></lightning-icon>
+                </button>
+                <div class="current-date">
+                    <span class="day-name">{selectedDateFormatted.day}</span>
+                    <span class="date-val">{selectedDateFormatted.date}</span>
+                </div>
+                <button class="nav-btn" onclick={nextDay}>
+                    <lightning-icon icon-name="utility:chevronright" size="small"></lightning-icon>
+                </button>
+            </div>
+
+            <!-- List of Line Items for selected date -->
+            <div class="line-items-list">
+                <template if:true={hasItemsForSelectedDate}>
+                    <template for:each={filteredLineItems} for:item="item">
+                        <div key={item.Id} class="item-card">
+                            <div class="card-header">
+                                <span class="project-title">{item.projectName}</span>
+                                <span class="duration-badge">{item.Duration__c}h</span>
+                            </div>
+                            <div class="card-body">
+                                <p class="activity-text">{item.activityName}</p>
+                                <p class="desc-text" if:true={item.Description__c}>{item.Description__c}</p>
+                            </div>
+                            <div class="card-footer">
+                                <button class="action-btn edit-btn" data-id={item.Id} onclick={handleEdit}>Edit</button>
+                                <button class="action-btn del-btn" data-id={item.Id} onclick={handleDelete}>Delete</button>
+                            </div>
+                        </div>
+                    </template>
+                </template>
+                <template if:false={hasItemsForSelectedDate}>
+                    <div class="empty-state">
+                        <lightning-icon icon-name="utility:event" size="large" class="empty-icon"></lightning-icon>
+                        <p>No time logged for this day.</p>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Floating Action Button -->
+            <button class="fab-btn" onclick={openNewForm}>
+                <lightning-icon icon-name="utility:add" variant="inverse" size="medium"></lightning-icon>
+            </button>
+        </template>
+
+        <!-- Entry Form View -->
+        <template if:true={isFormOpen}>
+            <div class="form-container glass-card">
+                <div class="form-header">
+                    <h2>{formTitle}</h2>
+                    <button class="close-btn" onclick={closeForm}>
+                        <lightning-icon icon-name="utility:close" size="small"></lightning-icon>
+                    </button>
+                </div>
+                <div class="form-body">
+                    <lightning-combobox
+                        name="Type__c"
+                        label="Type"
+                        value={currentRecord.Type__c}
+                        options={typeOptions}
+                        onchange={handleInputChange}
+                        required>
+                    </lightning-combobox>
+
+                    <template if:true={isAttendance}>
+                        <lightning-combobox
+                            name="Project__c"
+                            label="Project"
+                            value={currentRecord.Project__c}
+                            options={projectOptions}
+                            onchange={handleInputChange}
+                            required>
+                        </lightning-combobox>
+                        <lightning-combobox
+                            name="Activity__c"
+                            label="Activity"
+                            value={currentRecord.Activity__c}
+                            options={activityOptions}
+                            onchange={handleInputChange}
+                            required>
+                        </lightning-combobox>
+                    </template>
+                    <template if:false={isAttendance}>
+                        <lightning-combobox
+                            name="Absence_Category__c"
+                            label="Absence Category"
+                            value={currentRecord.Absence_Category__c}
+                            options={absenceOptions}
+                            onchange={handleInputChange}
+                            required>
+                        </lightning-combobox>
+                    </template>
+
+                    <lightning-input
+                        type="number"
+                        name="Duration__c"
+                        label="Duration (Hours)"
+                        value={currentRecord.Duration__c}
+                        onchange={handleInputChange}
+                        step="0.25"
+                        required>
+                    </lightning-input>
+
+                    <lightning-textarea
+                        name="Description__c"
+                        label="Description"
+                        value={currentRecord.Description__c}
+                        onchange={handleInputChange}>
+                    </lightning-textarea>
+                </div>
+                <div class="form-actions">
+                    <button class="btn-cancel" onclick={closeForm}>Cancel</button>
+                    <button class="btn-save" onclick={saveEntry} disabled={isSaving}>
+                        <template if:true={isSaving}>Saving...</template>
+                        <template if:false={isSaving}>Save</template>
+                    </button>
+                </div>
+            </div>
+        </template>
+        
+        <!-- Loading overlay -->
+        <template if:true={isLoading}>
+            <div class="spinner-overlay">
+                <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+            </div>
+        </template>
+    </div>
+</template>
